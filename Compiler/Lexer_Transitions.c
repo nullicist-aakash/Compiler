@@ -1,13 +1,15 @@
 #include "Lexer_Transitions.h"
 
-int isKeyword(char* stream, int* size)
+TokenType(*transitions[])(char*, int*) = { isNumber, isKeyword };
+
+TokenType isKeyword(char* stream, int* size)
 {
 	*size = 4;
-	return 1;
+	return KEYWORD;
 }
 
-int isNumber(char* stream, int* size)
+TokenType isNumber(char* stream, int* size)
 {
 	*size = 5;
-	return 1;
+	return IDENTIFIER;
 }

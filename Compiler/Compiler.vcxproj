@@ -44,6 +44,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableASAN>true</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -145,7 +146,14 @@
     <ClCompile Include="Lexer_Transitions.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ErrorHandling.h" />
     <ClInclude Include="Lexer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Code.txt" />
+    <Text Include="Keywords.txt" />
+    <Text Include="Operators.txt" />
+    <Text Include="Symbols.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

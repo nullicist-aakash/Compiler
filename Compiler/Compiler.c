@@ -3,6 +3,5 @@
 
 int main()
 {
-	loadCode("Code.txt");
-
+	loadDataFiles("Code.txt");
 }

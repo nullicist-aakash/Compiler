@@ -2,9 +2,16 @@
 #define LEXER_TRANSITIONS_H
 #include "Lexer.h"
 
-int isKeyword(char*, int*);
+#define NUM_TRANSITIONS 1
+#define KEYWORD_COUNT	33
+#define SYMBOL_COUNT	21
+#define OPERATOR_COUNT	36
 
-int isNumber(char*, int*);
+char* keywords[KEYWORD_COUNT], * symbols[SYMBOL_COUNT], * operators[OPERATOR_COUNT];
 
-int (*transisitons[2])(char*, int*) = { isNumber, isKeyword };
+TokenType isKeyword(char*, int*);
+
+TokenType isNumber(char*, int*);
+
+TokenType(*transitions[])(char*, int*);
 #endif

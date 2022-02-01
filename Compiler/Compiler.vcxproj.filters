@@ -32,5 +32,22 @@
     <ClInclude Include="Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ErrorHandling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Code.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Keywords.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Operators.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Symbols.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

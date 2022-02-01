@@ -1,37 +1,38 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#define KEYWORD_COUNT	33
-#define SYMBOL_COUNT	21
-#define OPERATOR_COUNT	36
 #define MAX_CODE_SIZE 65536
 
-typedef enum
+enum TokenType
 {
-	NO_ERROR = 0,
-	FILE_READ_ERROR = 1
-} ErrorCode;
+	WHITESPACE = 0,
+	KEYWORD = 1,
+	OPERATOR = 2,
+	SYMBOL = 3,
+	IDENTIFIER = 4,
+	COMMENT = 5
+};
 
-typedef enum
+struct Token
 {
-	KEYWORD = 0,
-	OPERATOR = 1,
-	SYMBOL = 2,
-	IDENTIFIER = 3,
-	COMMENT = 4,
-	UNKNOWN = 5
-} TokenType;
-
-typedef struct
-{
-	TokenType t;
+	enum TokenType type;
 	int line_number;
 	int start_index;
 	int length;
 
-} Token;
+};
 
-void loadDataFiles();
-void loadCode(char* loc);
+struct TokenNode
+{
+	struct Token* token;
+	struct TokenNode* next;
+};
+
+typedef enum TokenType TokenType;
+typedef struct Token Token;
+typedef struct TokenNode TokenNode;
+
+void loadDataFiles(char*);
+TokenNode* Process();
 
 #endif
