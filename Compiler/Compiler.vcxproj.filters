@@ -21,24 +21,16 @@
     <ClCompile Include="Lexer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Lexer_Transitions.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Lexer_Transitions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Xsd Include="Keywords.txt">
-      <Filter>Resource Files</Filter>
-    </Xsd>
-    <Xsd Include="Symbols.txt">
-      <Filter>Resource Files</Filter>
-    </Xsd>
-    <Xsd Include="Operators.txt">
-      <Filter>Resource Files</Filter>
-    </Xsd>
-    <Xsd Include="Code.txt">
-      <Filter>Resource Files</Filter>
-    </Xsd>
   </ItemGroup>
 </Project>

@@ -18,8 +18,9 @@ void displayError(char* message)
 
 void loadDataFiles()
 {
-	FILE* fptr = fopen("./1Keywords.txt", "r");
-    if(fptr == NULL)
+    FILE* fptr = fopen("Keywords.txt", "r");
+
+    if (fptr == NULL)
     {
         displayError("Could not open file - Keyword.txt");
         errorCode = FILE_READ_ERROR;
@@ -29,7 +30,7 @@ void loadDataFiles()
     char BUFF[9];
 
     int lines_read = 0;
-    while(fscanf(fptr, "%s", BUFF) != EOF)
+    while (fscanf(fptr, "%s", BUFF) != EOF)
     {
         lines_read++;
         if (lines_read == 1)
@@ -37,7 +38,8 @@ void loadDataFiles()
 
         printf("%s\n", BUFF);
     }
-    
+
+    fclose(fptr);
 }
 
 void loadCode(char* loc)
@@ -59,6 +61,4 @@ void loadCode(char* loc)
         code_ptr++;
     }
     *code_ptr = '\0';
-
-    printf("%s", code);
 }

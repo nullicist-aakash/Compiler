@@ -1,7 +1,6 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-
 #define KEYWORD_COUNT	33
 #define SYMBOL_COUNT	21
 #define OPERATOR_COUNT	36
