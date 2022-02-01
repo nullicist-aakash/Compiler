@@ -15,8 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Compiler.cpp">
+    <ClCompile Include="Compiler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Lexer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Lexer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xsd Include="Keywords.txt">
+      <Filter>Resource Files</Filter>
+    </Xsd>
+    <Xsd Include="Symbols.txt">
+      <Filter>Resource Files</Filter>
+    </Xsd>
+    <Xsd Include="Operators.txt">
+      <Filter>Resource Files</Filter>
+    </Xsd>
   </ItemGroup>
 </Project>
