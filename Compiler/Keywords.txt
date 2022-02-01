@@ -1,4 +1,5 @@
-﻿auto
+﻿
+auto
 break
 case
 char

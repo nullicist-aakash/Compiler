@@ -37,5 +37,8 @@
     <Xsd Include="Operators.txt">
       <Filter>Resource Files</Filter>
     </Xsd>
+    <Xsd Include="Code.txt">
+      <Filter>Resource Files</Filter>
+    </Xsd>
   </ItemGroup>
 </Project>
