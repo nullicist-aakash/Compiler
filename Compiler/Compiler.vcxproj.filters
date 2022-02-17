@@ -18,35 +18,26 @@
     <ClCompile Include="Compiler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lexer.c">
+    <ClCompile Include="Lexer\Lexer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lexer_Transitions.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Lexer_Transitions.c">
+    <ClCompile Include="helpers\ErrorHandling.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Lexer.h">
+    <ClInclude Include="Lexer\Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ErrorHandling.h">
+    <ClInclude Include="helpers\ErrorHandling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="helpers\Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Code.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="Keywords.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="Operators.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="Symbols.txt">
+    <Text Include="data\Code.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

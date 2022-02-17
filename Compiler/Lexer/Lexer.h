@@ -13,13 +13,14 @@ enum TokenType
 	COMMENT = 5
 };
 
+// Todo: 
 struct Token
 {
 	enum TokenType type;
+	char* lexeme;
 	int line_number;
 	int start_index;
 	int length;
-
 };
 
 struct TokenNode
@@ -32,7 +33,7 @@ typedef enum TokenType TokenType;
 typedef struct Token Token;
 typedef struct TokenNode TokenNode;
 
-void loadDataFiles(char*);
-TokenNode* Process();
+void loadCode();
+TokenNode* getTokens();
 
 #endif

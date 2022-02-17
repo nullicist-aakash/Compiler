@@ -3,12 +3,12 @@
 #include <string.h>
 #include <assert.h>
 #include "Lexer.h"
-#include "Lexer_Transitions.h"
-#include "ErrorHandling.h"
+#include "../helpers/ErrorHandling.h"
+#include "../helpers/Globals.h"
 
-char code[MAX_CODE_SIZE];
+char sourceCode[MAX_CODE_SIZE];
+TokenNode* tokenList;
 
-//TODO: Change the loading part
 void loadData(char* loc, char** arr)
 {
     FILE* fptr = fopen(loc, "r");
@@ -44,7 +44,6 @@ void loadData(char* loc, char** arr)
     fclose(fptr);
 }
 
-//TODO: Change the loading part
 void loadCode(char* loc)
 {
     FILE* fptr = fopen(loc, "r");
@@ -56,7 +55,7 @@ void loadCode(char* loc)
         return;
     }
 
-    char ch, * code_ptr = code;
+    char ch, * code_ptr = sourceCode;
     int count = 0;
 
     while ((ch = fgetc(fptr)) != EOF)
@@ -71,16 +70,19 @@ void loadCode(char* loc)
     *code_ptr = '\0';
 }
 
-void loadDataFiles(char* codeLoc)
+TokenNode* DFA(int start_index)
 {
-    loadData("Keywords.txt", keywords);
-    loadData("Symbols.txt", symbols);
-    loadData("Operators.txt", operators);
 
-    loadCode(codeLoc);
-    printf("%s", code);
 }
 
+TokenNode* symbolTable(int start_index)
+{
+
+}
+
+
+
+/*
 TokenNode* add(TokenNode* node, Token* token)
 {
     if (node == NULL)
@@ -125,25 +127,6 @@ Token* selectAppropriateToken(Token* token1, Token* token2)
     return token2;
 }
 
-Token* getNextToken(int start_index)
-{
-    Token* cur_token = NULL;
-
-    for (int i = 0; i < NUM_TRANSITIONS; i++)
-    {
-        Token* t = calloc(1, sizeof(Token));
-        t->type = transitions[i](code + start_index, &(t->length));
-        t->start_index = start_index;
-
-        if (cur_token == NULL)
-            cur_token = t;
-
-        cur_token = selectAppropriateToken(cur_token, t);
-    }
-
-    return cur_token;
-}
-
 TokenNode* Process()
 {
     TokenNode* head = NULL;
@@ -153,7 +136,7 @@ TokenNode* Process()
     int line_number = 1;
     int start_index = 0;
 
-    while (code[start_index] != '\0')
+    while (sourceCode[start_index] != '\0')
     {
         Token* cur_token = getNextToken(start_index);
 
@@ -173,7 +156,7 @@ TokenNode* Process()
         {
             free(cur_token);
 
-            if (code[start_index] == '\n')
+            if (sourceCode[start_index] == '\n')
                 line_number++;
 
             continue;
@@ -185,4 +168,4 @@ TokenNode* Process()
     }
 
     return head;
-}
+}*/

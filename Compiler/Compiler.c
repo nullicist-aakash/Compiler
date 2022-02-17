@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "Lexer.h"
+#include "./Lexer/Lexer.h"
 
 int main()
 {
-	loadDataFiles("Code.txt");
+
 }
