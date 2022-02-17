@@ -11,7 +11,6 @@ typedef enum TokenType
 	TK_ID,
 	TK_NUM,
 	TK_RNUM,
-	TK_RNUM,
 	TK_FUNID,
 	TK_RUID,
 	TK_WITH,
@@ -88,7 +87,9 @@ typedef struct TokenList
 	TokenNode* tail;
 } TokenList;
 
+void loadLexer();
 void loadCode(char*);
 TokenNode* getTokens();
+void cleanExtraMemory();
 
 #endif

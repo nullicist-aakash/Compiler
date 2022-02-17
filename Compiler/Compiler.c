@@ -4,5 +4,9 @@
 
 int main()
 {
-	loadCode("./data/Code.txt");
+	for (int i = 0; i < 51; ++i)
+	{
+		printf("case %d: break;\n", i);
+	}
+	// loadCode("./data/Code.txt");
 }

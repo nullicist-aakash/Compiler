@@ -40,5 +40,6 @@
     <Text Include="data\Code.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="data\DFA_Structure.txt" />
   </ItemGroup>
 </Project>
