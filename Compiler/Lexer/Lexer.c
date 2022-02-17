@@ -6,8 +6,14 @@
 #include "../helpers/ErrorHandling.h"
 #include "../helpers/Globals.h"
 
-char sourceCode[MAX_CODE_SIZE];
-TokenNode* tokenList;
+char *sourceCode;
+TokenList* tokenList;
+
+void initialize()
+{
+    sourceCode = calloc(1, MAX_CODE_SIZE);
+    tokenList = calloc(1, sizeof(TokenList));
+}
 
 void loadData(char* loc, char** arr)
 {
@@ -46,6 +52,7 @@ void loadData(char* loc, char** arr)
 
 void loadCode(char* loc)
 {
+    initialize();
     FILE* fptr = fopen(loc, "r");
 
     if (fptr == NULL)
@@ -70,102 +77,85 @@ void loadCode(char* loc)
     *code_ptr = '\0';
 }
 
-TokenNode* DFA(int start_index)
+Token* DFA(int start_index)
 {
 
+}   
+
+Token* symbolTable(int start_index)
+{
+    
 }
 
-TokenNode* symbolTable(int start_index)
+void insertToken(Token* token)
 {
+    assert(token != NULL);
 
+    TokenNode* node = calloc(1, sizeof(TokenNode));
+    node->token = token;
+
+    if (tokenList->head == NULL)
+    {
+        tokenList->head = tokenList->tail = node;
+        return;
+    }
+
+    if (token->type == TK_ERROR && tokenList->tail->token->type == TK_ERROR)
+    {
+        tokenList->tail->token->length += token->length;
+        free(token);
+
+        return;
+    }
+
+    tokenList->tail->next = node;
+    tokenList->tail = node;
 }
 
-
-
-/*
-TokenNode* add(TokenNode* node, Token* token)
+TokenNode* getTokens()
 {
-    if (node == NULL)
-    {
-        node = calloc(1, sizeof(TokenNode*));
-        node->token = token;
-        return node;
-    }
-
-    node->next = calloc(1, sizeof(TokenNode*));
-    node->next->token = token;
-    return node->next;
-}
-
-Token* selectAppropriateToken(Token* token1, Token* token2)
-{
-    if (token1 == token2)
-        return token1;
-
-    assert(token1 != NULL && token2 != NULL);
-
-    if (token1->length > token2->length)
-    {
-        free(token2);
-        return token1;
-    }
-    else if (token1->length < token2->length)
-    {
-        free(token1);
-        return token2;
-    }
-
-    assert(token1->type != token2->type);
-
-    if (token1->type < token2->type)
-    {
-        free(token2);
-        return token1;
-    }
-
-    free(token1);
-    return token2;
-}
-
-TokenNode* Process()
-{
-    TokenNode* head = NULL;
-
-    TokenNode* tail = NULL;
-
     int line_number = 1;
     int start_index = 0;
 
-    while (sourceCode[start_index] != '\0')
+    while(sourceCode[start_index] != '\0')
     {
-        Token* cur_token = getNextToken(start_index);
-
-        if (cur_token == NULL)
+        if (sourceCode[start_index] == '\n')
         {
-            char msg[100];
-            sprintf(msg, "There is a lexical error on line %d.", line_number);
-            displayError(msg);
-            errorCode = LEXICAL_ERROR;
-            return NULL;
-        }
-
-        cur_token->line_number = line_number;
-        start_index += cur_token->length;
-
-        if (cur_token->type == WHITESPACE)
-        {
-            free(cur_token);
-
-            if (sourceCode[start_index] == '\n')
-                line_number++;
-
+            line_number++;
+            start_index++;
             continue;
         }
 
-        tail = add(tail, cur_token);
-        if (head == NULL)
-            head = tail;
-    }
+        Token* token = symbolTable(start_index);
+        if (token == NULL)
+            token = DFA(start_index);
+        
+        if (token == NULL)
+        {
+            token = calloc(1,sizeof(Token));
+            token->type = TK_ERROR;
+            token->line_number = line_number;
+            token->start_index = start_index;
+            token->length = 1;
+            insertToken(token);
+        }
 
-    return head;
-}*/
+        token->start_index = start_index;
+        token->line_number = line_number;
+
+        start_index += token->length;
+
+        if(token->type == TK_COMMENT || token->type ==  TK_WHITESPACE)
+        {
+            free(token);
+            continue;
+        }
+
+        token->lexeme = calloc(token->length + 1, sizeof(char));
+
+        for (int i = 0; i < token->length; i++)
+            token->lexeme[i] = sourceCode[start_index + i];
+
+        insertToken(token);
+    }
+}

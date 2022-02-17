@@ -2,7 +2,6 @@
 #include <time.h>
 #include <stdio.h>
 
-
 ErrorCode errorCode = NO_ERROR;
 
 void displayError(char* message)

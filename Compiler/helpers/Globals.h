@@ -3,8 +3,7 @@
 #include "../Lexer/Lexer.h"
 #include "ErrorHandling.h"
 
-extern char* sourceCode;
 extern ErrorCode errorCode;
-extern TokenNode* tokenList;
+extern TokenList* tokenList;
 
 #endif
