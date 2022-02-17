@@ -37,9 +37,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="data\Code.txt">
+    <Text Include="data\DFA_Structure.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="data\DFA_Structure.txt" />
+    <Text Include="data\testCode.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

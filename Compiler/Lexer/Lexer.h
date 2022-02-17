@@ -89,7 +89,7 @@ typedef struct TokenList
 
 void loadLexer();
 void loadCode(char*);
-TokenNode* getTokens();
+TokenList* getTokens();
 void cleanExtraMemory();
 
 #endif

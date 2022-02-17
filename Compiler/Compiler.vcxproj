@@ -150,8 +150,8 @@
     <ClInclude Include="Lexer\Lexer.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="data\Code.txt" />
     <Text Include="data\DFA_Structure.txt" />
+    <Text Include="data\testCode.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

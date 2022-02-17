@@ -31,21 +31,22 @@ void loadData(char* loc, char** arr)
     char BUFF[128];
 
     int lines_read = 0;
-    while (fscanf(fptr, "%s", BUFF) != EOF)
+    while (fscanf(fptr, "%[^\n] ", BUFF) != EOF)
     {
         lines_read++;
-        if (lines_read == 1)
-            continue;
 
-        arr[lines_read - 2] = calloc(strlen(BUFF) + 1, sizeof(char));
-        strcpy(arr[lines_read - 2], BUFF);
+        if (strlen(BUFF) == 0)
+            break;
+
+        if (lines_read == 54)
+        {
+            int x = 2;
+            x++;
+        }
+
+        arr[lines_read - 1] = calloc(strlen(BUFF), sizeof(char));
+        strcpy(arr[lines_read - 1], BUFF);
     }
-
-    printf("File: %s\n", loc);
-    for (int i = 1; i < lines_read; ++i)
-        printf("\t%s\n", arr[i - 1]);
-
-    printf("\n");
 
     fclose(fptr);
 }
@@ -59,8 +60,8 @@ void loadLexer()
     {
         transitions[i] = calloc(128, sizeof(int*));
 
-        for (int i = 0; i < 128; ++i)
-            transitions[i] = -1;
+        for (int j = 0; j < 128; ++j)
+            transitions[i][j] = -1;
     }
 
     char** input = calloc(NUM_LINES_TEXT, sizeof(char*));
@@ -70,7 +71,7 @@ void loadLexer()
     {
         int from, to;
         char BUFF[64];
-        sscanf(input[line], "%d %d %s", from, to, BUFF);
+        sscanf(input[line], "%d %d %s", &from, &to, BUFF);
         for (int i = 0; i < 64; ++i)
         {
             if (BUFF[i] == '\0')
@@ -92,10 +93,10 @@ void loadLexer()
         transitions[50]['\t'] =
         transitions[50]['\r'] =
         transitions[50]['\n'] = 50;
-    
+    /*
     for (int i = 0; i < NUM_LINES_TEXT; i++)
         if (input[i] != NULL)
-            free(input[i]);
+            free(input[i]);*/
     free(input);
 
     finalStates = calloc(NUM_STATES, sizeof(TokenType));
@@ -106,9 +107,13 @@ void loadLexer()
     finalStates[1] = TK_NUM;
     finalStates[4] = TK_RNUM;
     finalStates[8] = TK_RNUM;
+    finalStates[9] = TK_FIELDID;
     finalStates[10] = TK_ID;
     finalStates[11] = TK_ID;
+    finalStates[12] = TK_FIELDID;
     finalStates[14] = TK_RUID;
+    finalStates[16] = TK_FUNID;
+    finalStates[17] = TK_FUNID;
     finalStates[18] = TK_LT;
     finalStates[21] = TK_ASSIGNOP;
     finalStates[22] = TK_LE;
@@ -146,17 +151,10 @@ void loadCode(char* loc)
     }
 
     char ch, * code_ptr = sourceCode;
-    int count = 0;
-
+    
     while ((ch = fgetc(fptr)) != EOF)
-    {
-        count++;
-        if (count < 4)
-            continue;
+        *code_ptr++ = ch;
 
-        *code_ptr = ch;
-        code_ptr++;
-    }
     *code_ptr = '\0';
 }
 
@@ -186,8 +184,11 @@ Token* DFA(int start_index)
 
         if (cur_state == -1)    // return
         {
-            if (len == 0)
-                return NULL;
+            if (input_final_pos == start_index - len - 1)
+            {
+                ttype = TK_ERROR;
+                len = 1;
+            }
 
             Token* token = calloc(1, sizeof(Token));
             token->type = ttype;
@@ -197,7 +198,6 @@ Token* DFA(int start_index)
 
         start_index++;
         len++;
-
     }
 
     // this should not be reachable as our DFA is capable of handling every case
@@ -224,9 +224,8 @@ void insertToken(Token* token)
 
     if (token->type == TK_ERROR && tokenList->tail->token->type == TK_ERROR)
     {
-        tokenList->tail->token->length += token->length;
+        tokenList->tail->token->length = token->start_index - tokenList->tail->token->start_index + token->length;
         free(token);
-
         return;
     }
 
@@ -234,7 +233,7 @@ void insertToken(Token* token)
     tokenList->tail = node;
 }
 
-TokenNode* getTokens()
+TokenList* getTokens()
 {
     int line_number = 1;
     int start_index = 0;
@@ -252,16 +251,7 @@ TokenNode* getTokens()
         if (token == NULL)
             token = DFA(start_index);
         
-        if (token == NULL)
-        {
-            token = calloc(1, sizeof(Token));
- 
-            token->type = TK_ERROR;
-            token->line_number = line_number;
-            token->start_index = start_index;
-            token->length = 1;
-            insertToken(token);
-        }
+        assert(token != NULL);
 
         token->start_index = start_index;
         token->line_number = line_number;
@@ -277,10 +267,32 @@ TokenNode* getTokens()
         token->lexeme = calloc(token->length + 1, sizeof(char));
 
         for (int i = 0; i < token->length; i++)
-            token->lexeme[i] = sourceCode[start_index + i];
+            token->lexeme[i] = sourceCode[start_index - token->length + i];
 
         insertToken(token);
     }
+
+    // Fill the errors
+    TokenNode* tk = tokenList->head;
+
+    while (tk != NULL)
+    {
+        if (tk->token->type != TK_ERROR)
+        {
+            tk = tk->next;
+            continue;
+        }
+
+        Token* token = tk->token;
+        token->lexeme = calloc(token->length + 1, sizeof(char));
+
+        for (int i = 0; i < token->length; i++)
+            token->lexeme[i] = sourceCode[token->start_index + i];
+
+        tk = tk->next;
+    }
+
+    return tokenList;
 }
 
 void cleanExtraMemory()
@@ -293,16 +305,6 @@ void cleanExtraMemory()
     free(sourceCode);
     sourceCode = NULL;
 
-    while (tokenList->head != NULL)
-    {
-        // clean token
-        if (tokenList->head->token->lexeme != NULL)
-            free(tokenList->head->token->lexeme != NULL);
-
-        free(tokenList->head->token);
-        tokenList->head = tokenList->head->next;
-    }
-
-    free(tokenList);
     free(finalStates);
+    finalStates = NULL;
 }
