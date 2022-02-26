@@ -140,13 +140,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Compiler.c" />
+    <ClCompile Include="Driver.c" />
     <ClCompile Include="helpers\ErrorHandling.c" />
+    <ClCompile Include="helpers\Trie.c" />
     <ClCompile Include="Lexer\Lexer.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helpers\ErrorHandling.h" />
     <ClInclude Include="helpers\Globals.h" />
+    <ClInclude Include="helpers\Trie.h" />
     <ClInclude Include="Lexer\Lexer.h" />
   </ItemGroup>
   <ItemGroup>

@@ -15,13 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Compiler.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Lexer\Lexer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="helpers\ErrorHandling.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helpers\Trie.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Driver.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="helpers\Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="helpers\Trie.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
