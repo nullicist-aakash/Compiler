@@ -66,7 +66,7 @@ typedef enum TokenType
 	TK_ERROR
 } TokenType;
 
-typedef struct Token
+typedef struct TokenInfo
 {
 	enum TokenType type;
 	char* lexeme;
@@ -77,7 +77,7 @@ typedef struct Token
 
 typedef struct TokenNode
 {
-	struct Token* token;
+	struct TokenInfo* token;
 	struct TokenNode* next;
 } TokenNode;
 

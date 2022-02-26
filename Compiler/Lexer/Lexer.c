@@ -44,17 +44,15 @@ void loadData(char* loc, char** arr)
             x++;
         }
 
-        arr[lines_read - 1] = calloc(strlen(BUFF), sizeof(char));
+        arr[lines_read - 1] = malloc(strlen(BUFF) * sizeof(char));
         strcpy(arr[lines_read - 1], BUFF);
     }
 
     fclose(fptr);
 }
 
-void loadLexer()
+void loadTransitions(char* path)
 {
-    sourceCode = calloc(1, MAX_CODE_SIZE);
-    tokenList = calloc(1, sizeof(TokenList));
     transitions = calloc(NUM_STATES, sizeof(int*));
     for (int i = 0; i < NUM_STATES; ++i)
     {
@@ -65,12 +63,13 @@ void loadLexer()
     }
 
     char** input = calloc(NUM_LINES_TEXT, sizeof(char*));
-    loadData("./data/DFA_Structure.txt", input);
+    loadData(path, input);
 
     for (int line = 0; line < NUM_LINES_TEXT; ++line)
     {
         int from, to;
         char BUFF[64];
+
         sscanf(input[line], "%d %d %s", &from, &to, BUFF);
         for (int i = 0; i < 64; ++i)
         {
@@ -78,12 +77,18 @@ void loadLexer()
                 break;
             transitions[from][BUFF[i]] = to;
         }
+
+        // free(input[line]);
     }
+
+    free(input);
+
+    // Corner cases, 48 is for comments
     for (int i = 0; i < 128; i++)
         transitions[48][i] = 48;
 
     transitions[48]['\n'] = 49;
-    
+
     transitions[0][' '] =
         transitions[0]['\t'] =
         transitions[0]['\r'] =
@@ -93,12 +98,10 @@ void loadLexer()
         transitions[50]['\t'] =
         transitions[50]['\r'] =
         transitions[50]['\n'] = 50;
-    /*
-    for (int i = 0; i < NUM_LINES_TEXT; i++)
-        if (input[i] != NULL)
-            free(input[i]);*/
-    free(input);
+}
 
+void loadFinalStates()
+{
     finalStates = calloc(NUM_STATES, sizeof(TokenType));
 
     for (int i = 0; i < NUM_STATES; ++i)
@@ -136,11 +139,20 @@ void loadLexer()
     finalStates[46] = TK_OP;
     finalStates[47] = TK_CL;
     finalStates[49] = TK_COMMENT;
-    finalStates[50] = TK_WHITESPACE;    
+    finalStates[50] = TK_WHITESPACE;
+}
+
+void loadLexer()
+{
+    tokenList = calloc(1, sizeof(TokenList));
+
+    loadTransitions("./data/DFA_Structure.txt");
+    loadFinalStates();
 }
 
 void loadCode(char* loc)
 {
+    sourceCode = calloc(1, MAX_CODE_SIZE);
     FILE* fptr = fopen(loc, "r");
 
     if (fptr == NULL)
