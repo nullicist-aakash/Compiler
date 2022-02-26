@@ -1,3 +1,6 @@
+#ifndef TRIE_H
+#define TRIE_H
+
 #define TRIE_CHILD_COUNT 64
 
 typedef struct TrieNode
@@ -18,3 +21,5 @@ TrieNode* getRef(Trie* t, char* key);
 int exists(Trie* t, char* key);
 
 void* getVal(Trie* t, char* key);
+
+#endif

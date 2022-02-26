@@ -15,38 +15,26 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Lexer\Lexer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="helpers\ErrorHandling.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="helpers\Trie.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Driver.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Lexer\Lexer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Lexer\Lexer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="helpers\ErrorHandling.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="helpers\Globals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="helpers\Trie.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Lexer\Lexer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="data\DFA_Structure.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="data\testCode.txt">
+    <Text Include="Lexer\DFA_Structure.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
