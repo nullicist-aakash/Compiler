@@ -3,6 +3,9 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h> 
+
+#include "Lexer/Lexer.h"
+
 #define MAX_OPTIONS 4
 
 void clear_screen()
@@ -22,23 +25,6 @@ void clear_screen()
 #endif
 }
 
-void _removeComments(FILE* source, FILE* destination)
-{
-	char c;
-	int is_comment = 0;
-	while (fscanf(source, "%c", &c) != EOF)
-	{
-		if (c == '%')
-			is_comment = 1;
-
-		if (is_comment && (c == '\n' || c == '\r'))
-			is_comment = 0;
-
-		if (!is_comment)
-			fprintf(destination, "%c", c);
-	}
-}
-
 void removeComments_console(char* testcaseFile)
 {
 	FILE* source = fopen(testcaseFile, "r");
@@ -49,7 +35,7 @@ void removeComments_console(char* testcaseFile)
 		return;
 	}
 
-	_removeComments(source, stdout);
+	removeComments(source, stdout);
 
 	fclose(source);
 }

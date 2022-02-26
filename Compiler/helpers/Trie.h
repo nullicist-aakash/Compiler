@@ -15,11 +15,11 @@ typedef struct Trie{
 
 
 // returns 0 on success, -1 on error
-TrieNode* getRef(Trie* t, char* key);
+TrieNode* trie_getRef(Trie* t, char* key);
 
 // returns 1 on success, 0 on not found
-int exists(Trie* t, char* key);
+int trie_exists(Trie* t, char* key);
 
-void* getVal(Trie* t, char* key);
+void* trie_getVal(Trie* t, char* key);
 
 #endif
