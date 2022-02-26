@@ -37,5 +37,6 @@
     <Text Include="Lexer\DFA_Structure.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="t1.txt" />
   </ItemGroup>
 </Project>

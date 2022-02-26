@@ -40,19 +40,36 @@ void removeComments_console(char* testcaseFile)
 	fclose(source);
 }
 
+void printLexerOutput(char* path)
+{
+	FILE* fp = fopen(path, "r");
+
+	if (!fp)
+	{
+		fprintf(stderr, "Error opening file %s: %s\n", path, strerror(errno));
+		return;
+	}
+
+	loadFile(fp);
+
+	Token* tk;
+	while ((tk = getNextToken()) != NULL)
+		printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);
+}
 
 int main(int argc, char** argv)
 {
 	clear_screen();
 
 	loadLexer();
-	return;
-
+	/*
 	if (argc != 3)
 	{
 		fprintf(stderr, "Argument list is not valid!\n");
 		exit(-1);
-	}
+	}*/
+
+	argv[1] = "t1.txt";
 
 	int option = 0;
 	int start = 1;
@@ -60,7 +77,7 @@ int main(int argc, char** argv)
 
 	clock_t start_time = clock();
 	clock_t end_time = start_time;
-	
+
 	do
 	{
 		if (!start)
@@ -96,8 +113,8 @@ int main(int argc, char** argv)
 		if (option == MAX_OPTIONS)
 		{
 			double total_CPU_time = (double)(end_time - start_time);
-			printf("Total CPU Time Taken: %d\n", total_CPU_time);
-			printf("Total CPU Time taken in seconds: %d\n", total_CPU_time / CLOCKS_PER_SEC);
+			printf("Total CPU Time Taken: %f\n", total_CPU_time);
+			printf("Total CPU Time taken in seconds: %f\n", total_CPU_time / CLOCKS_PER_SEC);
 			continue;
 		}
 
@@ -105,7 +122,8 @@ int main(int argc, char** argv)
 
 		if (option == 1)
 			removeComments_console(argv[1]);
-
+		else if (option == 2)
+			printLexerOutput(argv[1]);
 		end_time = clock();
 
 	} while (option != 0);

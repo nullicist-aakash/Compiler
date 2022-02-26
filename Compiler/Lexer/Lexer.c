@@ -8,24 +8,119 @@
 #define TWIN_BUFF_SIZE 50
 #define DEFINITION_LOC "./DFA_Structure.txt"
 
-typedef struct Buffer
+typedef struct
 {
 	FILE* fp;
 	char* working;
 	char* archived;
 
 	int charTaken;
+	int line_number;
+	int start_index;
+
 } Buffer;
 
-int loaded = 0;
+LexerData* lexerData;
+Buffer* b;
 
-int num_tokens, num_states, num_transitions, num_finalstates, num_keywords;
-Buffer* b = NULL;
-int** transitions = NULL;
-TokenType* finalStates = NULL;
-char** tokenType2tokenStr = NULL;
-Trie* tokenStr2tokenType = NULL;
-Trie* symbolTable = NULL;	// move to global in future
+void loadTokens(FILE* fp)
+{
+	lexerData->tokenType2tokenStr = calloc(lexerData->num_tokens, sizeof(char*));
+	lexerData->tokenStr2tokenType = calloc(1, sizeof(Trie));
+
+	for (int i = 0; i < lexerData->num_tokens; ++i)
+	{
+		char BUFF[64];
+		fscanf(fp, "%s\n", BUFF);
+		lexerData->tokenType2tokenStr[i] = calloc(strlen(BUFF) + 1, sizeof(char));
+		strcpy(lexerData->tokenType2tokenStr[i], BUFF);
+
+		TrieNode* ref = trie_getRef(lexerData->tokenStr2tokenType, lexerData->tokenType2tokenStr[i]);
+		ref->value = calloc(1, sizeof(TokenType));
+		*(int*)(ref->value) = i;
+	}
+}
+
+void loadTransitions(FILE* fp)
+{
+	lexerData->transitions = calloc(lexerData->num_states, sizeof(int**));
+	
+	for (int i = 0; i < lexerData->num_states; ++i)
+	{
+		lexerData->transitions[i] = calloc(128, sizeof(int*));
+
+		for (int j = 0; j < 128; ++j)
+			lexerData->transitions[i][j] = -1;
+	}
+	
+	for (int i = 0; i < lexerData->num_transitions; ++i)
+	{
+		int from, to;
+		char BUFF[64];
+	
+		fscanf(fp, "%d %d %s\n", &from, &to, BUFF);
+
+		for (int j = 0; j < 64; ++j)
+		{
+			if (BUFF[j] == '\0')
+				break;
+
+			lexerData->transitions[from][BUFF[j]] = to;
+		}
+	}
+
+	// Comment
+	for (int i = 0; i < 128; i++)
+		lexerData->transitions[48][i] = 48;
+
+	lexerData->transitions[48]['\n'] = 49;
+
+	// White spaces
+	lexerData->transitions[0][' '] =
+		lexerData->transitions[0]['\t'] =
+		lexerData->transitions[0]['\r'] =
+		lexerData->transitions[0]['\n'] = 50;
+
+	lexerData->transitions[50][' '] =
+		lexerData->transitions[50]['\t'] =
+		lexerData->transitions[50]['\r'] =
+		lexerData->transitions[50]['\n'] = 50;
+}
+
+void loadFinalStates(FILE* fp)
+{
+	lexerData->finalStates = calloc(lexerData->num_states, sizeof(TokenType));
+	for (int i = 0; i < lexerData->num_states; ++i)
+		lexerData->finalStates[i] = -1;
+
+	for (int i = 0; i < lexerData->num_finalstates; i++)
+	{
+		int state;
+		char BUFF[64];
+		fscanf(fp, "%d %s\n", &state, BUFF);
+
+		lexerData->finalStates[state] = *(int*)trie_getVal(lexerData->tokenStr2tokenType, BUFF);
+	}
+}
+
+void loadKeywords(FILE* fp)
+{
+	if (lexerData->symbolTable == NULL)
+		lexerData->symbolTable = calloc(lexerData->num_tokens, sizeof(char*));
+
+	for (int i = 0; i < lexerData->num_keywords; ++i)
+	{
+		char BUFF1[64], BUFF2[64];
+		fscanf(fp, "%s %s\n", BUFF1, BUFF2);
+
+		TrieNode* ref = trie_getRef(lexerData->symbolTable, BUFF1);
+		TokenType val = *(int*)trie_getVal(lexerData->tokenStr2tokenType, BUFF2);
+		assert(val != NULL);
+
+		ref->value = calloc(1, sizeof(TokenType));
+		*(int*)(ref->value) = val;
+	}
+}
 
 char getChar(int i)
 {
@@ -37,7 +132,7 @@ char getChar(int i)
 
 		char c = 0;
 		int reads = 0;
-		while (fscanf(b->fp, "%c", c) != EOF && reads != TWIN_BUFF_SIZE)
+		while (fscanf(b->fp, "%c", &c) != EOF && reads != TWIN_BUFF_SIZE)
 			b->working[reads++] = c;
 
 		if (reads != TWIN_BUFF_SIZE)
@@ -56,121 +151,20 @@ char getChar(int i)
 	return b->archived[i];
 }
 
-void loadTokens(FILE* fp)
-{
-	tokenType2tokenStr = calloc(num_tokens, sizeof(char*));
-	tokenStr2tokenType = calloc(1, sizeof(Trie));
-
-	for (int i = 0; i < num_tokens; ++i)
-	{
-		tokenType2tokenStr[i] = NULL;
-
-		char BUFF[64];
-		fscanf(fp, "%s\n", BUFF);
-		tokenType2tokenStr[i] = calloc(strlen(BUFF) + 1, sizeof(char));
-		strcpy(tokenType2tokenStr[i], BUFF);
-
-		TrieNode* ref = trie_getRef(tokenStr2tokenType, tokenType2tokenStr[i]);
-		ref->value = calloc(1, sizeof(TokenType));
-		*(int*)(ref->value) = i;
-	}
-}
-
-void loadTransitions(FILE* fp)
-{
-	transitions = calloc(num_states, sizeof(int**));
-	
-	for (int i = 0; i < num_states; ++i)
-	{
-		transitions[i] = calloc(128, sizeof(int*));
-
-		for (int j = 0; j < 128; ++j)
-			transitions[i][j] = -1;
-	}
-	
-	for (int i = 0; i < num_transitions; ++i)
-	{
-		int from, to;
-		char BUFF[64];
-	
-		fscanf(fp, "%d %d %s\n", &from, &to, BUFF);
-
-		for (int j = 0; j < 64; ++j)
-		{
-			if (BUFF[j] == '\0')
-				break;
-
-			transitions[from][BUFF[j]] = to;
-		}
-	}
-
-	// Comment
-	for (int i = 0; i < 128; i++)
-		transitions[48][i] = 48;
-
-	transitions[48]['\n'] = 49;
-
-	// White spaces
-	transitions[0][' '] =
-		transitions[0]['\t'] =
-		transitions[0]['\r'] =
-		transitions[0]['\n'] = 50;
-
-	transitions[50][' '] =
-		transitions[50]['\t'] =
-		transitions[50]['\r'] =
-		transitions[50]['\n'] = 50;
-}
-
-void loadFinalStates(FILE* fp)
-{
-	finalStates = calloc(num_states, sizeof(TokenType));
-	for (int i = 0; i < num_states; ++i)
-		finalStates[i] = -1;
-
-	for (int i = 0; i < num_finalstates; i++)
-	{
-		int state;
-		char BUFF[64];
-		fscanf(fp, "%d %s\n", &state, BUFF);
-
-		finalStates[state] = *(int*)trie_getVal(tokenStr2tokenType, BUFF);
-	}
-}
-
-void loadKeywords(FILE* fp)
-{
-	if (symbolTable == NULL)
-		symbolTable = calloc(num_tokens, sizeof(char*));
-
-	for (int i = 0; i < num_keywords; ++i)
-	{
-		char BUFF1[64], BUFF2[64];
-		fscanf(fp, "%s %s\n", BUFF1, BUFF2);
-
-		TrieNode* ref = trie_getRef(symbolTable, BUFF1);
-		TokenType val = *(int*)trie_getVal(tokenStr2tokenType, BUFF2);
-		assert(val != NULL);
-
-		ref->value = calloc(1, sizeof(TokenType));
-		*(int*)(ref->value) = val;
-	}
-}
-
 void loadLexer()
 {
-	if (loaded)
-		return;
-
 	FILE* fp = fopen("./Lexer/DFA_Structure.txt", "r");
+	lexerData = calloc(1, sizeof(LexerData));
 
 	assert(fp != NULL);
 
-	fscanf(fp, "%d %d %d %d %d\n", &num_tokens, &num_states, &num_transitions, &num_finalstates, &num_keywords);
+	fscanf(fp, "%d %d %d %d %d\n", &lexerData->num_tokens, &lexerData->num_states, &lexerData->num_transitions, &lexerData->num_finalstates, &lexerData->num_keywords);
 	loadTokens(fp);
 	loadTransitions(fp);
 	loadFinalStates(fp);
 	loadKeywords(fp);
+
+	fclose(fp);
 }
 
 void loadFile(FILE* fp)
@@ -186,11 +180,112 @@ void loadFile(FILE* fp)
 	b->working = calloc(TWIN_BUFF_SIZE, sizeof(char));
 	b->archived = calloc(TWIN_BUFF_SIZE, sizeof(char));
 	b->fp = fp;
+	b->line_number = 1;
+}
+
+int isValidToken(Token* token)
+{
+	if (token->type == TK_ID)
+		return token->length <= 20;
+
+	if (token->type == TK_FUNID)
+		return token->length <= 30;
+
+	return token->type != TK_ERROR;
+}
+
+Token* DFA(int start_index)
+{
+	TokenType ttype;
+	int last_final = -1;
+	int input_final_pos = start_index - 1;
+
+	int len = 0;
+
+	int cur_state = 0;
+	// start index = index of character to read next
+
+	while (1)
+	{
+		char input = getChar(start_index);
+
+		if (lexerData->finalStates[cur_state] != -1)
+		{
+			last_final = cur_state;
+			ttype = lexerData->finalStates[cur_state];
+			input_final_pos = start_index - 1;
+		}
+
+		cur_state = lexerData->transitions[cur_state][input];
+
+		if (cur_state == -1)    // return
+		{
+			if (input_final_pos == start_index - len - 1)
+			{
+				ttype = TK_ERROR;
+				len = 1;
+			}
+
+			Token* token = calloc(1, sizeof(Token));
+			token->type = ttype;
+			token->length = len;
+			return token;
+		}
+
+		start_index++;
+		len++;
+	}
+
+	// this should not be reachable as our DFA is capable of handling every case
+	assert(0);
 }
 
 Token* getNextToken()
 {
-	
+	while (getChar(b->start_index) != '\0')
+	{
+		if (getChar(b->start_index) == '\n')
+		{
+			b->line_number++;
+			b->start_index++;
+			continue;
+		}
+
+		Token* token = DFA(b->start_index);
+
+		assert(token != NULL);
+
+		token->start_index = b->start_index;
+		token->line_number = b->line_number;
+
+		b->start_index += token->length;
+
+		if (token->type == TK_COMMENT || token->type == TK_WHITESPACE)
+		{
+			free(token);
+			continue;
+		}
+
+		token->lexeme = calloc(token->length + 1, sizeof(char));
+
+		for (int i = 0; i < token->length; i++)
+			token->lexeme[i] = getChar(b->start_index - token->length + i);
+
+		if (token->type == TK_ID || token->type == TK_FUNID)
+		{
+			TrieNode* temp = trie_getRef(lexerData->symbolTable, token->lexeme);
+
+			if (temp->value)
+				token->type = *(int*)temp->value;
+		}
+
+		if (!isValidToken(token))
+			token->type = TK_ERROR;
+
+		return token;
+	}
+
+	return NULL;
 }
 
 void removeComments(FILE* source, FILE* destination)
@@ -208,16 +303,4 @@ void removeComments(FILE* source, FILE* destination)
 		if (!is_comment)
 			fprintf(destination, "%c", c);
 	}
-}
-
-void deallocateLexer()
-{
-	if (b != NULL)
-	{
-		free(b->archived);
-		free(b->working);
-		free(b);
-		b = NULL;
-	}
-	loaded = 0;
 }

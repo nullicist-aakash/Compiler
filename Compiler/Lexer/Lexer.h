@@ -1,6 +1,7 @@
 #ifndef LEXER_h
 #define LEXER_H
 #include <stdio.h>
+#include "../helpers/Trie.h"
 
 typedef enum TokenType
 {
@@ -74,6 +75,24 @@ typedef struct Token
 	int length;
 } Token;
 
+typedef struct 
+{
+	int num_tokens;
+	int num_states;
+	int num_transitions;
+	int num_finalstates;
+	int num_keywords;
+	
+	int** transitions;
+	TokenType* finalStates;
+	char** tokenType2tokenStr;
+	Trie* tokenStr2tokenType;
+	Trie* symbolTable;	// move to global in future
+
+} LexerData;
+
+extern LexerData* lexerData;
+
 void loadLexer();
 
 void loadFile(FILE*);
@@ -81,7 +100,5 @@ void loadFile(FILE*);
 Token* getNextToken();
 
 void removeComments(FILE* source, FILE* destination);
-
-void deallocateLexer();
 
 #endif
