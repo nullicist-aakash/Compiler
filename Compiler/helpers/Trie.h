@@ -12,9 +12,9 @@ typedef struct Trie{
 
 
 // returns 0 on success, -1 on error
-TrieNode* insert(Trie* t, char* key);
+TrieNode* getRef(Trie* t, char* key);
 
 // returns 1 on success, 0 on not found
-int search(Trie* t, char* key);
+int exists(Trie* t, char* key);
 
-void* get(Trie* t, char* key);
+void* getVal(Trie* t, char* key);

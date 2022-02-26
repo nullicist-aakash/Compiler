@@ -22,68 +22,57 @@ int getIndex(char c)
 }
 
 // returns 0 on success, -1 on error
-TrieNode* insert(Trie* t, char* key, void* val)
-{	
-	int keyIndex=0;
-	int TrieIndex= getIndex(key[keyIndex]);
+TrieNode* getRef(Trie* t, char* key)
+{
+	int keyIndex = 0;
+	int TrieIndex;
 	TrieNode* traverse = t->root;
 
-	while(key[keyIndex]!='\0')
+	while (key[keyIndex] != '\0')
 	{
-		if(!traverse->children[TrieIndex])
-			traverse->children[TrieIndex]=getNode();
-		
+		TrieIndex = getIndex(key[keyIndex++]);
+
+		if (!traverse->children[TrieIndex])
+			traverse->children[TrieIndex] = createNode();
+
 		traverse = traverse->children[TrieIndex];
-		index = getIndex(key[keyIndex]);
-		keyIndex++;
 	}
+
 	return traverse;
 }
 
-
 // returns 1 on success, 0 on not found
-int search(Trie* t, char* key);
+int exists(Trie* t, char* key)
 {
-	if(get(t,key) == NULL)
-		return 0
-	return 1;
+	return getVal(t, key) != NULL;
 }
 
-void* get(Trie* t, char* key)
+void* getVal(Trie* t, char* key)
 {
-	int keyIndex=0;
-	int TrieIndex= getIndex(key[keyIndex]);
+	int keyIndex = 0;
+	int TrieIndex;
 	TrieNode* traverse = t->root;
 
-	while(key[keyIndex]!='\0')
-    {
-        TrieIndex = getIndex(key[keyIndex]);
- 
-        if (!traverse->children[TrieIndex])
-            return 0;
- 
-        traverse = traverse->children[TrieIndex];
-    }
-	
+	while (traverse && key[keyIndex] != '\0')
+	{
+		TrieIndex = getIndex(key[keyIndex++]);
+		traverse = traverse->children[TrieIndex];
+	}
+
+	if (!traverse)
+		return NULL;
+
 	return traverse->value;
 }
 
-TrieNode* getNode()
+TrieNode* createNode()
 {
-	TrieNode *newNode = NULL;
+	TrieNode* newNode = (TrieNode*)malloc(sizeof(TrieNode));
+	
+	newNode->value = NULL;
 
-	newNode =  (TrieNode* )malloc(sizeof(TrieNode));
-
-	if (newNode)
-    {
-        int i;
- 
-        newNode->value = NULL;
- 
-        for (i = 0; i < TRIE_CHILD_COUNT; i++)
-            newNode->children[i] = NULL;
-    }
+	for (int i = 0; i < TRIE_CHILD_COUNT; i++)
+		newNode->children[i] = NULL;
 
 	return newNode;
- 
 }
