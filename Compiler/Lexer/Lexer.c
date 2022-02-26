@@ -1,6 +1,7 @@
 #include "Lexer.h"
 #include "../helpers/Trie.h"
 #include <errno.h>
+#include <string.h>
 #include <assert.h>
 
 #define TWIN_BUFF_SIZE 50
@@ -19,11 +20,11 @@ int loaded = 0;
 
 int num_tokens, num_states, num_transitions, num_finalstates, num_keywords;
 Buffer* b = NULL;
-int** transitions;
-TokenType* finalStates;
-char** tokenType2tokenStr;
-Trie* tokenStr2tokenType;
-Trie* symbolTable;	// move to global in future
+int** transitions = NULL;
+TokenType* finalStates = NULL;
+char** tokenType2tokenStr = NULL;
+Trie* tokenStr2tokenType = NULL;
+Trie* symbolTable = NULL;	// move to global in future
 
 char getChar(int i)
 {
@@ -56,12 +57,17 @@ char getChar(int i)
 
 void loadTokens(FILE* fp)
 {
-	if (tokenStr2tokenType == NULL)
+	if (tokenType2tokenStr == NULL)
 		tokenType2tokenStr = calloc(num_tokens, sizeof(char*));
 	
 	for (int i = 0; i < num_tokens; ++i)
 	{
-		fscanf(fp, "%s\n", tokenType2tokenStr[i]);
+		tokenType2tokenStr[i] = NULL;
+
+		char BUFF[64];
+		fscanf(fp, "%s\n", BUFF);
+		tokenType2tokenStr[i] = calloc(strlen(BUFF) + 1, sizeof(char));
+		strcpy(tokenType2tokenStr[i], BUFF);
 
 		TrieNode* ref = trie_getRef(tokenStr2tokenType, tokenType2tokenStr[i]);
 		ref->value = calloc(1, sizeof(TokenType));
@@ -142,7 +148,7 @@ void loadKeywords(FILE* fp)
 		fscanf(fp, "%s %s\n", BUFF1, BUFF2);
 
 		TrieNode* ref = trie_getRef(symbolTable, BUFF1);
-		TokenType val = trie_getVal(tokenStr2tokenType, BUFF2);
+		TokenType val = *(int*)trie_getVal(tokenStr2tokenType, BUFF2);
 		assert(val != NULL);
 
 		ref->value = calloc(1, sizeof(TokenType));
@@ -155,7 +161,8 @@ void loadLexer()
 	if (loaded)
 		return;
 
-	FILE* fp = fopen(DEFINITION_LOC, "r");
+	FILE* fp = fopen("./Lexer/DFA_Structure.txt", "r");
+
 	assert(fp != NULL);
 
 	fscanf(fp, "%d %d %d %d %d\n", &num_tokens, &num_states, &num_transitions, &num_finalstates, &num_keywords);

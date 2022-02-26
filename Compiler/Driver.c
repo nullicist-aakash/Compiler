@@ -44,6 +44,10 @@ void removeComments_console(char* testcaseFile)
 int main(int argc, char** argv)
 {
 	clear_screen();
+
+	loadLexer();
+	return;
+
 	if (argc != 3)
 	{
 		fprintf(stderr, "Argument list is not valid!\n");

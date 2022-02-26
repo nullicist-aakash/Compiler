@@ -74,7 +74,9 @@ typedef struct Token
 	int length;
 } Token;
 
-void loadLexer(FILE*);
+void loadLexer();
+
+void loadFile(FILE*);
 
 Token* getNextToken();
 
