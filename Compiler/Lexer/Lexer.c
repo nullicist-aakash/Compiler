@@ -1,6 +1,7 @@
 #include "Lexer.h"
 #include "../helpers/Trie.h"
 #include <errno.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
@@ -57,9 +58,9 @@ char getChar(int i)
 
 void loadTokens(FILE* fp)
 {
-	if (tokenType2tokenStr == NULL)
-		tokenType2tokenStr = calloc(num_tokens, sizeof(char*));
-	
+	tokenType2tokenStr = calloc(num_tokens, sizeof(char*));
+	tokenStr2tokenType = calloc(1, sizeof(Trie));
+
 	for (int i = 0; i < num_tokens; ++i)
 	{
 		tokenType2tokenStr[i] = NULL;
