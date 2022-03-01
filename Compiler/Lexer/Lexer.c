@@ -72,7 +72,7 @@ void loadTransitions(FILE* fp)
 	for (int i = 0; i < 128; i++)
 		lexerData->transitions[48][i] = 48;
 
-	lexerData->transitions[48]['\n'] = 49;
+	lexerData->transitions[48]['\n'] = -1;
 
 	// White spaces
 	lexerData->transitions[0][' '] =
@@ -127,7 +127,7 @@ char getChar(int i)
 
 		char c = 0;
 		int reads = 0;
-		while (fscanf(b->fp, "%c", &c) != EOF && reads != TWIN_BUFF_SIZE)
+		while (reads != TWIN_BUFF_SIZE && fscanf(b->fp, "%c", &c) != EOF)
 			b->working[reads++] = c;
 
 		if (reads != TWIN_BUFF_SIZE)
@@ -213,8 +213,8 @@ Token* DFA(int start_index)
 
 		cur_state = lexerData->transitions[cur_state][input];
 
-		if (cur_state == 49)
-			b->line_number++;
+		//if (cur_state == 49)
+		//	b->line_number++;
 
 		if (cur_state == -1)    // return
 		{
@@ -269,7 +269,7 @@ Token* getNextToken()
 		for (int i = 0; i < token->length; i++)
 			token->lexeme[i] = getChar(b->start_index - token->length + i);
 
-		if (token->type == TK_ID || token->type == TK_FUNID)
+		if (token->type == TK_ID || token->type == TK_FUNID || token->type == TK_FIELDID)
 		{
 			TrieNode* temp = trie_getRef(lexerData->symbolTable, token->lexeme);
 
