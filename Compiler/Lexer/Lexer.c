@@ -77,13 +77,11 @@ void loadTransitions(FILE* fp)
 	// White spaces
 	lexerData->transitions[0][' '] =
 		lexerData->transitions[0]['\t'] =
-		lexerData->transitions[0]['\r'] =
-		lexerData->transitions[0]['\n'] = 50;
+		lexerData->transitions[0]['\r'] = 50;
 
 	lexerData->transitions[50][' '] =
 		lexerData->transitions[50]['\t'] =
-		lexerData->transitions[50]['\r'] =
-		lexerData->transitions[50]['\n'] = 50;
+		lexerData->transitions[50]['\r'] = 50;
 }
 
 void loadFinalStates(FILE* fp)
@@ -193,7 +191,7 @@ Token* DFA(int start_index)
 	{
 		char input = getChar(start_index);
 
-		if (lexerData->finalStates[cur_state] != -1)
+		if (1)
 		{
 			last_final = cur_state;
 			ttype = lexerData->finalStates[cur_state];
@@ -212,6 +210,13 @@ Token* DFA(int start_index)
 				Token* token = calloc(1, sizeof(Token));
 				token->type = TK_ERROR_SYMBOL;
 				token->length = 1;
+				return token;
+			}
+			if (lexerData->finalStates[last_final] == -1 && last_final!=0)
+			{
+				Token* token = calloc(1, sizeof(Token));
+				token->type = TK_ERROR_PATTERN;
+				token->length = len;
 				return token;
 			}
 
