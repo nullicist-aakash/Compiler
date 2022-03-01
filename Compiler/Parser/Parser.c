@@ -70,7 +70,7 @@ char* getNullable()
 			int changed = 0;
 			if (isEqual(bitAnd(nullable, productionBitset[i], n, &changed), productionBitset[i], n)) {
 				BITSET(nullable, rules[i][0]);
-				flag += changed;
+				flag = changed;
 			}
 		}
 	}
@@ -100,13 +100,17 @@ void loadProductions(FILE* fp)
 	{
 		char BUFF[200];
 		int symbols[200];
-		fscanf(fp, "%[^\n]", BUFF);
+		fgets(BUFF, 200, fp);
 		char* token = strtok(BUFF, " ");
 		int count = 0;
 		while (token)
 		{
-			symbols[count] = trie_getVal(parserData->symbolStr2symbolType, token).value;
-			count++;
+			if(strcmp(token,"\n")==0 ){}
+			else
+			{
+				symbols[count] = trie_getVal(parserData->symbolStr2symbolType, token).value;
+				count++;
+			}
 			token = strtok(NULL, " ");
 		}
 		parserData->productions[i] = calloc(count, sizeof(int));
@@ -115,17 +119,8 @@ void loadProductions(FILE* fp)
 			parserData->productions[i][j] = symbols[j];
 		
 	}
-
-	for (int i = 0; i < parserData->num_productions; i++)
-	{
-		for (int j = 0; j < parserData->productionSize[i]; j++)
-		{
-			printf("%d ", parserData->productions[i][j]);
-		}
-		printf("\n");
-	}
-	char* bruh = getNullable();
-	printf("BRUH %s\n", bruh);
+	//char* bruh = getNullable();
+	//printf("BRUH %s\n", bruh);
 }
 
 //char** getFirstSet()
@@ -148,14 +143,16 @@ void loadParser()
 	assert(parserData == NULL);
 
 	FILE* fp = fopen("./Parser/Parser_Structure.txt", "r");
-	parserData = calloc(1, sizeof(parserData));
+	parserData = calloc(1, sizeof(ParserData));
 
 	assert(fp != NULL);
 
 	fscanf(fp, "%d %d %d\n", &parserData->num_non_terminals, &parserData->num_terminals, &parserData->num_productions);
+	printf("%d %d %d\n", parserData->num_non_terminals, parserData->num_terminals, parserData->num_productions);
 	parserData->symbolType2symbolStr = calloc(parserData->num_terminals + parserData->num_non_terminals, sizeof(char*));
 	parserData->symbolStr2symbolType = calloc(1, sizeof(Trie));
 	loadSymbols(fp);
+
 	loadProductions(fp);
 	fclose(fp);
 }
