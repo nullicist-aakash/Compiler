@@ -42,14 +42,14 @@ void loadTokens(FILE* fp)
 
 void loadTransitions(FILE* fp)
 {
-	lexerData->transitions = calloc(lexerData->num_states, sizeof(int**));
+	lexerData->productions = calloc(lexerData->num_states, sizeof(int**));
 
 	for (int i = 0; i < lexerData->num_states; ++i)
 	{
-		lexerData->transitions[i] = calloc(128, sizeof(int*));
+		lexerData->productions[i] = calloc(128, sizeof(int*));
 
 		for (int j = 0; j < 128; ++j)
-			lexerData->transitions[i][j] = -1;
+			lexerData->productions[i][j] = -1;
 	}
 
 	for (int i = 0; i < lexerData->num_transitions; ++i)
@@ -64,26 +64,26 @@ void loadTransitions(FILE* fp)
 			if (BUFF[j] == '\0')
 				break;
 
-			lexerData->transitions[from][BUFF[j]] = to;
+			lexerData->productions[from][BUFF[j]] = to;
 		}
 	}
 
 	// Comment
 	for (int i = 0; i < 128; i++)
-		lexerData->transitions[48][i] = 48;
+		lexerData->productions[48][i] = 48;
 
-	lexerData->transitions[48]['\n'] = -1;
+	lexerData->productions[48]['\n'] = -1;
 
 	// White spaces
-	lexerData->transitions[0][' '] =
-		lexerData->transitions[0]['\t'] =
-		lexerData->transitions[0]['\r'] =
-		lexerData->transitions[0]['\n'] = 50;
+	lexerData->productions[0][' '] =
+		lexerData->productions[0]['\t'] =
+		lexerData->productions[0]['\r'] =
+		lexerData->productions[0]['\n'] = 50;
 
-	lexerData->transitions[50][' '] =
-		lexerData->transitions[50]['\t'] =
-		lexerData->transitions[50]['\r'] =
-		lexerData->transitions[50]['\n'] = 50;
+	lexerData->productions[50][' '] =
+		lexerData->productions[50]['\t'] =
+		lexerData->productions[50]['\r'] =
+		lexerData->productions[50]['\n'] = 50;
 }
 
 void loadFinalStates(FILE* fp)
@@ -148,6 +148,7 @@ char getChar(int i)
 
 void loadLexer()
 {
+	assert(lexerData == NULL);
 	FILE* fp = fopen("./Lexer/DFA_Structure.txt", "r");
 	lexerData = calloc(1, sizeof(LexerData));
 
@@ -200,7 +201,7 @@ Token* DFA(int start_index)
 			input_final_pos = start_index - 1;
 		}
 
-		cur_state = lexerData->transitions[cur_state][input];
+		cur_state = lexerData->productions[cur_state][input];
 
 		//if (cur_state == 49)
 		//	b->line_number++;

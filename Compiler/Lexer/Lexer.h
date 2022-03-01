@@ -85,7 +85,7 @@ typedef struct
 	int num_finalstates;
 	int num_keywords;
 	
-	int** transitions;
+	int** productions;
 	TokenType* finalStates;
 	char** tokenType2tokenStr;
 	Trie* tokenStr2tokenType;

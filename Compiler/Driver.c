@@ -6,11 +6,12 @@
 
 #include "Lexer/Lexer.h"
 
+#include "Parser/Parser.h"
+
 #define MAX_OPTIONS 4
 
 void clear_screen()
 {
-
 #ifdef _WIN32
 	system("cls");
 #endif
@@ -56,6 +57,7 @@ int main(int argc, char** argv)
 	clear_screen();
 
 	loadLexer();
+	loadParser();
 	/*
 	if (argc != 3)
 	{
@@ -130,6 +132,7 @@ int main(int argc, char** argv)
 		}
 		else if (option == 2)
 			printLexerOutput(argv[1]);
+
 		end_time = clock();
 
 	} while (option != 0);
