@@ -36,8 +36,7 @@ void loadTokens(FILE* fp)
 		strcpy(lexerData->tokenType2tokenStr[i], BUFF);
 
 		TrieNode* ref = trie_getRef(lexerData->tokenStr2tokenType, lexerData->tokenType2tokenStr[i]);
-		ref->value = calloc(1, sizeof(TokenType));
-		*(int*)(ref->value) = i;
+		ref->entry.value = i;
 	}
 }
 
@@ -99,7 +98,7 @@ void loadFinalStates(FILE* fp)
 		char BUFF[64];
 		fscanf(fp, "%d %s\n", &state, BUFF);
 
-		lexerData->finalStates[state] = *(int*)trie_getVal(lexerData->tokenStr2tokenType, BUFF);
+		lexerData->finalStates[state] = trie_getVal(lexerData->tokenStr2tokenType, BUFF).value;
 	}
 }
 
@@ -114,11 +113,7 @@ void loadKeywords(FILE* fp)
 		fscanf(fp, "%s %s\n", BUFF1, BUFF2);
 
 		TrieNode* ref = trie_getRef(lexerData->symbolTable, BUFF1);
-		TokenType val = *(int*)trie_getVal(lexerData->tokenStr2tokenType, BUFF2);
-		assert(val != NULL);
-
-		ref->value = calloc(1, sizeof(TokenType));
-		*(int*)(ref->value) = val;
+		ref->entry.value = trie_getVal(lexerData->tokenStr2tokenType, BUFF2).value;
 	}
 }
 
@@ -275,8 +270,8 @@ Token* getNextToken()
 		{
 			TrieNode* temp = trie_getRef(lexerData->symbolTable, token->lexeme);
 
-			if (temp->value)
-				token->type = *(int*)temp->value;
+			if (temp->entry.value)
+				token->type = temp->entry.value;
 		}
 
 		if (!isValidToken(token))

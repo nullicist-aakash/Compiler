@@ -49,16 +49,19 @@ TrieNode* trie_getRef(Trie* t, char* key)
 // returns 1 on success, 0 on not found
 int trie_exists(Trie* t, char* key)
 {
-	return trie_getVal(t, key) != NULL;
+	return trie_getVal(t, key).value != 0;
 }
 
-void* trie_getVal(Trie* t, char* key)
+TrieEntry trie_getVal(Trie* t, char* key)
 {
+	TrieEntry entry;
+	entry.value = 0;
+
 	int keyIndex = 0;
 	int TrieIndex;
 	
 	if (t->root == NULL)
-		return NULL;
+		return entry;
 
 	TrieNode* traverse = t->root;
 
@@ -69,7 +72,7 @@ void* trie_getVal(Trie* t, char* key)
 	}
 
 	if (!traverse)
-		return NULL;
+		return entry;
 
-	return traverse->value;
+	return traverse->entry;
 }
