@@ -63,7 +63,9 @@ typedef enum TokenType
 	TK_GE,
 	TK_NE,
 	TK_WHITESPACE,
-	TK_ERROR
+	TK_ERROR_SYMBOL,
+	TK_ERROR_PATTERN,
+	TK_ERROR_LENGTH
 } TokenType;
 
 typedef struct Token

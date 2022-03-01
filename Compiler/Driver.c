@@ -25,21 +25,6 @@ void clear_screen()
 #endif
 }
 
-void removeComments_console(char* testcaseFile)
-{
-	FILE* source = fopen(testcaseFile, "r");
-
-	if (source == NULL)
-	{
-		fprintf(stderr, "Error opening file %s: %s\n", testcaseFile, strerror(errno));
-		return;
-	}
-
-	removeComments(source, stdout);
-
-	fclose(source);
-}
-
 void printLexerOutput(char* path)
 {
 	FILE* fp = fopen(path, "r");
@@ -54,7 +39,16 @@ void printLexerOutput(char* path)
 
 	Token* tk;
 	while ((tk = getNextToken()) != NULL)
-		printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);
+	{
+		if (tk->type == TK_ERROR_LENGTH)
+			printf("Line no. %d: Error: Identifier length is greater than the prescribed length.\n", tk->line_number);
+		else if (tk->type == TK_ERROR_SYMBOL)
+			printf("Line no. %d: Error: Unknwon Symbol <%s>\n", tk->line_number, tk->lexeme);
+		else if (tk->type == TK_ERROR_PATTERN)
+			printf("Line no. %d: Error: Unknown Pattern <%s>\n", tk->line_number, tk->lexeme);
+		else
+			printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);
+	}
 }
 
 int main(int argc, char** argv)
@@ -121,7 +115,19 @@ int main(int argc, char** argv)
 		start_time = clock();
 
 		if (option == 1)
-			removeComments_console(argv[1]);
+		{
+			FILE* source = fopen(argv[1], "r");
+
+			if (source == NULL)
+			{
+				fprintf(stderr, "Error opening file %s: %s\n", argv[1], strerror(errno));
+				return;
+			}
+
+			removeComments(source, stdout);
+
+			fclose(source);
+		}
 		else if (option == 2)
 			printLexerOutput(argv[1]);
 		end_time = clock();

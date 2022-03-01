@@ -1,4 +1,4 @@
-59 51 55 33 28
+61 51 57 33 28
 TK_ASSIGNOP
 TK_COMMENT
 TK_FIELDID
@@ -57,7 +57,9 @@ TK_GT
 TK_GE
 TK_NE
 TK_WHITESPACE
-TK_ERROR
+TK_ERROR_SYMBOL
+TK_ERROR_PATTERN
+TK_ERROR_LENGTH
 0 1 0123456789
 0 9 bcd
 0 12 aefghijklmnopqrstuvwxyz
@@ -90,11 +92,13 @@ TK_ERROR
 4 5 E
 5 6 +-
 5 7 0123456789
+6 7 0123456789
 7 8 0123456789
 9 10 234567
 9 12 abcdefghijklmnopqrstuvwxyz
 10 10 bcd
 10 11 234567
+11 11 234567
 12 12 abcdefghijklmnopqrstuvwxyz
 13 14 abcdefghijklmnopqrstuvwxyz
 14 14 abcdefghijklmnopqrstuvwxyz

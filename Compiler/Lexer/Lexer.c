@@ -43,7 +43,7 @@ void loadTokens(FILE* fp)
 void loadTransitions(FILE* fp)
 {
 	lexerData->transitions = calloc(lexerData->num_states, sizeof(int**));
-	
+
 	for (int i = 0; i < lexerData->num_states; ++i)
 	{
 		lexerData->transitions[i] = calloc(128, sizeof(int*));
@@ -51,12 +51,12 @@ void loadTransitions(FILE* fp)
 		for (int j = 0; j < 128; ++j)
 			lexerData->transitions[i][j] = -1;
 	}
-	
+
 	for (int i = 0; i < lexerData->num_transitions; ++i)
 	{
 		int from, to;
 		char BUFF[64];
-	
+
 		fscanf(fp, "%d %d %s\n", &from, &to, BUFF);
 
 		for (int j = 0; j < 64; ++j)
@@ -178,17 +178,6 @@ void loadFile(FILE* fp)
 	b->line_number = 1;
 }
 
-int isValidToken(Token* token)
-{
-	if (token->type == TK_ID)
-		return token->length <= 20;
-
-	if (token->type == TK_FUNID)
-		return token->length <= 30;
-
-	return token->type != TK_ERROR;
-}
-
 Token* DFA(int start_index)
 {
 	TokenType ttype;
@@ -220,13 +209,15 @@ Token* DFA(int start_index)
 		{
 			if (input_final_pos == start_index - len - 1)
 			{
-				ttype = TK_ERROR;
-				len = 1;
+				Token* token = calloc(1, sizeof(Token));
+				token->type = TK_ERROR_SYMBOL;
+				token->length = 1;
+				return token;
 			}
 
 			Token* token = calloc(1, sizeof(Token));
 			token->type = ttype;
-			token->length = len;
+			token->length = input_final_pos - (start_index - len) + 1;
 			return token;
 		}
 
@@ -277,8 +268,13 @@ Token* getNextToken()
 				token->type = temp->entry.value;
 		}
 
-		if (!isValidToken(token))
-			token->type = TK_ERROR;
+		// Assign error types
+
+		if (token->type == TK_ID && token->length > 20)
+			token->type = TK_ERROR_LENGTH;
+
+		if (token->type == TK_FUNID && token->length > 30)
+			token->type = TK_ERROR_LENGTH;
 
 		return token;
 	}

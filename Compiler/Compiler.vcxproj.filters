@@ -44,6 +44,8 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="t1.txt" />
-    <Text Include="Parser\Parser_Structure.txt" />
+    <Text Include="Parser\Parser_Structure.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
