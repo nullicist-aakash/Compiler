@@ -1,7 +1,7 @@
-#ifndef LEXER_H
+#ifndef LEXER_h
 #define LEXER_H
-
-#define MAX_CODE_SIZE 65536
+#include <stdio.h>
+#include "../helpers/Trie.h"
 
 typedef enum TokenType
 {
@@ -63,7 +63,9 @@ typedef enum TokenType
 	TK_GE,
 	TK_NE,
 	TK_WHITESPACE,
-	TK_ERROR
+	TK_ERROR_SYMBOL,
+	TK_ERROR_PATTERN,
+	TK_ERROR_LENGTH
 } TokenType;
 
 typedef struct Token
@@ -75,21 +77,30 @@ typedef struct Token
 	int length;
 } Token;
 
-typedef struct TokenNode
+typedef struct 
 {
-	struct Token* token;
-	struct TokenNode* next;
-} TokenNode;
+	int num_tokens;
+	int num_states;
+	int num_transitions;
+	int num_finalstates;
+	int num_keywords;
+	
+	int** transitions;
+	TokenType* finalStates;
+	char** tokenType2tokenStr;
+	Trie* tokenStr2tokenType;
+	Trie* symbolTable;	// move to global in future
 
-typedef struct TokenList
-{
-	TokenNode* head;
-	TokenNode* tail;
-} TokenList;
+} LexerData;
+
+extern LexerData* lexerData;
 
 void loadLexer();
-void loadCode(char*);
-TokenList* getTokens();
-void cleanExtraMemory();
+
+void loadFile(FILE*);
+
+Token* getNextToken();
+
+void removeComments(FILE* source, FILE* destination);
 
 #endif
