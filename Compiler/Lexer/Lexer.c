@@ -218,6 +218,9 @@ Token* DFA(int start_index)
 
 		cur_state = lexerData->transitions[cur_state][input];
 
+		if (cur_state == 49)
+			b->line_number++;
+
 		if (cur_state == -1)    // return
 		{
 			if (input_final_pos == start_index - len - 1)
