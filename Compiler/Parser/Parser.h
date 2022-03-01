@@ -11,6 +11,8 @@ typedef struct
 	
 	int** productions;
 	int* productionSize;
+	char** firstSet;
+	char** followSet;
 	char** symbolType2symbolStr;
 	Trie* symbolStr2symbolType;
 	Trie* lookupTable;	// move to global in future

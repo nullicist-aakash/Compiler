@@ -13,15 +13,69 @@
 
 ParserData* parserData;
 
-int isTerminal(int index)
+//int isTerminal(int index)
+//{
+//	return index >= 0 && index < parserData->num_terminals;
+//}
+
+//int isTerminal(char* str)
+//{
+//	int index = trie_getVal(parserData->symbolStr2symbolType, str).value;
+//	return isTerminal(index);
+//}
+char* bitAnd(char* bitset1, char* bitset2, int n, int* flag)
 {
-	return index >= 0 && index < parserData->num_terminals;
+	char* bitset3 = calloc(n, sizeof(char));
+	for (int i = 0; i < BITNSLOTS(n); i++) {
+		bitset3[i] = bitset1[i] & bitset2[i];
+		if (bitset3[i] != bitset1[i])
+			*flag = 1;
+	}
+	return bitset3;
 }
 
-int isTerminal(char* str)
+int isEqual(char* bitset1, char* bitset2, int n) {
+	for (int i = 0; i < n; ++i)
+		if (bitset1[i] != bitset2[i])
+			return 0;
+	return 1;
+}
+
+
+char* getNullable()
 {
-	int index = trie_getVal(parserData->symbolStr2symbolType, str).value;
-	return isTerminal(index);
+	int n = parserData->num_non_terminals + parserData->num_terminals;
+	char** productionBitset = calloc(parserData->num_productions, sizeof(char*));
+	for (int i = 0; i < parserData->num_productions; i++) {
+		productionBitset[i] = calloc(BITNSLOTS(n), sizeof(char));
+		for (int j = 1; j < parserData->productionSize[i]; j++)
+			BITSET(productionBitset[i], j);
+	}
+
+	char* nullable = calloc(BITNSLOTS(n), sizeof(char));
+	int** rules = parserData->productions;
+
+	for (int i = 0; i < parserData->num_productions; i++) {
+		int rhsSize = parserData->productionSize[i] - 1;
+		int lhs = rules[i][0];
+
+		if (rhsSize == 1 && !(rules[i][1]))
+			BITSET(nullable, rules[i][0]);
+	}
+	printf("INITIALLY nullable : %s\n", nullable);
+	int flag = 1;
+	while (flag) {
+		flag = 0;
+		for (int i = 0; i < parserData->num_productions; i++) {
+			int changed = 0;
+			if (isEqual(bitAnd(nullable, productionBitset[i], n, &changed), productionBitset[i], n)) {
+				BITSET(nullable, rules[i][0]);
+				flag += changed;
+			}
+		}
+	}
+	printf("nullable = %s\n", nullable);
+	return nullable;
 }
 
 void loadSymbols(FILE* fp)
@@ -70,75 +124,24 @@ void loadProductions(FILE* fp)
 		}
 		printf("\n");
 	}
-}
-char* bitAnd(char* bitset1, char* bitset2, int n, int * flag)
-{
-	char* bitset3 = calloc(n,sizeof(char));
-	for (int i = 0; i < BITNSLOTS(n); i++) {
-		bitset3[i] = bitset1[i] & bitset2[i];
-		if (bitset3[i] != bitset1[i]) 
-			*flag = 1;
-	}
-	return bitset3;
+	char* bruh = getNullable();
+	printf("BRUH %s\n", bruh);
 }
 
-int isEqual(char* bitset1, char* bitset2, int n) {
-	for (int i = 0;i <n;++i)
-		if (bitset1[i] != bitset2[i])
-			return 0;
-	return 1;
-}
-
-char* getNullable()
-{
-	int n = parserData->num_non_terminals + parserData->num_terminals;
-	char** productionBitset = calloc(parserData->num_productions, sizeof(char*));
-	for (int i = 0; i < parserData->num_productions; i++) {
-		productionBitset[i] = calloc(BITNSLOTS(n), sizeof(char));
-		for (int j = 1; j < parserData->productionSize[i]; j++)
-			BITSET(productionBitset[i],j);
-	}
-
-	char* nullable = calloc(BITNSLOTS(n), sizeof(char));
-	int** rules = parserData->productions;
-	
-	for (int i = 0; i < parserData->num_productions; i++) {
-		int rhsSize = parserData->productionSize[i] - 1;
-		int lhs = rules[i][0];
-
-		if (rhsSize == 1 && !(rules[i][1]))
-			BITSET(nullable, rules[i][0]);
-	}
-
-	int flag = 1;
-	while (flag) {
-		flag = 0;
-		for (int i = 0; i < parserData->num_productions; i++) {
-			int changed=0;
-			if (isEqual(bitAnd(nullable,productionBitset[i],n,&changed),productionBitset[i],n)) {
-				BITSET(nullable, rules[i][0]);
-				flag += changed;
-			}
-		}
-	}
-	
-	return nullable;
-}
-
-char** getFirstSet()
-{
-
-}
-
-char** getFollowSet()
-{
-
-}
-
-char** getParseTable()
-{
-
-}
+//char** getFirstSet()
+//{
+//
+//}
+//
+//char** getFollowSet()
+//{
+//
+//}
+//
+//char** getParseTable()
+//{
+//
+//}
 
 void loadParser()
 {
