@@ -47,7 +47,7 @@ void setUnion(char* bitset1, char* bitset2, int n, int* flag) {
 		char c = bitset1[i];
 		
 		bitset1[i] = bitset1[i] | bitset2[i];
-		if (c != bitset1[i])  *flag = 1; 		
+		if (c != bitset1[i])  *flag = *flag + 1; 		
 
 	}
 }
@@ -91,16 +91,6 @@ char* getNullable()
 			}
 		}
 	}
-	printf("IN NULLABLE FUNC:\n");
-	int cntt = 0;
-	for (int i = 0; i < BITNSLOTS(n); i++) {
-		printf("%d ", nullable[i]);
-	}
-	printf("\n");
-	for (int i = 0; i < n; i++) {
-		if (BITTEST(nullable, i))
-			cntt += 1;
-	};
 	return nullable;
 }
 void getFirstSet()
@@ -153,8 +143,11 @@ void getFirstSet()
 		}
 		flag = change;
 	}
+	for (int i = 0; i < parserData->num_non_terminals; i++) {
+		printf("First set of nonterminal %d -", i);
+		printBitset(parserData->firstSet[i],parserData->num_terminals);
+	}
 }
-
 void getFollowSet()
 {
 	int n = parserData->num_non_terminals;
@@ -170,152 +163,46 @@ void getFollowSet()
 		int ts = parserData->num_terminals;
 		int nts = parserData->num_non_terminals;
 		int** rules = parserData->productions;
-		/*
 		for (int ind = 0; ind < parserData->num_productions; ind++) {
 			int k = parserData->productionSize[ind];
 			int lhs = rules[ind][0] - ts;
-			for (int i = k - 1; i > 0; i--) {
-				if (isTerminal(rules[ind][i])) {
-
-					break;
-				}
-				if (i + 1 < k) {
-					if (BITTEST(nullable, rules[ind][i + 1])) {
-						setUnion(parserData->followSet[rules[ind][i] - ts], parserData->followSet[lhs], ts, &change);
-					}
-					else {
-
-						break;
-					}
-				}
-				else {
-					if (i > 1 && !isTerminal(rules[ind][i-1])) {
-						setUnion(parserData->followSet[rules[ind][i - 1] - ts], parserData->followSet[lhs], ts, &change);
-					}
-				}
-			}
-		}*/
-		for (int ind = 0; ind < parserData->num_productions; ind++) {
-			int k = parserData->productionSize[ind];
-			int lhs = rules[ind][0] - ts;
-			printf(" in rule %d\n-------------------------------------------------------\n",ind);
 			for (int i = 1; i < k; i++) {
 				if (!isTerminal(rules[ind][i]))
 				{
-					printf("bruh -1\n");
-
-					if (i + 1 < k)
+					char * temp = calloc(parserData->num_terminals, sizeof(char));
+					int nullableFlag = 1;
+					for(int j = i + 1 ;j< k;j++)
 					{
-						printf("bruh -1\n");
-						if (isTerminal(rules[ind][i + 1]))
+						if (isTerminal(rules[ind][j]))
 						{
-							if (!BITTEST(parserData->followSet[rules[ind][i] - ts], rules[ind][i + 1]))
+							nullableFlag = 0;
+							if (!BITTEST(temp, rules[ind][j]))
 							{
-								change = 1;
-								printf("bruh -2\n");
-								BITSET(parserData->followSet[rules[ind][i] - ts], rules[ind][i + 1]);
-								printf("bruh -2-1\n");
+								BITSET(temp, rules[ind][j]);
 							}
+							break;
 						}
 						else
 						{
-							printf("bruh -3\n");
-							setUnion(parserData->followSet[rules[ind][i] - ts],parserData->firstSet[rules[ind][i+1]-ts],nts,&change);
-							printf("bruh -3-1\n");
+							int dummy=0;
+							setUnion(temp,parserData->firstSet[rules[ind][j]-ts],nts,&dummy);
+							if (!BITTEST(nullable, rules[ind][j]))
+							{
+								nullableFlag = 0;
+								break;
+							}
 						}
-					}
-					/*if( i == k-1 || (i+1 < k && BITTEST(nullable,rules[ind][i+1])))
-						setUnion(parserData->followSet[rules[ind][i] - ts],parserData->followSet[lhs],nts,&change);*/
 
-					int allNullable = 1;
-					for (int j = i + 1; j < k; j++) {
-						if (!BITTEST(nullable, rules[ind][j])) {
-							allNullable = 0;
-							break;
-						}
 					}
-					if (allNullable || i == k - 1) {
-						printf("bruh -4 %d %d %d\n", i, rules[ind][i]-ts, lhs);
-						if (ind == 22) {
-							printf("n = %d\n", n);
-							printBitset(parserData->followSet[rules[ind][i] - ts],ts);
-							printBitset(parserData->followSet[lhs], ts);
-						}
-						setUnion(parserData->followSet[rules[ind][i] - ts], parserData->followSet[lhs], ts, &change);
-						printf("bruh -4-1\n");
-						if (ind == 22) {
-							printBitset(parserData->followSet[rules[ind][i] - ts], ts);
-							printBitset(parserData->followSet[lhs], ts);
-						}
+					setUnion(parserData->followSet[rules[ind][i] - ts], temp, nts, &change);
+					if (nullableFlag || i==k-1)
+					{
+						setUnion(parserData->followSet[rules[ind][i] - ts], parserData->followSet[lhs], nts, &change); 
 					}
+
 				}
 			}
 		}
-		//printf("bruh0\n");
-		//
-		//for (int ind = 0; ind < parserData->num_productions; ind++) {
-		//	int k = parserData->productionSize[ind];
-		//	int i = 1, j;
-		//	for (int i = 1; i < k; i++) {
-		//		printf("bruh1\n");
-
-		//		if (isTerminal(rules[ind][i]))
-		//			continue;
-		//		for (int j = i + 1; j < k; j++) {
-		//			printf("bruh2\n");
-
-		//			int allnullable = 1;
-		//			for (int r = i + 1; r < j; r++) {
-		//				if (isTerminal(rules[ind][r]) || !BITTEST(nullable, rules[ind][r])) {
-		//					allnullable = 0;
-		//					break;
-		//				}
-		//			}
-		//			if (allnullable) 
-		//			{
-		//				printf("bruh all nullable\n");
-
-		//				if (isTerminal(rules[ind][j])) {
-		//					printf("bruh all nullable isterminal\n");
-
-		//					if (!BITTEST(parserData->followSet[rules[ind][i] - parserData->num_terminals], rules[ind][j])) {
-		//						printf("bruh all nullable isterminal not bitset\n");
-
-		//						BITSET(parserData->followSet[rules[ind][i] - parserData->num_terminals], rules[ind][j]);
-		//						change = 1;
-		//					}
-		//				}
-		//				else {
-		//					printf("bruh all nullable isnotterminal\n");
-
-		//					setUnion(parserData->followSet[rules[ind][i] - parserData->num_terminals], parserData->firstSet[rules[ind][j] - parserData->num_terminals], n, &change);
-		//				}
-		//			}
-		//		}
-		//	}
-		//	
-		///*	while (i < k-1) {
-		//		printf("bruh1\n");
-		//		j = i + 1;
-		//		while (j < k) {
-		//			printf("bruh2\n");
-		//			if (isTerminal(rules[ind][j] && !(rules[ind][j]))) {
-		//				i = j + 1;
-		//				break;
-		//			}
-		//			if (BITTEST(nullable, rules[ind][j])) {
-		//				for (int r = i + 1; r <= j; r++) {
-		//					setUnion(parserData->followSet[rules[ind][r] - parserData->num_terminals], parserData->followSet[rules[r][j] - parserData->num_terminals], n, &change);
-		//				}
-		//				j++;
-		//			}
-		//			else {
-		//				i = j + 1;
-		//				break;
-		//			}
-		//		}
-		//	}*/
-		//}
 		flag = change;
 		
 	}
@@ -341,9 +228,7 @@ int** getParseTable()
 
 		for (int i = 0; i < parserData->num_non_terminals; i++)
 			if (BITTEST(firstSet, i)) {
-				//printf("%d %d %d %d\n",lhs,i,ind);
 				parseTable[lhs][i] = ind;
-				//printf("%d %d\n", lhs);
 
 			}
 		
