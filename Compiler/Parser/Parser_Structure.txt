@@ -1,113 +1,114 @@
-57 52 92
+57 53 95
 eps
-TK_ASSIGNOP
-TK_FIELDID
-TK_ID
-TK_NUM
-TK_RNUM
-TK_FUNID
-TK_RUID
-TK_WITH
-TK_PARAMETERS
-TK_END
-TK_WHILE
-TK_UNION
-TK_ENDUNION
-TK_DEFINETYPE
-TK_AS
-TK_TYPE
 TK_MAIN
-TK_GLOBAL
+TK_END
+TK_FUNID
+TK_SEM
+TK_INPUT
 TK_PARAMETER
 TK_LIST
 TK_SQL
 TK_SQR
-TK_INPUT
 TK_OUTPUT
+TK_ID
 TK_INT
 TK_REAL
+TK_RECORD
+TK_RUID
+TK_UNION
 TK_COMMA
-TK_SEM
+TK_ENDRECORD
+TK_ENDUNION
+TK_TYPE
 TK_COLON
+TK_FIELDID
+TK_GLOBAL
+TK_ASSIGNOP
 TK_DOT
-TK_ENDWHILE
+TK_CALL
+TK_WITH
+TK_PARAMETERS
+TK_WHILE
 TK_OP
 TK_CL
+TK_ENDWHILE
 TK_IF
 TK_THEN
 TK_ENDIF
 TK_READ
 TK_WRITE
-TK_RETURN
-TK_PLUS
-TK_MINUS
 TK_MUL
 TK_DIV
-TK_CALL
-TK_RECORD
-TK_ENDRECORD
-TK_ELSE
+TK_PLUS
+TK_MINUS
+TK_NOT
+TK_NUM
+TK_RNUM
 TK_AND
 TK_OR
-TK_NOT
 TK_LT
 TK_LE
 TK_EQ
 TK_GT
 TK_GE
 TK_NE
+TK_RETURN
+TK_DEFINETYPE
+TK_AS
+TK_ELSE
 program
-otherFunctions
 mainFunction
-stmts
+otherFunctions
 function
 input_par
 output_par
-parameter_list
-dataType
-remaining_list
-primitiveDatatype
 constructedDatatype
+remaining_list
+parameter_list
+stmts
 typeDefinitions
-declarations
-otherStmts
-returnStmt
 actualOrRedefined
 typeDefinition
-definetypestmt
 fieldDefinitions
+fieldType
+primitiveDatatype
 fieldDefinition
 moreFields
-fieldType
+declarations
 declaration
+dataType
 global_or_not
-stmt
 assignmentStmt
-iterativeStmt
-conditionalStmt
-ioStmt
-funCallStmt
-singleOrRecId
-arithmeticExpression
 option_single_constructed
 oneExpansion
 moreExpansions
+funCallStmt
 outputParameters
 inputParameters
-idList
-booleanExpression
+iterativeStmt
+conditionalStmt
 elsePart
-var
-term
+stmt
+otherStmts
+ioStmt
 expPrime
-lowPrecedenceOperators
-factor
+term
 termPrime
+factor
+arithmeticExpression
 highPrecedenceOperators
+lowPrecedenceOperators
+booleanExpression
+var
+singleOrRecId
 logicalOp
 relationalOp
+returnStmt
 optionalReturn
 more_ids
+idList
+definetypestmt
+A
 program otherFunctions mainFunction  
 mainFunction TK_MAIN stmts TK_END 
 otherFunctions function otherFunctions 
@@ -122,8 +123,8 @@ dataType constructedDatatype
 primitiveDatatype TK_INT  
 primitiveDatatype TK_REAL 
 constructedDatatype TK_RECORD TK_RUID  
-constructedDatatype TK_RUID  
 constructedDatatype TK_UNION TK_RUID  
+constructedDatatype TK_RUID  
 remaining_list TK_COMMA parameter_list  
 remaining_list eps 
 stmts typeDefinitions declarations otherStmts returnStmt 
@@ -152,12 +153,12 @@ stmt conditionalStmt
 stmt ioStmt   
 stmt funCallStmt 
 assignmentStmt singleOrRecId TK_ASSIGNOP arithmeticExpression TK_SEM 
-singleOrRecId TK_ID option_single_constructed  
-option_single_constructed eps  
-option_single_constructed oneExpansion moreExpansions  
 oneExpansion TK_DOT TK_FIELDID  
 moreExpansions oneExpansion moreExpansions  
 moreExpansions eps 
+singleOrRecId TK_ID option_single_constructed  
+option_single_constructed eps  
+option_single_constructed oneExpansion moreExpansions  
 funCallStmt outputParameters TK_CALL TK_FUNID TK_WITH TK_PARAMETERS inputParameters TK_SEM 
 outputParameters TK_SQL idList TK_SQR TK_ASSIGNOP  
 outputParameters eps  
@@ -200,8 +201,9 @@ optionalReturn eps
 idList TK_ID more_ids  
 more_ids TK_COMMA idList  
 more_ids eps 
-
-
+definetypestmt TK_DEFINETYPE A TK_RUID TK_AS TK_RUID 
+A TK_RECORD  
+A TK_UNION 
 
 num_terminals num_nonterminals num_productions
 'num_nonterminals' lines each having one string representing the non terminals

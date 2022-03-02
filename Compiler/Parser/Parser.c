@@ -12,6 +12,13 @@
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
 
 ParserData* parserData;
+void printBitset(char* bitset, int n) {
+	printf("BITSET : ");
+	for (int i = 0; i < n; i++) {
+		if (BITTEST(bitset, i)) printf("%d ", i);
+	}
+	printf("\n");
+}
 int isTerminal(int index)
 {
 	return index >= 0 && index < parserData->num_terminals;
@@ -85,49 +92,70 @@ char* getNullable()
 			}
 		}
 	}
-
-	//printf("nullable = %s\n", nullable);
+	printf("IN NULLABLE FUNC:\n");
+	int cntt = 0;
+	for (int i = 0; i < BITNSLOTS(n); i++) {
+		printf("%d ", nullable[i]);
+	}
+	printf("\n");
+	for (int i = 0; i < n; i++) {
+		if (BITTEST(nullable, i))
+			cntt += 1;
+	};
 	return nullable;
 }
 void getFirstSet()
 {
 	int n = parserData->num_non_terminals;
+	int tnt = n + parserData->num_terminals;
+
 	parserData->firstSet = calloc(n, sizeof(char*));
 	for (int i = 0; i < n; i++)
 		parserData->firstSet[i] = calloc(parserData->num_terminals, sizeof(char));
 	int** rules = parserData->productions;
 	int flag = 1;
 	char* nullable = getNullable();
-	
-	
+
 	while (flag) {
 		flag = 0;
+
 		int change = 0;
 		for (int i = 0; i < parserData->num_productions; i++) {
-			int lhs = rules[i][0]-parserData->num_terminals;
-			if (!(rules[i][1])) {
-				//if eps , add epsilon to firstSet
-				if (!BITTEST(parserData->firstSet[lhs], 0)) {
-					BITSET(parserData->firstSet[lhs], 0);
-					change = 1;
-				}
-				continue;
-			}
-			int k = parserData->productionSize[i] - 1;
+			int lhs = rules[i][0] - parserData->num_terminals;
+			printf("lhs:%d %d\n", lhs,parserData->num_terminals);
+
+			int k = parserData->productionSize[i];
 			int nullableUntilNow = 1;
 			int j = 1;
+
 			while (j < k && nullableUntilNow) {
-				if (BITTEST(nullable, rules[i][j])) {
-					setUnion(parserData->firstSet[lhs], parserData->firstSet[rules[i][j]-parserData->num_terminals], n, &change);
+				if (isTerminal(rules[i][j])) {
+					nullableUntilNow = 0;
+					if (rules[i][j] == 0) {
+					}
+					if (!BITTEST(parserData->firstSet[lhs], rules[i][j])) {
+						if (rules[i][j]) {
+							BITSET(parserData->firstSet[lhs], rules[i][j]);
+
+							change = 1;
+						}
+						else
+							continue;
+					}
+					j++;
+					continue;
 				}
-				else
+				setUnion(parserData->firstSet[lhs], parserData->firstSet[rules[i][j] - parserData->num_terminals], n, &change);
+				if (!BITTEST(nullable, rules[i][j]))
 					nullableUntilNow = 0;
 				j++;
 			}
+
 		}
 		flag = change;
 	}
 }
+
 void getFollowSet()
 {
 	int n = parserData->num_non_terminals;
@@ -142,22 +170,16 @@ void getFollowSet()
 		int change = 0;
 		int** rules = parserData->productions;
 		for (int ind = 0; ind < parserData->num_productions; ind++) {
-			int k = parserData->productionSize[ind] - 1;
+			int k = parserData->productionSize[ind];
 			int lhs = rules[ind][0] - parserData->num_terminals;
 			for (int i = k - 1; i > 0; i--) {
-
-				if (isTerminal(rules[ind][i]) && !(rules[ind][i]))
-					break;
-				if (BITTEST(nullable, rules[ind][i])) {
-					
-					setUnion(parserData->followSet[rules[ind][i] - parserData->num_terminals], parserData->followSet[lhs], n, &change);
-				}
-				else
+				setUnion(parserData->followSet[rules[ind][i] - parserData->num_terminals], parserData->followSet[lhs], n, &change);
+				if (isTerminal(rules[ind][i]) && !(rules[ind][i]) && !BITTEST(nullable, rules[ind][i]))
 					break;
 			}
 		}
 		for (int ind = 0; ind < parserData->num_productions; ind++) {
-			int k = parserData->productionSize[ind] - 1;
+			int k = parserData->productionSize[ind];
 			int lhs = rules[ind][0];
 			int i = 1, j;
 			
@@ -193,7 +215,7 @@ int** getParseTable()
 	}
 	int** rules = parserData->productions;
 	char* nullable = getNullable();
-	for (int ind = 0; ind < parserData->productionSize; ind++) {
+	for (int ind = 0; ind < parserData->num_productions; ind++) {
 		int lhs = rules[ind][0]- parserData->num_terminals;
 		
 		char* firstSet = parserData->firstSet[lhs];
@@ -218,7 +240,7 @@ int** getParseTable()
 				}
 				printf("\n");
 				if (BITTEST(followSet, i)) {
-					printf("%d %d %d %d\n", lhs, i, ind);
+					printf("%d %d %d\n", lhs, i, ind);
 					parseTable[lhs][i] = ind;
 					//printf("%d %d\n", lhs);
 
@@ -228,6 +250,7 @@ int** getParseTable()
 		}
 
 	}
+	return parseTable;
 }
 void loadSymbols(FILE* fp)
 {
@@ -270,9 +293,17 @@ void loadProductions(FILE* fp)
 			parserData->productions[i][j] = symbols[j];
 		
 	}
+	for (int i = 0; i < parserData->num_productions; i++)
+	{
+		for (int j = 0; j < parserData->productionSize[i]; j++)
+		{
+			printf("%d ", parserData->productions[i][j]);
+		}
+		printf("\n");
+	}
 	getFirstSet();
-	getFollowSet();
-	int** parseTable = getParseTable();
+	//getFollowSet();
+	//int** parseTable = getParseTable();
 }
 
 
@@ -297,7 +328,7 @@ void loadParser()
 
 	assert(fp != NULL);
 
-	fscanf(fp, "%d %d %d\n", &parserData->num_non_terminals, &parserData->num_terminals, &parserData->num_productions);
+	fscanf(fp, "%d %d %d\n", &parserData->num_terminals, &parserData->num_non_terminals, &parserData->num_productions);
 	printf("%d %d %d\n", parserData->num_non_terminals, parserData->num_terminals, parserData->num_productions);
 	parserData->symbolType2symbolStr = calloc(parserData->num_terminals + parserData->num_non_terminals, sizeof(char*));
 	parserData->symbolStr2symbolType = calloc(1, sizeof(Trie));
