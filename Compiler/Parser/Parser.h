@@ -1,6 +1,6 @@
 #ifndef PARSER_H
 #define PARSER_H
-
+#define MAX 200
 #include "../helpers/Trie.h"
 #include<stdio.h>
 typedef struct 
@@ -18,6 +18,14 @@ typedef struct
 	Trie* lookupTable;	// move to global in future
 } ParserData;
 
+typedef struct TreeNode {
+	int symbol;
+	struct TreeNode** children;
+}TreeNode;
+typedef struct Stack {
+	int items[MAX];
+	int top;
+}Stack;
 extern ParserData* parserData;
 void loadParser();
 

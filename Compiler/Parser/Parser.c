@@ -10,6 +10,50 @@
 #define BITCLEAR(a, b) ((a)[BITSLOT(b)] &= ~BITMASK(b))
 #define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
+void createEmptyStack(Stack* s) {
+	s->top = -1;
+}
+int isfull(Stack* s) {
+	if (s->top == MAX - 1)
+		return 1;
+	else
+		return 0;
+}
+int isempty(Stack* s) {
+	if (s->top == -1)
+		return 1;
+	else
+		return 0;
+}
+void push(Stack* s, int newitem) {
+	if (isfull(s)) {
+		printf("STACK FULL");
+	}
+	else {
+		s->top++;
+		s->items[s->top] = newitem;
+	}
+	count++;
+}
+void pop(Stack* s) {
+	if (isempty(s)) {
+		printf("\n STACK EMPTY \n");
+	}
+	else {
+		printf("Item popped= %d", s->items[s->top]);
+		s->top--;
+	}
+	count--;
+	printf("\n");
+}
+void printStack(Stack* s) {
+	printf("Stack: ");
+	for (int i = 0; i < count; i++) {
+		printf("%d ", s->items[i]);
+	}
+	printf("\n");
+}
+
 
 ParserData* parserData;
 void printBitset(char* bitset, int n) {
@@ -218,36 +262,35 @@ int** getParseTable()
 	int** parseTable = calloc(parserData->num_non_terminals, sizeof(int*));
 	for (int i = 0; i < parserData->num_non_terminals; i++) {
 		parseTable[i] = calloc(parserData->num_terminals, sizeof(int));
+
+	}
+	for (int i = 0; i < parserData->num_non_terminals; i++)
+	{
+
+		for (int j = 0; j < parserData->num_terminals; j++)
+		{
+			parseTable[i][j]=-1;
+		}
 	}
 	int** rules = parserData->productions;
 	char* nullable = getNullable();
 	for (int ind = 0; ind < parserData->num_productions; ind++) {
-		int lhs = rules[ind][0]- parserData->num_terminals;
-		
+		int lhs = rules[ind][0] - parserData->num_terminals;
 		char* firstSet = parserData->firstSet[lhs];
 
-		for (int i = 0; i < parserData->num_non_terminals; i++)
+		for (int i = 0; i < parserData->num_terminals; i++)
+		{
 			if (BITTEST(firstSet, i)) {
 				parseTable[lhs][i] = ind;
-
 			}
-		
+		}
 
 		char* followSet = parserData->followSet[lhs];
-		if (nullable[lhs]) {
+		if (BITTEST(nullable,lhs + parserData->num_terminals)) {
 
 			for (int i = 0; i < parserData->num_terminals; i++) {
-				printf("HELLO\n");
-				for (int l = 0; l < parserData->num_non_terminals; l++)
-				{
-					printf("%d ", followSet[l]);
-				}
-				printf("\n");
 				if (BITTEST(followSet, i)) {
-					printf("%d %d %d\n", lhs, i, ind);
 					parseTable[lhs][i] = ind;
-					//printf("%d %d\n", lhs);
-
 				}
 
 			}
@@ -308,7 +351,16 @@ void loadProductions(FILE* fp)
 	getFirstSet();
 	printf("First set computed..\n");
 	getFollowSet();
-	//int** parseTable = getParseTable();
+	int** parseTable = getParseTable();
+
+	for (int i = 0; i < parserData->num_non_terminals; i++)
+	{
+		printf("%d) ", i+1);
+		int j = 4;
+		printf("%d ", parseTable[i][j]==-1?parseTable[i][j]: parseTable[i][j]+1);
+		printf("\n");
+
+	}
 }
 
 
