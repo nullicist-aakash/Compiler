@@ -132,6 +132,8 @@ int main(int argc, char** argv)
 		}
 		else if (option == 2)
 			printLexerOutput(argv[1]);
+		else if (option == 3)
+
 
 		end_time = clock();
 

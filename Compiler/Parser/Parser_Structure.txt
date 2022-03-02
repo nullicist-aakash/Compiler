@@ -1,4 +1,4 @@
-57 53 92
+57 52 92
 eps
 TK_ASSIGNOP
 TK_FIELDID
@@ -104,7 +104,6 @@ lowPrecedenceOperators
 factor
 termPrime
 highPrecedenceOperators
-highPrecedenceOperator
 logicalOp
 relationalOp
 optionalReturn
@@ -177,8 +176,8 @@ termPrime highPrecedenceOperators factor termPrime
 termPrime eps  
 factor TK_OP arithmeticExpression TK_CL  
 factor var  
-highPrecedenceOperator TK_MUL  
-highPrecedenceOperator TK_DIV  
+highPrecedenceOperators TK_MUL  
+highPrecedenceOperators TK_DIV  
 lowPrecedenceOperators TK_PLUS  
 lowPrecedenceOperators TK_MINUS  
 booleanExpression TK_OP booleanExpression TK_CL logicalOp TK_OP booleanExpression TK_CL  
