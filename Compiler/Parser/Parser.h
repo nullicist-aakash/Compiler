@@ -25,6 +25,15 @@ typedef struct TreeNode {
 	struct TreeNode** children;
 }TreeNode;
 
+typedef struct {
+	char* lexeme;
+	int numOfChildren;
+	ParseTreeNode** children;
+	ParseTreeNode* parent;
+	int lineNum;
+	enum bool isLeaf;
+
+}ParseTreeNode;
 extern ParserData* parserData;
 void loadParser();
 
