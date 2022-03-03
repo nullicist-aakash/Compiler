@@ -2,14 +2,14 @@
 #include <stdio.h>
 #include <assert.h>
 
-void push(Stack* stack, void* data)
+void push(Stack* stack, int data)
 {
 	StackNode* ptr = calloc(1, sizeof(StackNode));
 	ptr->prev = stack->top;
 	stack->top = ptr;
 }
 
-void* top(Stack* stack)
+int top(Stack* stack)
 {
 	assert(stack->top != NULL);
 	return stack->top->data;

@@ -3,7 +3,7 @@
 
 typedef struct StackNode
 {
-	void* data;
+	int data;
 	struct StackNode* prev;
 } StackNode;
 
@@ -12,8 +12,8 @@ typedef struct Stack
 	StackNode* top;
 } Stack;
 
-void push(Stack*, void*);
-void* top(Stack*);
+void push(Stack*, int);
+int top(Stack*);
 void pop(Stack*);
 
 #endif
