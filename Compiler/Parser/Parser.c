@@ -215,78 +215,68 @@ void computeFirstFollowSets()
 void computeParseTable()
 {
 	parserData->parseTable = calloc(parserData->num_non_terminals, sizeof(int*));
-	for (int i = 0; i < parserData->num_non_terminals; i++) {
+
+	for (int i = 0; i < parserData->num_non_terminals; i++)
 		parserData->parseTable[i] = calloc(parserData->num_terminals, sizeof(int));
 
-	}
 	for (int i = 0; i < parserData->num_non_terminals; i++)
-	{
-
 		for (int j = 0; j < parserData->num_terminals; j++)
-		{
 			parserData->parseTable[i][j] = -1;
-		}
-	}
+
 	int** rules = parserData->productions;
 	char* nullable = parserData->nullable;
-	for (int ind = 0; ind < parserData->num_productions; ind++) {
+
+	for (int ind = 0; ind < parserData->num_productions; ind++)
+	{
 		int lhs = rules[ind][0] - parserData->num_terminals;
 		int k = parserData->productionSize[ind];
-
 
 		char* temp = calloc(parserData->num_terminals, sizeof(char));
 		for (int j = 1; j < k; j++)
 		{
 			if (isTerminal(rules[ind][j]))
 			{
-
 				if (!BITTEST(temp, rules[ind][j]))
-				{
 					BITSET(temp, rules[ind][j]);
-				}
 				break;
 			}
-			else
-			{
-				int dummy = 0;
-				setUnion(temp, parserData->firstSet[rules[ind][j] - parserData->num_terminals], parserData->num_non_terminals, &dummy);
-				if (!BITTEST(nullable, rules[ind][j]))
-				{
-					break;
-				}
-			}
 
+			int dummy = 0;
+			setUnion(temp, parserData->firstSet[rules[ind][j] - parserData->num_terminals], parserData->num_non_terminals, &dummy);
+
+			if (!BITTEST(nullable, rules[ind][j]))
+				break;
 		}
+		
 		if (!(rules[ind][1] == 0))
-		{
 			for (int i = 0; i < parserData->num_terminals; i++)
-			{
-				if (BITTEST(temp, i)) {
+				if (BITTEST(temp, i))
 					parserData->parseTable[lhs][i] = ind;
-				}
-			}
-		}
+		
 		char* followSet = parserData->followSet[lhs];
 		int ruleIsNullable = 1;
-		for (int i = 0; i < parserData->num_terminals; i++) {
-			if (BITTEST(temp, i) && !BITTEST(nullable, i)) ruleIsNullable = 0;
-		}
-		if (ruleIsNullable || (rules[ind][1] == 0 && BITTEST(nullable, lhs + parserData->num_terminals))) {
-
-			for (int i = 0; i < parserData->num_terminals; i++) {
-				if (BITTEST(followSet, i)) {
+		for (int i = 0; i < parserData->num_terminals; i++)
+			if (BITTEST(temp, i) && !BITTEST(nullable, i)) 
+				ruleIsNullable = 0;
+		
+		if (ruleIsNullable || (rules[ind][1] == 0 && BITTEST(nullable, lhs + parserData->num_terminals)))
+			for (int i = 0; i < parserData->num_terminals; i++)
+				if (BITTEST(followSet, i))
 					parserData->parseTable[lhs][i] = ind;
-				}
 
-			}
-		}
 		free(temp);
 	}
-	for (int i = 0; i < parserData->num_non_terminals; i++) {
-		for (int j = 0; j < parserData->num_terminals; j++) {
+
+	for (int i = 0; i < parserData->num_non_terminals; i++)
+		for (int j = 0; j < parserData->num_terminals; j++)
 			if (parserData->parseTable[i][j] == -1 && BITTEST(parserData->followSet[i], j))
 				parserData->parseTable[i][j] = -2;
-		}
+
+	for (int i = 0; i < parserData->num_terminals; ++i)
+	{
+		for (int j = 0; j < parserData->num_non_terminals; ++j)
+			printf("%3d ", parserData->parseTable[j][i]);
+		printf("\n");
 	}
 }
 
@@ -356,6 +346,46 @@ int lexerToParserToken(int index)
 	return trie_getVal(parserData->symbolStr2symbolType, lexerData->tokenType2tokenStr[index]).value;
 }
 
+TreeNode* recoverFromError(TreeNode* node, Stack* st, Token** lookahead)
+{
+	if (isTerminal(top(st)))	// terminal unmatch with terminal
+	{
+		TreeNode* parent = node->parent;
+		for (int i = node->parent_child_index; i < parent->child_count; ++i)
+		{
+			pop(st);
+			free(parent->children[i]);
+		}
+
+		if (node->parent_child_index == 0)
+			free(parent->children);
+
+		node = parent;
+
+		// update lookahead
+		assert(!isTerminal(node->symbol_index));
+	}
+	else
+		pop(st);
+
+	// when we have non terminal on top of stack
+	char* followSet = parserData->followSet[node->symbol_index];
+	while (
+		(*lookahead)->type == TK_ERROR_LENGTH ||
+		(*lookahead)->type == TK_ERROR_PATTERN ||
+		(*lookahead)->type == TK_ERROR_SYMBOL ||
+		BITTEST(followSet, lexerToParserToken((*lookahead)->type)))
+	{
+		free((*lookahead)->lexeme);
+		free(*lookahead);
+		*lookahead = getNextToken();
+	}
+
+	while (node->parent_child_index == node->parent->child_count - 1)
+		node = node->parent;
+	return node = node->parent->children[node->parent_child_index + 1];
+}
+
 TreeNode* parseSourceCode(char* fileLoc)
 {
 	TreeNode* parseTree;
@@ -385,6 +415,13 @@ TreeNode* parseSourceCode(char* fileLoc)
 			int column = lexerToParserToken(lookahead->type);
 
 			int production_index = parserData->parseTable[row][column];
+
+			if (production_index < 0)
+			{
+				node = recoverFromError(node, s, &lookahead);
+				continue;
+			}
+
 			int* production = parserData->productions[production_index];
 			int production_size = parserData->productionSize[production_index];
 
@@ -404,17 +441,12 @@ TreeNode* parseSourceCode(char* fileLoc)
 			node->child_count = production_size - 1;
 			node->children = calloc(node->child_count, sizeof(TreeNode*));
 
-
 			for (int i = production_size - 1; i > 0; --i)
 			{
 				push(s, production[i]);
 
 				// -1 here because production[0] is the start symbol
-				TreeNode* ptr = calloc(1, sizeof(TreeNode));
-				node->children[i - 1] = ptr;
-
-				if (ptr != NULL && node->children[i - 1] == NULL)
-					printf("Error\n");
+				node->children[i - 1] = calloc(1, sizeof(TreeNode));
 
 				node->children[i - 1]->parent = node;
 				node->children[i - 1]->symbol_index = production[i];
@@ -428,23 +460,31 @@ TreeNode* parseSourceCode(char* fileLoc)
 		}
 
 		// terminal
+
+		if (lookahead->type == TK_ERROR_LENGTH || 
+			lookahead->type == TK_ERROR_PATTERN || 
+			lookahead->type == TK_ERROR_SYMBOL ||
+			current_top != lexerToParserToken(lookahead->type))
+		{
+			node = recoverFromError(node, s, &lookahead);
+			continue;
+		}
+			
+
 		assert(current_top == lexerToParserToken(lookahead->type));
 		node->token = lookahead;
 		node->isLeaf = 1;
 		lookahead = getNextToken();
+
 		pop(s);
-
-		// goto top will we reach another valid position corresponding to current stack top
-
 		current_top = top(s);
 		if (top(s) == -1)
-			continue;
+			break;
 
 		while (node->parent_child_index == node->parent->child_count - 1)
 			node = node->parent;
 		node = node->parent->children[node->parent_child_index + 1];
-
-
+		
 		assert(current_top == node->symbol_index);
 	}
 
