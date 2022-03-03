@@ -12,49 +12,6 @@
 #define BITCLEAR(a, b) ((a)[BITSLOT(b)] &= ~BITMASK(b))
 #define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
-void createEmptyStack(Stack* s) {
-	s->top = -1;
-}
-int isfull(Stack* s) {
-	if (s->top == MAX - 1)
-		return 1;
-	else
-		return 0;
-}
-int isempty(Stack* s) {
-	if (s->top == -1)
-		return 1;
-	else
-		return 0;
-}
-void push(Stack* s, int newitem) {
-	if (isfull(s)) {
-		printf("STACK FULL");
-	}
-	else {
-		s->top++;
-		s->items[s->top] = newitem;
-	}
-	count++;
-}
-void pop(Stack* s) {
-	if (isempty(s)) {
-		printf("\n STACK EMPTY \n");
-	}
-	else {
-		printf("Item popped= %d", s->items[s->top]);
-		s->top--;
-	}
-	count--;
-	printf("\n");
-}
-void printStack(Stack* s) {
-	printf("Stack: ");
-	for (int i = 0; i < count; i++) {
-		printf("%d ", s->items[i]);
-	}
-	printf("\n");
-}
 
 
 ParserData* parserData;
@@ -278,17 +235,52 @@ int** getParseTable()
 	char* nullable = getNullable();
 	for (int ind = 0; ind < parserData->num_productions; ind++) {
 		int lhs = rules[ind][0] - parserData->num_terminals;
-		char* firstSet = parserData->firstSet[lhs];
+		int k = parserData->productionSize[ind];
 
-		for (int i = 0; i < parserData->num_terminals; i++)
+
+		char* temp = calloc(parserData->num_terminals, sizeof(char));
+		for (int j = 1; j < k; j++)
 		{
-			if (BITTEST(firstSet, i)) {
-				parseTable[lhs][i] = ind;
+			if (isTerminal(rules[ind][j]))
+			{
+
+				if (!BITTEST(temp, rules[ind][j]))
+				{
+					BITSET(temp, rules[ind][j]);
+				}
+				break;
+			}
+			else
+			{
+				int dummy = 0;
+				setUnion(temp, parserData->firstSet[rules[ind][j] - parserData->num_terminals], parserData->num_non_terminals, &dummy);
+				if (!BITTEST(nullable, rules[ind][j]))
+				{
+					break;
+				}
+			}
+
+		}
+		if (lhs == 2)
+		{
+			printf("=======================\n");
+			printBitset(temp, parserData->num_terminals);
+		}
+		if (!(rules[ind][1] == 0))
+		{
+			for (int i = 0; i < parserData->num_terminals; i++)
+			{
+				if (BITTEST(temp, i)) {
+					parseTable[lhs][i] = ind;
+				}
 			}
 		}
-
 		char* followSet = parserData->followSet[lhs];
-		if (BITTEST(nullable,lhs + parserData->num_terminals)) {
+		int ruleIsNullable = 1;
+		for (int i = 0; i <parserData->num_terminals; i++) {
+			if (BITTEST(temp,i) && !BITTEST(nullable, i)) ruleIsNullable = 0;
+		}
+		if (ruleIsNullable || (rules[ind][1]==0 && BITTEST(nullable,lhs+parserData->num_terminals))) {
 
 			for (int i = 0; i < parserData->num_terminals; i++) {
 				if (BITTEST(followSet, i)) {
@@ -355,13 +347,16 @@ void loadProductions(FILE* fp)
 	getFollowSet();
 	int** parseTable = getParseTable();
 
-	for (int i = 0; i < parserData->num_non_terminals; i++)
+	for (int j = 0; j < parserData->num_terminals; j++)
 	{
-		printf("%d) ", i+1);
-		int j = 4;
-		printf("%d ", parseTable[i][j]==-1?parseTable[i][j]: parseTable[i][j]+1);
-		printf("\n");
-
+		printf("printing %d column\n", j + 1);
+		for (int i = 0; i < parserData->num_non_terminals; i++)
+		{
+			printf("%d) ", i + 1);
+			printf("%d ", parseTable[i][j] == -1 ? parseTable[i][j] : parseTable[i][j] + 1);
+			printf("\n");
+		}
+		printf("---------------------------------------");
 	}
 }
 
@@ -396,28 +391,28 @@ void loadParser()
 	fclose(fp);
 }
 
-void parseSourceCode(char* fileLoc)
-{
-	FILE* fp = fopen(fileLoc, "r");
-
-	if (!fp)
-	{
-		fprintf(stderr, "Error opening file %s: %s\n", path, strerror(errno));
-		return;
-	}
-
-	loadFile(fp);
-
-	Token* tk;
-	while ((tk = getNextToken()) != NULL)
-	{
-		/*if (tk->type == TK_ERROR_LENGTH)
-			printf("Line no. %d: Error: Identifier length is greater than the prescribed length.\n", tk->line_number);
-		else if (tk->type == TK_ERROR_SYMBOL)
-			printf("Line no. %d: Error: Unknwon Symbol <%s>\n", tk->line_number, tk->lexeme);
-		else if (tk->type == TK_ERROR_PATTERN)
-			printf("Line no. %d: Error: Unknown Pattern <%s>\n", tk->line_number, tk->lexeme);
-		else
-			printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);*/
-	}
-}
+//void parseSourceCode(char* fileLoc)
+//{
+//	FILE* fp = fopen(fileLoc, "r");
+//
+//	if (!fp)
+//	{
+//		fprintf(stderr, "Error opening file %s: %s\n", path, strerror(errno));
+//		return;
+//	}
+//
+//	loadFile(fp);
+//
+//	Token* tk;
+//	while ((tk = getNextToken()) != NULL)
+//	{
+//		/*if (tk->type == TK_ERROR_LENGTH)
+//			printf("Line no. %d: Error: Identifier length is greater than the prescribed length.\n", tk->line_number);
+//		else if (tk->type == TK_ERROR_SYMBOL)
+//			printf("Line no. %d: Error: Unknwon Symbol <%s>\n", tk->line_number, tk->lexeme);
+//		else if (tk->type == TK_ERROR_PATTERN)
+//			printf("Line no. %d: Error: Unknown Pattern <%s>\n", tk->line_number, tk->lexeme);
+//		else
+//			printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);*/
+//	}
+//}

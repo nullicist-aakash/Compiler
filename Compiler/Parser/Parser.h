@@ -22,13 +22,10 @@ typedef struct TreeNode {
 	int symbol;
 	struct TreeNode** children;
 }TreeNode;
-typedef struct Stack {
-	int items[MAX];
-	int top;
-}Stack;
+
 extern ParserData* parserData;
 void loadParser();
 
-void parseSourceCode(char* fileLoc);
+//void parseSourceCodes(char* fileLoc);
 
 #endif

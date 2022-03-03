@@ -157,7 +157,7 @@ oneExpansion TK_DOT TK_FIELDID
 moreExpansions oneExpansion moreExpansions  
 moreExpansions eps 
 singleOrRecId TK_ID option_single_constructed  
-option_single_constructed eps  
+option_single_constructed eps 
 option_single_constructed oneExpansion moreExpansions  
 funCallStmt outputParameters TK_CALL TK_FUNID TK_WITH TK_PARAMETERS inputParameters TK_SEM 
 outputParameters TK_SQL idList TK_SQR TK_ASSIGNOP  
