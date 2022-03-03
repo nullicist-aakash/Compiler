@@ -336,31 +336,9 @@ void loadProductions(FILE* fp)
 			parserData->productions[i][j] = symbols[j];
 		
 	}
-	for (int i = 0; i < parserData->num_productions; i++)
-	{
-		for (int j = 0; j < parserData->productionSize[i]; j++)
-		{
-			printf("%d ", parserData->productions[i][j]);
-		}
-		printf("\n");
-	}
 	getFirstSet();
-	printf("First set computed..\n");
 	getFollowSet();
 	int** parseTable = getParseTable();
-
-	for (int j = 0; j < parserData->num_terminals; j++)
-	{
-		printf("printing %d column\n", j + 1);
-		for (int i = 0; i < parserData->num_non_terminals; i++)
-		{
-			printf("%d) ", i + 1);
-			printf("%d ", parseTable[i][j] == -1 ? parseTable[i][j] : parseTable[i][j] + 1);
-			printf("\n");
-		}
-		printf("---------------------------------------");
-	}
-
 	parserData->parseTable = parseTable;
 }
 
@@ -384,10 +362,10 @@ void loadParser()
 
 int lexerToParserToken(int index)
 {
-	return trie_getVal(lexerData->tokenStr2tokenType, parserData->symbolType2symbolStr[index]).value;
+	return trie_getVal(parserData->symbolStr2symbolType, lexerData->tokenType2tokenStr[index]).value;
 }
 
-void parseSourceCodes(char* fileLoc)
+void parseSourceCode(char* fileLoc)
 {
 	FILE* fp = fopen(fileLoc, "r");
 	loadFile(fp);
@@ -403,10 +381,10 @@ void parseSourceCodes(char* fileLoc)
 	{
 		if (!isTerminal(current_top))
 		{
-			int row = current_top;
+			int row = current_top - parserData->num_terminals;
 			int column = lexerToParserToken(lookahead->type);
 
-			int production_index = parserData->productions[row][column];
+			int production_index = parserData->parseTable[row][column];
 			int* production = parserData->productions[production_index];
 			int production_size = parserData->productionSize[production_index];
 
@@ -424,5 +402,10 @@ void parseSourceCodes(char* fileLoc)
 		assert(current_top == lexerToParserToken(lookahead->type));
 		lookahead = getNextToken();
 		pop(&s);
+
+		current_top = top(&s);
 	}
+
+	assert(current_top == -1);
+	printf("Parsing Complete!!\n");
 }

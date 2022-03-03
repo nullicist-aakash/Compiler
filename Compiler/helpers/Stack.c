@@ -1,11 +1,13 @@
 #include "Stack.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 void push(Stack* stack, int data)
 {
 	StackNode* ptr = calloc(1, sizeof(StackNode));
 	ptr->prev = stack->top;
+	ptr->data = data;
 	stack->top = ptr;
 }
 
