@@ -15,6 +15,7 @@
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
 
 ParserData* parserData;
+TreeNode* parseTree;
 
 void printBitset(char* bitset, int n) {
 	printf("BITSET : ");
@@ -374,13 +375,16 @@ void parseSourceCode(char* fileLoc)
 	FILE* fp = fopen(fileLoc, "r");
 	loadFile(fp);
 
-	Token* lookahead = getNextToken();
 	Stack s;
+	parseTree = calloc(1, sizeof(parseTree));
 	push(&s, -1);
 	push(&s, parserData->start_index);
+	parseTree->symbol_index = top(&s);
 
 	int current_top = top(&s);
-	
+	TreeNode* node = parseTree;
+
+	Token* lookahead = getNextToken();
 	while (lookahead != NULL)
 	{
 		if (!isTerminal(current_top))
@@ -394,18 +398,43 @@ void parseSourceCode(char* fileLoc)
 
 			pop(&s);
 
+			if (production_size == 2 && production[1] == 0)
+			{
+				current_top = top(&s);
+				continue;
+			}
+
+			node->child_count = production_size - 1;
+			node->children = calloc(node->child_count, sizeof(TreeNode*));
+
+
 			for (int i = production_size - 1; i > 0; --i)
-				if (production[i] != 0)		// don't push empty string
-					push(&s, production[i]);
+			{
+				push(&s, production[i]);
+
+				// -1 here because production[0] is the start symbol
+				node->children[i - 1] = calloc(1, sizeof(TreeNode));
+				node->children[i - 1]->parent = node;
+				node->children[i - 1]->symbol_index = production[i];
+				node->children[i - 1]->parent_child_index = i - 1;
+			}
 
 			current_top = top(&s);
+			node = node->children[0];
 			continue;
 		}
 
 		// terminal
 		assert(current_top == lexerToParserToken(lookahead->type));
+		node->token = lookahead;
 		lookahead = getNextToken();
 		pop(&s);
+
+		// goto top will we reach another valid position corresponding to current stack top
+
+		while (node->parent_child_index == node->parent->child_count - 1)
+			node = node->parent;
+		node = node->parent->children[node->parent_child_index + 1];
 
 		current_top = top(&s);
 	}

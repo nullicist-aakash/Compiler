@@ -1,5 +1,4 @@
-#ifndef LEXER_h
-#define LEXER_H
+#pragma once
 #include <stdio.h>
 #include "../helpers/Trie.h"
 
@@ -102,5 +101,3 @@ void loadFile(FILE*);
 Token* getNextToken();
 
 void removeComments(FILE* source, FILE* destination);
-
-#endif
