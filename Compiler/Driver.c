@@ -54,7 +54,6 @@ void printLexerOutput(char* path)
 
 void traverse(TreeNode* node)
 {
-	printf("Hello\n");
 	if (node->parent != NULL)
 		printf("Node: %s, parent: %s\n", parserData->symbolType2symbolStr[node->symbol_index], parserData->symbolType2symbolStr[node->parent->symbol_index]);
 	else
@@ -81,7 +80,6 @@ void traverse(TreeNode* node)
 int main(int argc, char** argv)
 {
 	clear_screen();
-
 	loadLexer();
 	loadParser();
 	/*

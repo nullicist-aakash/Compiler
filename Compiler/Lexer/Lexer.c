@@ -104,6 +104,7 @@ void loadFinalStates(FILE* fp)
 
 void loadKeywords(FILE* fp)
 {
+	lexerData->keyword2Str = calloc(lexerData->num_keywords, sizeof(char*));
 	if (lexerData->symbolTable == NULL)
 		lexerData->symbolTable = calloc(lexerData->num_tokens, sizeof(char*));
 
@@ -111,6 +112,9 @@ void loadKeywords(FILE* fp)
 	{
 		char BUFF1[64], BUFF2[64];
 		fscanf(fp, "%s %s\n", BUFF1, BUFF2);
+
+		lexerData->keyword2Str[i] = calloc(strlen(BUFF2) + 1, sizeof(char));
+		strcpy(lexerData->keyword2Str[i], BUFF2);
 
 		TrieNode* ref = trie_getRef(lexerData->symbolTable, BUFF1);
 		ref->entry.value = trie_getVal(lexerData->tokenStr2tokenType, BUFF2).value;

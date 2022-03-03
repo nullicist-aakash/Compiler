@@ -87,6 +87,7 @@ typedef struct
 	int** productions;
 	TokenType* finalStates;
 	char** tokenType2tokenStr;
+	char** keyword2Str;
 	Trie* tokenStr2tokenType;
 	Trie* symbolTable;	// move to global in future
 

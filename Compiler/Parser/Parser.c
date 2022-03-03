@@ -92,6 +92,17 @@ void computeNullable()
 	free(productionBitset);
 }
 
+void printFollowSets()
+{
+	for (int i = 0; i < parserData->num_non_terminals; ++i)
+	{
+		printf("Follow set of %s: { ", parserData->symbolType2symbolStr[i + parserData->num_terminals]);
+		for (int j = 0; j < parserData->num_terminals; ++j)
+			if (BITTEST(parserData->followSet[i], j))
+				printf("%s, ", parserData->symbolType2symbolStr[j]);
+		printf("\b\b }\n");
+	}
+}
 
 void populateFirstSets()
 {
@@ -204,6 +215,32 @@ void populateFollowSets()
 	}
 }
 
+void populateSyncSets()
+{
+	for (int i = 0; i < parserData->num_non_terminals; ++i)
+	{
+		for (int j = 0; j < parserData->num_terminals; ++j)
+		{
+			if (parserData->parseTable[i][j] > -1)
+				continue;
+
+			if (BITTEST(parserData->followSet[i], j))
+				parserData->parseTable[i][j] = -2;
+		}
+	}
+
+	for (int i = 0; i < lexerData->num_keywords; ++i)
+	{
+		char* keyword = lexerData->keyword2Str[i];
+		int index = trie_getVal(parserData->symbolStr2symbolType, keyword).value;
+		assert(index > 0);
+
+		for (int j = 0; j < parserData->num_non_terminals; ++j)
+			if (parserData->parseTable[j][index] == -1)
+				parserData->parseTable[j][index] = -2;
+	}
+}
+
 void computeFirstFollowSets()
 {
 	computeNullable();
@@ -266,18 +303,6 @@ void computeParseTable()
 
 		free(temp);
 	}
-
-	for (int i = 0; i < parserData->num_non_terminals; i++)
-		for (int j = 0; j < parserData->num_terminals; j++)
-			if (parserData->parseTable[i][j] == -1 && BITTEST(parserData->followSet[i], j))
-				parserData->parseTable[i][j] = -2;
-
-	for (int i = 0; i < parserData->num_terminals; ++i)
-	{
-		for (int j = 0; j < parserData->num_non_terminals; ++j)
-			printf("%3d ", parserData->parseTable[j][i]);
-		printf("\n");
-	}
 }
 
 void loadSymbols(FILE* fp)
@@ -322,6 +347,7 @@ void loadProductions(FILE* fp)
 	}
 	computeFirstFollowSets();
 	computeParseTable();
+	populateSyncSets();
 }
 
 void loadParser()
@@ -346,44 +372,22 @@ int lexerToParserToken(int index)
 	return trie_getVal(parserData->symbolStr2symbolType, lexerData->tokenType2tokenStr[index]).value;
 }
 
-TreeNode* recoverFromError(TreeNode* node, Stack* st, Token** lookahead)
+void _pop(TreeNode** node, Stack* s)
 {
-	if (isTerminal(top(st)))	// terminal unmatch with terminal
+	assert((*node)->symbol_index == top(s));
+
+	pop(s);
+
+	while ((*node)->parent_child_index == (*node)->parent->child_count - 1)
 	{
-		TreeNode* parent = node->parent;
-		for (int i = node->parent_child_index; i < parent->child_count; ++i)
-		{
-			pop(st);
-			free(parent->children[i]);
-		}
-
-		if (node->parent_child_index == 0)
-			free(parent->children);
-
-		node = parent;
-
-		// update lookahead
-		assert(!isTerminal(node->symbol_index));
+		(*node) = (*node)->parent;
+		if ((*node)->parent == NULL)
+			return;
 	}
-	else
-		pop(st);
+	
+	(*node) = (*node)->parent->children[(*node)->parent_child_index + 1];
 
-	// when we have non terminal on top of stack
-	char* followSet = parserData->followSet[node->symbol_index];
-	while (
-		(*lookahead)->type == TK_ERROR_LENGTH ||
-		(*lookahead)->type == TK_ERROR_PATTERN ||
-		(*lookahead)->type == TK_ERROR_SYMBOL ||
-		BITTEST(followSet, lexerToParserToken((*lookahead)->type)))
-	{
-		free((*lookahead)->lexeme);
-		free(*lookahead);
-		*lookahead = getNextToken();
-	}
-
-	while (node->parent_child_index == node->parent->child_count - 1)
-		node = node->parent;
-	return node = node->parent->children[node->parent_child_index + 1];
+	assert((*node)->symbol_index == top(s));
 }
 
 TreeNode* parseSourceCode(char* fileLoc)
@@ -393,51 +397,81 @@ TreeNode* parseSourceCode(char* fileLoc)
 	loadFile(fp);
 
 	Stack* s = calloc(1, sizeof(Stack));
-	s->top = NULL;
 
 	push(s, -1);
 	push(s, parserData->start_index);
 
 	parseTree = calloc(1, sizeof(TreeNode));
-	parseTree->parent = NULL;
 	parseTree->symbol_index = top(s);
 
-	int current_top = top(s);
 	TreeNode* node = parseTree;
 
 	Token* lookahead = getNextToken();
-	parseTree->parent = NULL;
+
 	while (lookahead != NULL)
 	{
-		if (!isTerminal(current_top))
+	//	printf("\nStack: \n\t");
+
+		StackNode* temp = s->top;
+		while (temp->data != -1)
 		{
-			int row = current_top - parserData->num_terminals;
-			int column = lexerToParserToken(lookahead->type);
+	//		printf("%s ", parserData->symbolType2symbolStr[temp->data]);
+			temp = temp->prev;
+		}
 
-			int production_index = parserData->parseTable[row][column];
+	//	printf("\nToken (%d): %s\n", lookahead->line_number, lexerData->tokenType2tokenStr[lookahead->type]);
 
-			if (production_index < 0)
-			{
-				node = recoverFromError(node, s, &lookahead);
-				continue;
-			}
+		if (lookahead->type == TK_ERROR_LENGTH ||
+			lookahead->type == TK_ERROR_PATTERN ||
+			lookahead->type == TK_ERROR_SYMBOL)
+		{
+	//		printf("Inside Error token\n");
+			lookahead = getNextToken();
+			continue;
+		}
 
-			int* production = parserData->productions[production_index];
-			int production_size = parserData->productionSize[production_index];
+		int stack_top = top(s);
+		int input_terminal = lexerToParserToken(lookahead->type);;
 
-			pop(s);
+		// if top of stack matches with input terminal (terminal at top of stack)
+		if (stack_top == input_terminal)
+		{
+	//		printf("Stack top matches the input\n");
+			_pop(&node, s);
+			lookahead = getNextToken();
+			continue;
+		}
+
+		// if top of stack is terminal but it is not matching with input look-ahead
+		if (isTerminal(stack_top))
+		{
+	//		printf("Stack top doesn't match the lookahead\n");
+			_pop(&node, s);
+			continue;
+		}
+
+		// Here, top of stack is always non-terminal
+
+		int production_number = parserData->parseTable[stack_top - parserData->num_terminals][input_terminal];
+
+		// if it is a valid production
+		if (production_number >= 0)
+		{
+			int* production = parserData->productions[production_number];
+			int production_size = parserData->productionSize[production_number];
+
+	//		printf("Expanding along the production\n\t%s -> ", parserData->symbolType2symbolStr[production[0]]);
+			for (int i = 1; i < production_size; ++i);
+	//			printf("%s ", parserData->symbolType2symbolStr[production[i]]);
+	//		printf("\n");
 
 			if (production_size == 2 && production[1] == 0)
 			{
-				current_top = top(s);
-
-				while (node->parent_child_index == node->parent->child_count - 1)
-					node = node->parent;
-				node = node->parent->children[node->parent_child_index + 1];
-				
+				_pop(&node, s);
 				continue;
 			}
 
+			pop(s);
 			node->child_count = production_size - 1;
 			node->children = calloc(node->child_count, sizeof(TreeNode*));
 
@@ -454,41 +488,26 @@ TreeNode* parseSourceCode(char* fileLoc)
 				node->children[i - 1]->isLeaf = 0;
 			}
 
-			current_top = top(s);
 			node = node->children[0];
 			continue;
 		}
 
-		// terminal
-
-		if (lookahead->type == TK_ERROR_LENGTH || 
-			lookahead->type == TK_ERROR_PATTERN || 
-			lookahead->type == TK_ERROR_SYMBOL ||
-			current_top != lexerToParserToken(lookahead->type))
+		// if the production is not found and neither it is in sync set
+		if (production_number == -1)
 		{
-			node = recoverFromError(node, s, &lookahead);
+	//		printf("No valid transistion found\n");
+			lookahead = getNextToken();
 			continue;
 		}
-			
 
-		assert(current_top == lexerToParserToken(lookahead->type));
-		node->token = lookahead;
-		node->isLeaf = 1;
-		lookahead = getNextToken();
-
-		pop(s);
-		current_top = top(s);
-		if (top(s) == -1)
-			break;
-
-		while (node->parent_child_index == node->parent->child_count - 1)
-			node = node->parent;
-		node = node->parent->children[node->parent_child_index + 1];
-		
-		assert(current_top == node->symbol_index);
+		// left case is for sync set
+		assert(production_number == -2);
+	//	printf("Handling for the sync set");
+		_pop(&node, s);
 	}
 
-	assert(current_top == -1);
-
+	assert(top(s) == -1);
+	
+	fclose(fp);
 	return parseTree;
 }
