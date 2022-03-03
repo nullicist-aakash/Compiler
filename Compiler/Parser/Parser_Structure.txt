@@ -1,4 +1,4 @@
-57 53 95
+57 53 95 57
 eps
 TK_MAIN
 TK_END
@@ -205,7 +205,7 @@ definetypestmt TK_DEFINETYPE A TK_RUID TK_AS TK_RUID
 A TK_RECORD  
 A TK_UNION 
 
-num_terminals num_nonterminals num_productions
+num_terminals num_nonterminals num_productions index_start_symbol
 'num_nonterminals' lines each having one string representing the non terminals
 'num_productions' lines each having the follownig format: //convention to add space at the end of rule.
 Non_Terminal Production
