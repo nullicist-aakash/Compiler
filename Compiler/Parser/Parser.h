@@ -3,7 +3,7 @@
 #define MAX 200
 #include "../helpers/Trie.h"
 #include "../Lexer/Lexer.h"
-#include<stdio.h>
+#include <stdio.h>
 
 typedef struct 
 {
@@ -16,6 +16,7 @@ typedef struct
 	int* productionSize;
 	char** firstSet;
 	char** followSet;
+	char* nullable;
 	char** symbolType2symbolStr;
 	int** parseTable;
 	Trie* symbolStr2symbolType;
