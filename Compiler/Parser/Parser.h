@@ -30,6 +30,7 @@ typedef struct TreeNode
 
 	Token* token;
 
+	int isLeaf;
 	struct TreeNode* parent;
 	struct TreeNode** children;
 } TreeNode;
@@ -38,6 +39,6 @@ extern ParserData* parserData;
 extern TreeNode* parseTree;
 
 void loadParser();
-void parseSourceCode(char* fileLoc);
+TreeNode* parseSourceCode(char* fileLoc);
 
 #endif

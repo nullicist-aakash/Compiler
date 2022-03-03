@@ -15,7 +15,6 @@
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
 
 ParserData* parserData;
-TreeNode* parseTree;
 
 void printBitset(char* bitset, int n) {
 	printf("BITSET : ");
@@ -116,7 +115,7 @@ void getFirstSet()
 		int change = 0;
 		for (int i = 0; i < parserData->num_productions; i++) {
 			int lhs = rules[i][0] - parserData->num_terminals;
-	
+
 
 			int k = parserData->productionSize[i];
 			int nullableUntilNow = 1;
@@ -147,10 +146,6 @@ void getFirstSet()
 
 		}
 		flag = change;
-	}
-	for (int i = 0; i < parserData->num_non_terminals; i++) {
-		printf("First set of nonterminal %d -", i);
-		printBitset(parserData->firstSet[i],parserData->num_terminals);
 	}
 }
 void getFollowSet()
@@ -210,10 +205,6 @@ void getFollowSet()
 		}
 		flag = change;
 		
-	}
-	for (int i = 0; i < parserData->num_non_terminals; i++) {
-		printf("Follow set for %d : ", i);
-		printBitset(parserData->followSet[i], parserData->num_terminals);
 	}
 }
 
@@ -290,9 +281,6 @@ int** getParseTable()
 	}
 	for (int i = 0; i < parserData->num_non_terminals; i++) {
 		for (int j = 0; j < parserData->num_terminals; j++) {
-			if (BITTEST(parserData->followSet[i], j)) {
-				printf("ooooooooooooooooooooooooooooooooooooooo %d %d\n",i,j);
-			}
 			if (parseTable[i][j] == -1 && BITTEST(parserData->followSet[i], j))
 				parseTable[i][j] = -2;
 		}
@@ -308,7 +296,7 @@ void loadSymbols(FILE* fp)
 		fscanf(fp, "%s\n", BUFF);
 		parserData->symbolType2symbolStr[i] = calloc(strlen(BUFF) + 1, sizeof(char));
 		strcpy(parserData->symbolType2symbolStr[i], BUFF);
-		printf("%d %s\n", i, BUFF);
+
 		TrieNode* ref = trie_getRef(parserData->symbolStr2symbolType, BUFF);
 		ref->entry.value = i;
 	}
@@ -327,7 +315,7 @@ void loadProductions(FILE* fp)
 		int count = 0;
 		while (token)
 		{
-			if(strcmp(token,"\n")==0 ){}
+			if(strcmp(token,"\n")==0 || strcmp(token, "\r\n") == 0) {}
 			else
 			{
 				symbols[count] = trie_getVal(parserData->symbolStr2symbolType, token).value;
@@ -357,7 +345,6 @@ void loadParser()
 	assert(fp != NULL);
 
 	fscanf(fp, "%d %d %d %d\n", &parserData->num_terminals, &parserData->num_non_terminals, &parserData->num_productions,&parserData->start_index);
-	printf("%d %d %d\n", parserData->num_non_terminals, parserData->num_terminals, parserData->num_productions);
 	parserData->symbolType2symbolStr = calloc(parserData->num_terminals + parserData->num_non_terminals, sizeof(char*));
 	parserData->symbolStr2symbolType = calloc(1, sizeof(Trie));
 	loadSymbols(fp);
@@ -370,33 +357,29 @@ int lexerToParserToken(int index)
 	return trie_getVal(parserData->symbolStr2symbolType, lexerData->tokenType2tokenStr[index]).value;
 }
 
-void parseSourceCode(char* fileLoc)
+TreeNode* parseSourceCode(char* fileLoc)
 {
+	TreeNode* parseTree;
 	FILE* fp = fopen(fileLoc, "r");
 	loadFile(fp);
 
-	Stack s;
+	Stack* s = calloc(1, sizeof(Stack));
+	s->top = NULL;
+
+	push(s, -1);
+	push(s, parserData->start_index);
+
 	parseTree = calloc(1, sizeof(parseTree));
 	parseTree->parent = NULL;
-	push(&s, -1);
-	push(&s, parserData->start_index);
-	parseTree->symbol_index = top(&s);
+	parseTree->symbol_index = top(s);
 
-	int current_top = top(&s);
+	int current_top = top(s);
 	TreeNode* node = parseTree;
 
 	Token* lookahead = getNextToken();
+	parseTree->parent = NULL;
 	while (lookahead != NULL)
 	{
-		if (node->parent != NULL)
-		{
-			if (node->parent->symbol_index == 58 && node->symbol_index == 2)
-			{
-				printf("Rola");
-			}
-			printf("Current Node: %s, Parent: %s\n", parserData->symbolType2symbolStr[node->symbol_index], parserData->symbolType2symbolStr[node->parent->symbol_index]);
-		}
-
 		if (!isTerminal(current_top))
 		{
 			int row = current_top - parserData->num_terminals;
@@ -406,11 +389,11 @@ void parseSourceCode(char* fileLoc)
 			int* production = parserData->productions[production_index];
 			int production_size = parserData->productionSize[production_index];
 
-			pop(&s);
+			pop(s);
 
 			if (production_size == 2 && production[1] == 0)
 			{
-				current_top = top(&s);
+				current_top = top(s);
 
 				while (node->parent_child_index == node->parent->child_count - 1)
 					node = node->parent;
@@ -421,26 +404,23 @@ void parseSourceCode(char* fileLoc)
 
 			node->child_count = production_size - 1;
 			node->children = calloc(node->child_count, sizeof(TreeNode*));
+//			memset(*(node->children), 0, node->child_count * sizeof(TreeNode*));
 
 
 			for (int i = production_size - 1; i > 0; --i)
 			{
-				push(&s, production[i]);
+				push(s, production[i]);
 
 				// -1 here because production[0] is the start symbol
-				node->children[i - 1] = calloc(1, sizeof(TreeNode));
+				void* ptr = calloc(1, sizeof(TreeNode));
+				node->children[i - 1] = ptr;
 				node->children[i - 1]->parent = node;
 				node->children[i - 1]->symbol_index = production[i];
-
-				if (node == parseTree)
-				{
-					printf("abcd");
-				}
-
 				node->children[i - 1]->parent_child_index = i - 1;
+				node->children[i - 1]->isLeaf = 0;
 			}
 
-			current_top = top(&s);
+			current_top = top(s);
 			node = node->children[0];
 			continue;
 		}
@@ -448,18 +428,14 @@ void parseSourceCode(char* fileLoc)
 		// terminal
 		assert(current_top == lexerToParserToken(lookahead->type));
 		node->token = lookahead;
+		node->isLeaf = 1;
 		lookahead = getNextToken();
-		pop(&s);
+		pop(s);
 
 		// goto top will we reach another valid position corresponding to current stack top
 
-		if (current_top == 1)
-		{
-			printf("\n");
-		}
-
-		current_top = top(&s);
-		if (top(&s) == -1)
+		current_top = top(s);
+		if (top(s) == -1)
 			continue;
 
 		while (node->parent_child_index == node->parent->child_count - 1)
@@ -471,5 +447,6 @@ void parseSourceCode(char* fileLoc)
 	}
 
 	assert(current_top == -1);
-	printf("Parsing Complete!!\n");
+
+	return parseTree;
 }
