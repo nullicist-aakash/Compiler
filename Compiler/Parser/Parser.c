@@ -241,14 +241,6 @@ void populateSyncSets()
 	}
 }
 
-void computeFirstFollowSets()
-{
-	computeNullable();
-	populateFirstSets();
-	populateFollowSets();
-}
-
-
 void computeParseTable()
 {
 	parserData->parseTable = calloc(parserData->num_non_terminals, sizeof(int*));
@@ -331,8 +323,7 @@ void loadProductions(FILE* fp)
 		int count = 0;
 		while (token)
 		{
-			if (strcmp(token, "\n") == 0) {}
-			else
+			if (strcmp(token, "\n") != 0 && strcmp(token, "\r\n") != 0)
 			{
 				symbols[count] = trie_getVal(parserData->symbolStr2symbolType, token).value;
 				count++;
@@ -345,9 +336,6 @@ void loadProductions(FILE* fp)
 			parserData->productions[i][j] = symbols[j];
 
 	}
-	computeFirstFollowSets();
-	computeParseTable();
-	populateSyncSets();
 }
 
 void loadParser()
@@ -363,7 +351,20 @@ void loadParser()
 	parserData->symbolType2symbolStr = calloc(parserData->num_terminals + parserData->num_non_terminals, sizeof(char*));
 	parserData->symbolStr2symbolType = calloc(1, sizeof(Trie));
 	loadSymbols(fp);
+	printf("Calculating Productions\n");
 	loadProductions(fp);
+
+	printf("Calculating Nullables\n");
+	computeNullable();
+	printf("Calculating First\n");
+	populateFirstSets();
+	printf("Calculating Follow\n");
+	populateFollowSets();
+
+	printf("Calculating PT\n");
+	computeParseTable();
+	populateSyncSets();
+
 	fclose(fp);
 }
 
