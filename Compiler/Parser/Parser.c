@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-	/* for CHAR_BIT */
+#include "../Lexer/Lexer.h"
+
+/* for CHAR_BIT */
 #define CHAR_BIT 8
 #define BITMASK(b) (1 << ((b) % CHAR_BIT))
 #define BITSLOT(b) ((b) / CHAR_BIT)
@@ -396,5 +398,26 @@ void loadParser()
 
 void parseSourceCode(char* fileLoc)
 {
+	FILE* fp = fopen(fileLoc, "r");
 
+	if (!fp)
+	{
+		fprintf(stderr, "Error opening file %s: %s\n", path, strerror(errno));
+		return;
+	}
+
+	loadFile(fp);
+
+	Token* tk;
+	while ((tk = getNextToken()) != NULL)
+	{
+		/*if (tk->type == TK_ERROR_LENGTH)
+			printf("Line no. %d: Error: Identifier length is greater than the prescribed length.\n", tk->line_number);
+		else if (tk->type == TK_ERROR_SYMBOL)
+			printf("Line no. %d: Error: Unknwon Symbol <%s>\n", tk->line_number, tk->lexeme);
+		else if (tk->type == TK_ERROR_PATTERN)
+			printf("Line no. %d: Error: Unknown Pattern <%s>\n", tk->line_number, tk->lexeme);
+		else
+			printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);*/
+	}
 }
