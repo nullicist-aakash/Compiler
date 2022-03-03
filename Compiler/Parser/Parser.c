@@ -382,10 +382,47 @@ void loadParser()
 	fclose(fp);
 }
 
+int lexerToParserToken(int index)
+{
+	return trie_getVal(lexerData->tokenStr2tokenType, parserData->symbolType2symbolStr[index]).value;
+}
+
 void parseSourceCodes(char* fileLoc)
 {
 	FILE* fp = fopen(fileLoc, "r");
 	loadFile(fp);
 
+	Token* lookahead = getNextToken();
+	Stack s;
+	push(&s, -1);
+	push(&s, parserData->start_index);
 
+	int current_top = top(&s);
+	
+	while (lookahead != NULL)
+	{
+		if (!isTerminal(current_top))
+		{
+			int row = current_top;
+			int column = lexerToParserToken(lookahead->type);
+
+			int production_index = parserData->productions[row][column];
+			int* production = parserData->productions[production_index];
+			int production_size = parserData->productionSize[production_index];
+
+			pop(&s);
+
+			for (int i = production_size - 1; i > 0; --i)
+				if (production[i] != 0)		// don't push empty string
+					push(&s, production[i]);
+
+			current_top = top(&s);
+			continue;
+		}
+
+		// terminal
+		assert(current_top == lexerToParserToken(lookahead->type));
+		lookahead = getNextToken();
+		pop(&s);
+	}
 }

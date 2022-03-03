@@ -15,5 +15,6 @@ typedef struct Stack
 void push(Stack*, int);
 int top(Stack*);
 void pop(Stack*);
+int empty(Stack*);
 
 #endif

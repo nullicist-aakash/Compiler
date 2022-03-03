@@ -23,3 +23,8 @@ void pop(Stack* stack)
 
 	stack->top = new_top;
 }
+
+int empty(Stack* stack)
+{
+	return stack->top == NULL;
+}
