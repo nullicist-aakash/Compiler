@@ -27,6 +27,9 @@
     <ClCompile Include="Parser\Parser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="helpers\Stack.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helpers\Trie.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Parser\Parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="helpers\Stack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
