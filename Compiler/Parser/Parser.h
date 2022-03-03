@@ -3,6 +3,7 @@
 #define MAX 200
 #include "../helpers/Trie.h"
 #include<stdio.h>
+enum bool{ false,true };
 typedef struct 
 {
 	int num_non_terminals;
@@ -19,7 +20,6 @@ typedef struct
 	Trie* symbolStr2symbolType;
 	Trie* lookupTable;	// move to global in future
 } ParserData;
-
 typedef struct TreeNode {
 	int symbol;
 	struct TreeNode** children;

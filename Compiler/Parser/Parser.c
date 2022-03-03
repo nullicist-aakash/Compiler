@@ -262,11 +262,6 @@ int** getParseTable()
 			}
 
 		}
-		if (lhs == 2)
-		{
-			printf("=======================\n");
-			printBitset(temp, parserData->num_terminals);
-		}
 		if (!(rules[ind][1] == 0))
 		{
 			for (int i = 0; i < parserData->num_terminals; i++)
@@ -291,6 +286,15 @@ int** getParseTable()
 			}
 		}
 
+	}
+	for (int i = 0; i < parserData->num_non_terminals; i++) {
+		for (int j = 0; j < parserData->num_terminals; j++) {
+			if (BITTEST(parserData->followSet[i], j)) {
+				printf("ooooooooooooooooooooooooooooooooooooooo %d %d\n",i,j);
+			}
+			if (parseTable[i][j] == -1 && BITTEST(parserData->followSet[i], j))
+				parseTable[i][j] = -2;
+		}
 	}
 	return parseTable;
 }
