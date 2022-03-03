@@ -141,11 +141,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Driver.c" />
+    <ClCompile Include="helpers\Stack.c" />
     <ClCompile Include="helpers\Trie.c" />
     <ClCompile Include="Lexer\Lexer.c" />
     <ClCompile Include="Parser\Parser.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="helpers\Stack.h" />
     <ClInclude Include="helpers\Trie.h" />
     <ClInclude Include="Lexer\Lexer.h" />
     <ClInclude Include="Parser\Parser.h" />

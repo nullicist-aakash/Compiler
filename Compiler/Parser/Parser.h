@@ -14,6 +14,7 @@ typedef struct
 	char** firstSet;
 	char** followSet;
 	char** symbolType2symbolStr;
+	int** parseTable;
 	Trie* symbolStr2symbolType;
 	Trie* lookupTable;	// move to global in future
 } ParserData;
@@ -26,6 +27,6 @@ typedef struct TreeNode {
 extern ParserData* parserData;
 void loadParser();
 
-//void parseSourceCodes(char* fileLoc);
+void parseSourceCodes(char* fileLoc);
 
 #endif

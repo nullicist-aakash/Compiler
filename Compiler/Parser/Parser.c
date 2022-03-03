@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "../helpers/Stack.h"
 #include "../Lexer/Lexer.h"
 
 /* for CHAR_BIT */
@@ -13,8 +14,8 @@
 #define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
 
-
 ParserData* parserData;
+
 void printBitset(char* bitset, int n) {
 	printf("BITSET : ");
 	for (int i = 0; i < n; i++) {
@@ -26,6 +27,7 @@ int isTerminal(int index)
 {
 	return index >= 0 && index < parserData->num_terminals;
 }
+
 char* bitAnd(char* bitset1, char* bitset2, int n, int* flag)
 {
 	char* bitset3 = calloc(n, sizeof(char));
@@ -36,7 +38,6 @@ char* bitAnd(char* bitset1, char* bitset2, int n, int* flag)
 	}
 	return bitset3;
 }
-
 int isEqual(char* bitset1, char* bitset2, int n) {
 	for (int i = 0; i < n; ++i)
 		if (bitset1[i] != bitset2[i])
@@ -293,6 +294,7 @@ int** getParseTable()
 	}
 	return parseTable;
 }
+
 void loadSymbols(FILE* fp)
 {
 	for (int i = 0; i < parserData->num_terminals + parserData->num_non_terminals; ++i)
@@ -358,20 +360,9 @@ void loadProductions(FILE* fp)
 		}
 		printf("---------------------------------------");
 	}
+
+	parserData->parseTable = parseTable;
 }
-
-
-
-//
-//char** getFollowSet()
-//{
-//
-//}
-//
-//char** getParseTable()
-//{
-//
-//}
 
 void loadParser()
 {
@@ -391,28 +382,10 @@ void loadParser()
 	fclose(fp);
 }
 
-//void parseSourceCode(char* fileLoc)
-//{
-//	FILE* fp = fopen(fileLoc, "r");
-//
-//	if (!fp)
-//	{
-//		fprintf(stderr, "Error opening file %s: %s\n", path, strerror(errno));
-//		return;
-//	}
-//
-//	loadFile(fp);
-//
-//	Token* tk;
-//	while ((tk = getNextToken()) != NULL)
-//	{
-//		/*if (tk->type == TK_ERROR_LENGTH)
-//			printf("Line no. %d: Error: Identifier length is greater than the prescribed length.\n", tk->line_number);
-//		else if (tk->type == TK_ERROR_SYMBOL)
-//			printf("Line no. %d: Error: Unknwon Symbol <%s>\n", tk->line_number, tk->lexeme);
-//		else if (tk->type == TK_ERROR_PATTERN)
-//			printf("Line no. %d: Error: Unknown Pattern <%s>\n", tk->line_number, tk->lexeme);
-//		else
-//			printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);*/
-//	}
-//}
+void parseSourceCodes(char* fileLoc)
+{
+	FILE* fp = fopen(fileLoc, "r");
+	loadFile(fp);
+
+
+}
