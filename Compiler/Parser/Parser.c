@@ -373,7 +373,7 @@ void loadParser()
 
 	assert(fp != NULL);
 
-	fscanf(fp, "%d %d %d\n", &parserData->num_terminals, &parserData->num_non_terminals, &parserData->num_productions);
+	fscanf(fp, "%d %d %d %d\n", &parserData->num_terminals, &parserData->num_non_terminals, &parserData->num_productions,&parserData->start_index);
 	printf("%d %d %d\n", parserData->num_non_terminals, parserData->num_terminals, parserData->num_productions);
 	parserData->symbolType2symbolStr = calloc(parserData->num_terminals + parserData->num_non_terminals, sizeof(char*));
 	parserData->symbolStr2symbolType = calloc(1, sizeof(Trie));

@@ -8,7 +8,8 @@ typedef struct
 	int num_non_terminals;
 	int num_terminals;
 	int num_productions;
-	
+	int start_index;
+
 	int** productions;
 	int* productionSize;
 	char** firstSet;
