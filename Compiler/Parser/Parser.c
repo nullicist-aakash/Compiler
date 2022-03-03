@@ -377,6 +377,7 @@ void parseSourceCode(char* fileLoc)
 
 	Stack s;
 	parseTree = calloc(1, sizeof(parseTree));
+	parseTree->parent = NULL;
 	push(&s, -1);
 	push(&s, parserData->start_index);
 	parseTree->symbol_index = top(&s);
@@ -387,6 +388,15 @@ void parseSourceCode(char* fileLoc)
 	Token* lookahead = getNextToken();
 	while (lookahead != NULL)
 	{
+		if (node->parent != NULL)
+		{
+			if (node->parent->symbol_index == 58 && node->symbol_index == 2)
+			{
+				printf("Rola");
+			}
+			printf("Current Node: %s, Parent: %s\n", parserData->symbolType2symbolStr[node->symbol_index], parserData->symbolType2symbolStr[node->parent->symbol_index]);
+		}
+
 		if (!isTerminal(current_top))
 		{
 			int row = current_top - parserData->num_terminals;
@@ -401,6 +411,11 @@ void parseSourceCode(char* fileLoc)
 			if (production_size == 2 && production[1] == 0)
 			{
 				current_top = top(&s);
+
+				while (node->parent_child_index == node->parent->child_count - 1)
+					node = node->parent;
+				node = node->parent->children[node->parent_child_index + 1];
+				
 				continue;
 			}
 
@@ -416,6 +431,12 @@ void parseSourceCode(char* fileLoc)
 				node->children[i - 1] = calloc(1, sizeof(TreeNode));
 				node->children[i - 1]->parent = node;
 				node->children[i - 1]->symbol_index = production[i];
+
+				if (node == parseTree)
+				{
+					printf("abcd");
+				}
+
 				node->children[i - 1]->parent_child_index = i - 1;
 			}
 
@@ -432,11 +453,21 @@ void parseSourceCode(char* fileLoc)
 
 		// goto top will we reach another valid position corresponding to current stack top
 
+		if (current_top == 1)
+		{
+			printf("\n");
+		}
+
+		current_top = top(&s);
+		if (top(&s) == -1)
+			continue;
+
 		while (node->parent_child_index == node->parent->child_count - 1)
 			node = node->parent;
 		node = node->parent->children[node->parent_child_index + 1];
 
-		current_top = top(&s);
+
+		assert(current_top == node->symbol_index);
 	}
 
 	assert(current_top == -1);

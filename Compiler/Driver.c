@@ -54,14 +54,14 @@ void printLexerOutput(char* path)
 
 void traverse(TreeNode* node)
 {
-	printf("%20s %10d %20s %5d %20s %10s %20s\n",
+	printf("%30s %10d %30s %5d %30s %10s %30s\n",
 		node->child_count == 0 ? node->token->lexeme : "----",
 		node->child_count == 0 ? node->token->line_number : -1,
-		node->child_count == 0 ? "----" : parserData->symbolType2symbolStr[node->symbol_index],
+		node->child_count != 0 ? "----" : parserData->symbolType2symbolStr[node->symbol_index],
 		0,
 		node->parent == NULL ? "root" : parserData->symbolType2symbolStr[node->parent->symbol_index],
 		node->child_count == 0 ? "yes" : "no",
-		node->child_count != 0 ? "----" : parserData->symbolType2symbolStr[node->symbol_index]
+		node->child_count == 0 ? "----" : parserData->symbolType2symbolStr[node->symbol_index]
 	);
 
 	for (int i = 0; i < node->child_count; ++i)
