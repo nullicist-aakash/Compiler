@@ -133,7 +133,7 @@ int main(int argc, char** argv)
 		else if (option == 2)
 			printLexerOutput(argv[1]);
 		else if (option == 3)
-			//parseSourceCode(argv[1]);
+			parseSourceCode(argv[1]);
 
 		end_time = clock();
 

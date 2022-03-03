@@ -28,6 +28,6 @@ typedef struct TreeNode {
 extern ParserData* parserData;
 void loadParser();
 
-void parseSourceCodes(char* fileLoc);
+void parseSourceCode(char* fileLoc);
 
 #endif
