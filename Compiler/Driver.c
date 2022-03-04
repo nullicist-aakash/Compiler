@@ -72,9 +72,7 @@ void main(int argc, char** argv)
 	
 	if (argc != 3)
 	{
-		char path[MAX_BUF];
-		char* buf = getcwd(NULL, 0);
-		fprintf(stderr, "usage: %s <source_ode_file> <parser_output_file>\n",buf);
+		fprintf(stderr, "usage: stage1exe <source_ode_file> <parser_output_file>\n");
 		exit(-1);
 	}
 
