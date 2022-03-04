@@ -14,6 +14,8 @@
 #include <string.h>
 #include <assert.h>
 
+LexerData* lexerData;
+Buffer* b;
 
 void loadFile(FILE* fp)
 {

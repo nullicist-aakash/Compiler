@@ -57,5 +57,3 @@ extern TreeNode* parseTree;
 #define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
 #define PARSER_DATA_LOC "grammar.txt"
-
-ParserData* parserData;

@@ -1,486 +1,486 @@
 On root
                           ----         -1                           ----  -nan(ind)                           ROOT         no                        program
 Node: otherFunctions, parent: program
-                          ----         -1                           ----  -nan(ind)                        program         no                 otherFunctions
+                          ----         -1                           ----       -nan                        program         no                 otherFunctions
 Node: function, parent: otherFunctions
-                          ----         -1                           ----  -nan(ind)                 otherFunctions         no                       function
+                          ----         -1                           ----       -nan                 otherFunctions         no                       function
 Node: TK_FUNID, parent: function
-                         _sumN          4                       TK_FUNID  -nan(ind)                       function        yes                           ----
+                         _sumN          4                       TK_FUNID       -nan                       function        yes                           ----
 Node: input_par, parent: function
-                          ----         -1                           ----  -nan(ind)                       function         no                      input_par
+                          ----         -1                           ----       -nan                       function         no                      input_par
 Node: TK_INPUT, parent: input_par
-                         input          4                       TK_INPUT  -nan(ind)                      input_par        yes                           ----
+                         input          4                       TK_INPUT       -nan                      input_par        yes                           ----
 Node: TK_PARAMETER, parent: input_par
-                     parameter          4                   TK_PARAMETER  -nan(ind)                      input_par        yes                           ----
+                     parameter          4                   TK_PARAMETER       -nan                      input_par        yes                           ----
 Node: TK_LIST, parent: input_par
-                          list          4                        TK_LIST  -nan(ind)                      input_par        yes                           ----
+                          list          4                        TK_LIST       -nan                      input_par        yes                           ----
 Node: TK_SQL, parent: input_par
-                             [          4                         TK_SQL  -nan(ind)                      input_par        yes                           ----
+                             [          4                         TK_SQL       -nan                      input_par        yes                           ----
 Node: parameter_list, parent: input_par
-                          ----         -1                           ----  -nan(ind)                      input_par         no                 parameter_list
+                          ----         -1                           ----       -nan                      input_par         no                 parameter_list
 Node: dataType, parent: parameter_list
-                          ----         -1                           ----  -nan(ind)                 parameter_list         no                       dataType
+                          ----         -1                           ----       -nan                 parameter_list         no                       dataType
 Node: primitiveDatatype, parent: dataType
-                          ----         -1                           ----  -nan(ind)                       dataType         no              primitiveDatatype
+                          ----         -1                           ----       -nan                       dataType         no              primitiveDatatype
 Node: TK_INT, parent: primitiveDatatype
-                           int          4                         TK_INT  -nan(ind)              primitiveDatatype        yes                           ----
+                           int          4                         TK_INT       -nan              primitiveDatatype        yes                           ----
 Node: TK_ID, parent: parameter_list
-                        d5cc34          4                          TK_ID  -nan(ind)                 parameter_list        yes                           ----
+                        d5cc34          4                          TK_ID       -nan                 parameter_list        yes                           ----
 Node: remaining_list, parent: parameter_list
-                          ----         -1                           ----  -nan(ind)                 parameter_list         no                 remaining_list
+                          ----         -1                           ----       -nan                 parameter_list         no                 remaining_list
 Node: TK_SQR, parent: input_par
-                             ]          4                         TK_SQR  -nan(ind)                      input_par        yes                           ----
+                             ]          4                         TK_SQR       -nan                      input_par        yes                           ----
 Node: output_par, parent: function
-                          ----         -1                           ----  -nan(ind)                       function         no                     output_par
+                          ----         -1                           ----       -nan                       function         no                     output_par
 Node: TK_OUTPUT, parent: output_par
-                        output          5                      TK_OUTPUT  -nan(ind)                     output_par        yes                           ----
+                        output          5                      TK_OUTPUT       -nan                     output_par        yes                           ----
 Node: TK_PARAMETER, parent: output_par
-                     parameter          5                   TK_PARAMETER  -nan(ind)                     output_par        yes                           ----
+                     parameter          5                   TK_PARAMETER       -nan                     output_par        yes                           ----
 Node: TK_LIST, parent: output_par
-                          list          5                        TK_LIST  -nan(ind)                     output_par        yes                           ----
+                          list          5                        TK_LIST       -nan                     output_par        yes                           ----
 Node: TK_SQL, parent: output_par
-                             [          5                         TK_SQL  -nan(ind)                     output_par        yes                           ----
+                             [          5                         TK_SQL       -nan                     output_par        yes                           ----
 Node: parameter_list, parent: output_par
-                          ----         -1                           ----  -nan(ind)                     output_par         no                 parameter_list
+                          ----         -1                           ----       -nan                     output_par         no                 parameter_list
 Node: dataType, parent: parameter_list
-                          ----         -1                           ----  -nan(ind)                 parameter_list         no                       dataType
+                          ----         -1                           ----       -nan                 parameter_list         no                       dataType
 Node: primitiveDatatype, parent: dataType
-                          ----         -1                           ----  -nan(ind)                       dataType         no              primitiveDatatype
+                          ----         -1                           ----       -nan                       dataType         no              primitiveDatatype
 Node: TK_REAL, parent: primitiveDatatype
-                          real          5                        TK_REAL  -nan(ind)              primitiveDatatype        yes                           ----
+                          real          5                        TK_REAL       -nan              primitiveDatatype        yes                           ----
 Node: TK_ID, parent: parameter_list
-                            d3          5                          TK_ID  -nan(ind)                 parameter_list        yes                           ----
+                            d3          5                          TK_ID       -nan                 parameter_list        yes                           ----
 Node: remaining_list, parent: parameter_list
-                          ----         -1                           ----  -nan(ind)                 parameter_list         no                 remaining_list
+                          ----         -1                           ----       -nan                 parameter_list         no                 remaining_list
 Node: TK_SQR, parent: output_par
-                             ]          5                         TK_SQR  -nan(ind)                     output_par        yes                           ----
+                             ]          5                         TK_SQR       -nan                     output_par        yes                           ----
 Node: TK_SEM, parent: function
-                             ;          5                         TK_SEM  -nan(ind)                       function        yes                           ----
+                             ;          5                         TK_SEM       -nan                       function        yes                           ----
 Node: stmts, parent: function
-                          ----         -1                           ----  -nan(ind)                       function         no                          stmts
+                          ----         -1                           ----       -nan                       function         no                          stmts
 Node: typeDefinitions, parent: stmts
-                          ----         -1                           ----  -nan(ind)                          stmts         no                typeDefinitions
+                          ----         -1                           ----       -nan                          stmts         no                typeDefinitions
 Node: declarations, parent: stmts
-                          ----         -1                           ----  -nan(ind)                          stmts         no                   declarations
+                          ----         -1                           ----       -nan                          stmts         no                   declarations
 Node: declaration, parent: declarations
-                          ----         -1                           ----  -nan(ind)                   declarations         no                    declaration
+                          ----         -1                           ----       -nan                   declarations         no                    declaration
 Node: TK_TYPE, parent: declaration
-                          type          6                        TK_TYPE  -nan(ind)                    declaration        yes                           ----
+                          type          6                        TK_TYPE       -nan                    declaration        yes                           ----
 Node: dataType, parent: declaration
-                          ----         -1                           ----  -nan(ind)                    declaration         no                       dataType
+                          ----         -1                           ----       -nan                    declaration         no                       dataType
 Node: primitiveDatatype, parent: dataType
-                          ----         -1                           ----  -nan(ind)                       dataType         no              primitiveDatatype
+                          ----         -1                           ----       -nan                       dataType         no              primitiveDatatype
 Node: TK_INT, parent: primitiveDatatype
-                           int          6                         TK_INT  -nan(ind)              primitiveDatatype        yes                           ----
+                           int          6                         TK_INT       -nan              primitiveDatatype        yes                           ----
 Node: TK_COLON, parent: declaration
-                             :          6                       TK_COLON  -nan(ind)                    declaration        yes                           ----
+                             :          6                       TK_COLON       -nan                    declaration        yes                           ----
 Node: TK_ID, parent: declaration
-                        b5b567          6                          TK_ID  -nan(ind)                    declaration        yes                           ----
+                        b5b567          6                          TK_ID       -nan                    declaration        yes                           ----
 Node: global_or_not, parent: declaration
-                          ----         -1                           ----  -nan(ind)                    declaration         no                  global_or_not
+                          ----         -1                           ----       -nan                    declaration         no                  global_or_not
 Node: TK_SEM, parent: declaration
-                             ;          6                         TK_SEM  -nan(ind)                    declaration        yes                           ----
+                             ;          6                         TK_SEM       -nan                    declaration        yes                           ----
 Node: declarations, parent: declarations
-                          ----         -1                           ----  -nan(ind)                   declarations         no                   declarations
+                          ----         -1                           ----       -nan                   declarations         no                   declarations
 Node: otherStmts, parent: stmts
-                          ----         -1                           ----  -nan(ind)                          stmts         no                     otherStmts
+                          ----         -1                           ----       -nan                          stmts         no                     otherStmts
 Node: stmt, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan                     otherStmts         no                           stmt
 Node: assignmentStmt, parent: stmt
-                          ----         -1                           ----  -nan(ind)                           stmt         no                 assignmentStmt
+                          ----         -1                           ----       -nan                           stmt         no                 assignmentStmt
 Node: singleOrRecId, parent: assignmentStmt
-                          ----         -1                           ----  -nan(ind)                 assignmentStmt         no                  singleOrRecId
+                          ----         -1                           ----       -nan                 assignmentStmt         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                        b5b567          7                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                        b5b567          7                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: TK_ASSIGNOP, parent: assignmentStmt
-                          <---          7                    TK_ASSIGNOP  -nan(ind)                 assignmentStmt        yes                           ----
+                          <---          7                    TK_ASSIGNOP       -nan                 assignmentStmt        yes                           ----
 Node: arithmeticExpression, parent: assignmentStmt
-                          ----         -1                           ----  -nan(ind)                 assignmentStmt         no           arithmeticExpression
+                          ----         -1                           ----       -nan                 assignmentStmt         no           arithmeticExpression
 Node: term, parent: arithmeticExpression
-                          ----         -1                           ----  -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan           arithmeticExpression         no                           term
 Node: factor, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan                           term         no                         factor
 Node: var, parent: factor
-                          ----         -1                           ----  -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan                         factor         no                            var
 Node: TK_RNUM, parent: var
                      11.01E-02          7                        TK_RNUM   0.110100                            var        yes                           ----
 Node: termPrime, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan                           term         no                      termPrime
 Node: expPrime, parent: arithmeticExpression
-                          ----         -1                           ----  -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan           arithmeticExpression         no                       expPrime
 Node: TK_SEM, parent: assignmentStmt
-                             ;          7                         TK_SEM  -nan(ind)                 assignmentStmt        yes                           ----
+                             ;          7                         TK_SEM       -nan                 assignmentStmt        yes                           ----
 Node: otherStmts, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan                     otherStmts         no                     otherStmts
 Node: stmt, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan                     otherStmts         no                           stmt
 Node: assignmentStmt, parent: stmt
-                          ----         -1                           ----  -nan(ind)                           stmt         no                 assignmentStmt
+                          ----         -1                           ----       -nan                           stmt         no                 assignmentStmt
 Node: singleOrRecId, parent: assignmentStmt
-                          ----         -1                           ----  -nan(ind)                 assignmentStmt         no                  singleOrRecId
+                          ----         -1                           ----       -nan                 assignmentStmt         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                            d3          8                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                            d3          8                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: TK_ASSIGNOP, parent: assignmentStmt
-                          <---          8                    TK_ASSIGNOP  -nan(ind)                 assignmentStmt        yes                           ----
+                          <---          8                    TK_ASSIGNOP       -nan                 assignmentStmt        yes                           ----
 Node: arithmeticExpression, parent: assignmentStmt
-                          ----         -1                           ----  -nan(ind)                 assignmentStmt         no           arithmeticExpression
+                          ----         -1                           ----       -nan                 assignmentStmt         no           arithmeticExpression
 Node: term, parent: arithmeticExpression
-                          ----         -1                           ----  -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan           arithmeticExpression         no                           term
 Node: factor, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan                           term         no                         factor
 Node: var, parent: factor
-                          ----         -1                           ----  -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan                         factor         no                            var
 Node: TK_RNUM, parent: var
                           0.00          8                        TK_RNUM   0.000000                            var        yes                           ----
 Node: termPrime, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan                           term         no                      termPrime
 Node: expPrime, parent: arithmeticExpression
-                          ----         -1                           ----  -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan           arithmeticExpression         no                       expPrime
 Node: TK_SEM, parent: assignmentStmt
-                             ;          8                         TK_SEM  -nan(ind)                 assignmentStmt        yes                           ----
+                             ;          8                         TK_SEM       -nan                 assignmentStmt        yes                           ----
 Node: otherStmts, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan                     otherStmts         no                     otherStmts
 Node: stmt, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan                     otherStmts         no                           stmt
 Node: iterativeStmt, parent: stmt
-                          ----         -1                           ----  -nan(ind)                           stmt         no                  iterativeStmt
+                          ----         -1                           ----       -nan                           stmt         no                  iterativeStmt
 Node: TK_WHILE, parent: iterativeStmt
-                         while          9                       TK_WHILE  -nan(ind)                  iterativeStmt        yes                           ----
+                         while          9                       TK_WHILE       -nan                  iterativeStmt        yes                           ----
 Node: TK_OP, parent: iterativeStmt
-                             (          9                          TK_OP  -nan(ind)                  iterativeStmt        yes                           ----
+                             (          9                          TK_OP       -nan                  iterativeStmt        yes                           ----
 Node: booleanExpression, parent: iterativeStmt
-                          ----         -1                           ----  -nan(ind)                  iterativeStmt         no              booleanExpression
+                          ----         -1                           ----       -nan                  iterativeStmt         no              booleanExpression
 Node: var, parent: booleanExpression
-                          ----         -1                           ----  -nan(ind)              booleanExpression         no                            var
+                          ----         -1                           ----       -nan              booleanExpression         no                            var
 Node: singleOrRecId, parent: var
-                          ----         -1                           ----  -nan(ind)                            var         no                  singleOrRecId
+                          ----         -1                           ----       -nan                            var         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                        b5b567          9                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                        b5b567          9                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: relationalOp, parent: booleanExpression
-                          ----         -1                           ----  -nan(ind)              booleanExpression         no                   relationalOp
+                          ----         -1                           ----       -nan              booleanExpression         no                   relationalOp
 Node: TK_LE, parent: relationalOp
-                            <=          9                          TK_LE  -nan(ind)                   relationalOp        yes                           ----
+                            <=          9                          TK_LE       -nan                   relationalOp        yes                           ----
 Node: var, parent: booleanExpression
-                          ----         -1                           ----  -nan(ind)              booleanExpression         no                            var
+                          ----         -1                           ----       -nan              booleanExpression         no                            var
 Node: singleOrRecId, parent: var
-                          ----         -1                           ----  -nan(ind)                            var         no                  singleOrRecId
+                          ----         -1                           ----       -nan                            var         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                        d5cc34          9                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                        d5cc34          9                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: TK_CL, parent: iterativeStmt
-                             )          9                          TK_CL  -nan(ind)                  iterativeStmt        yes                           ----
+                             )          9                          TK_CL       -nan                  iterativeStmt        yes                           ----
 Node: stmt, parent: iterativeStmt
-                          ----         -1                           ----  -nan(ind)                  iterativeStmt         no                           stmt
+                          ----         -1                           ----       -nan                  iterativeStmt         no                           stmt
 Node: ioStmt, parent: stmt
-                          ----         -1                           ----  -nan(ind)                           stmt         no                         ioStmt
+                          ----         -1                           ----       -nan                           stmt         no                         ioStmt
 Node: TK_READ, parent: ioStmt
-                          read         10                        TK_READ  -nan(ind)                         ioStmt        yes                           ----
+                          read         10                        TK_READ       -nan                         ioStmt        yes                           ----
 Node: TK_OP, parent: ioStmt
-                             (         10                          TK_OP  -nan(ind)                         ioStmt        yes                           ----
+                             (         10                          TK_OP       -nan                         ioStmt        yes                           ----
 Node: var, parent: ioStmt
-                          ----         -1                           ----  -nan(ind)                         ioStmt         no                            var
+                          ----         -1                           ----       -nan                         ioStmt         no                            var
 Node: singleOrRecId, parent: var
-                          ----         -1                           ----  -nan(ind)                            var         no                  singleOrRecId
+                          ----         -1                           ----       -nan                            var         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                          c3bd         10                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                          c3bd         10                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: TK_CL, parent: ioStmt
-                             )         10                          TK_CL  -nan(ind)                         ioStmt        yes                           ----
+                             )         10                          TK_CL       -nan                         ioStmt        yes                           ----
 Node: TK_SEM, parent: ioStmt
-                             ;         10                         TK_SEM  -nan(ind)                         ioStmt        yes                           ----
+                             ;         10                         TK_SEM       -nan                         ioStmt        yes                           ----
 Node: otherStmts, parent: iterativeStmt
-                          ----         -1                           ----  -nan(ind)                  iterativeStmt         no                     otherStmts
+                          ----         -1                           ----       -nan                  iterativeStmt         no                     otherStmts
 Node: stmt, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan                     otherStmts         no                           stmt
 Node: assignmentStmt, parent: stmt
-                          ----         -1                           ----  -nan(ind)                           stmt         no                 assignmentStmt
+                          ----         -1                           ----       -nan                           stmt         no                 assignmentStmt
 Node: singleOrRecId, parent: assignmentStmt
-                          ----         -1                           ----  -nan(ind)                 assignmentStmt         no                  singleOrRecId
+                          ----         -1                           ----       -nan                 assignmentStmt         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                            d3         11                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                            d3         11                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: TK_ASSIGNOP, parent: assignmentStmt
-                          <---         11                    TK_ASSIGNOP  -nan(ind)                 assignmentStmt        yes                           ----
+                          <---         11                    TK_ASSIGNOP       -nan                 assignmentStmt        yes                           ----
 Node: arithmeticExpression, parent: assignmentStmt
-                          ----         -1                           ----  -nan(ind)                 assignmentStmt         no           arithmeticExpression
+                          ----         -1                           ----       -nan                 assignmentStmt         no           arithmeticExpression
 Node: term, parent: arithmeticExpression
-                          ----         -1                           ----  -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan           arithmeticExpression         no                           term
 Node: factor, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan                           term         no                         factor
 Node: var, parent: factor
-                          ----         -1                           ----  -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan                         factor         no                            var
 Node: singleOrRecId, parent: var
-                          ----         -1                           ----  -nan(ind)                            var         no                  singleOrRecId
+                          ----         -1                           ----       -nan                            var         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                            d3         11                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                            d3         11                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: termPrime, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan                           term         no                      termPrime
 Node: expPrime, parent: arithmeticExpression
-                          ----         -1                           ----  -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan           arithmeticExpression         no                       expPrime
 Node: lowPrecedenceOperators, parent: expPrime
-                          ----         -1                           ----  -nan(ind)                       expPrime         no         lowPrecedenceOperators
+                          ----         -1                           ----       -nan                       expPrime         no         lowPrecedenceOperators
 Node: TK_PLUS, parent: lowPrecedenceOperators
-                             +         11                        TK_PLUS  -nan(ind)         lowPrecedenceOperators        yes                           ----
+                             +         11                        TK_PLUS       -nan         lowPrecedenceOperators        yes                           ----
 Node: term, parent: expPrime
-                          ----         -1                           ----  -nan(ind)                       expPrime         no                           term
+                          ----         -1                           ----       -nan                       expPrime         no                           term
 Node: factor, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan                           term         no                         factor
 Node: var, parent: factor
-                          ----         -1                           ----  -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan                         factor         no                            var
 Node: singleOrRecId, parent: var
-                          ----         -1                           ----  -nan(ind)                            var         no                  singleOrRecId
+                          ----         -1                           ----       -nan                            var         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                          c3bd         11                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                          c3bd         11                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: termPrime, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan                           term         no                      termPrime
 Node: expPrime, parent: expPrime
-                          ----         -1                           ----  -nan(ind)                       expPrime         no                       expPrime
+                          ----         -1                           ----       -nan                       expPrime         no                       expPrime
 Node: TK_SEM, parent: assignmentStmt
-                             ;         11                         TK_SEM  -nan(ind)                 assignmentStmt        yes                           ----
+                             ;         11                         TK_SEM       -nan                 assignmentStmt        yes                           ----
 Node: otherStmts, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan                     otherStmts         no                     otherStmts
 Node: stmt, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan                     otherStmts         no                           stmt
 Node: assignmentStmt, parent: stmt
-                          ----         -1                           ----  -nan(ind)                           stmt         no                 assignmentStmt
+                          ----         -1                           ----       -nan                           stmt         no                 assignmentStmt
 Node: singleOrRecId, parent: assignmentStmt
-                          ----         -1                           ----  -nan(ind)                 assignmentStmt         no                  singleOrRecId
+                          ----         -1                           ----       -nan                 assignmentStmt         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                        b5b567         12                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                        b5b567         12                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: TK_ASSIGNOP, parent: assignmentStmt
-                          <---         12                    TK_ASSIGNOP  -nan(ind)                 assignmentStmt        yes                           ----
+                          <---         12                    TK_ASSIGNOP       -nan                 assignmentStmt        yes                           ----
 Node: arithmeticExpression, parent: assignmentStmt
-                          ----         -1                           ----  -nan(ind)                 assignmentStmt         no           arithmeticExpression
+                          ----         -1                           ----       -nan                 assignmentStmt         no           arithmeticExpression
 Node: term, parent: arithmeticExpression
-                          ----         -1                           ----  -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan           arithmeticExpression         no                           term
 Node: factor, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan                           term         no                         factor
 Node: var, parent: factor
-                          ----         -1                           ----  -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan                         factor         no                            var
 Node: singleOrRecId, parent: var
-                          ----         -1                           ----  -nan(ind)                            var         no                  singleOrRecId
+                          ----         -1                           ----       -nan                            var         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                        b5b567         12                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                        b5b567         12                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: termPrime, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan                           term         no                      termPrime
 Node: expPrime, parent: arithmeticExpression
-                          ----         -1                           ----  -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan           arithmeticExpression         no                       expPrime
 Node: lowPrecedenceOperators, parent: expPrime
-                          ----         -1                           ----  -nan(ind)                       expPrime         no         lowPrecedenceOperators
+                          ----         -1                           ----       -nan                       expPrime         no         lowPrecedenceOperators
 Node: TK_PLUS, parent: lowPrecedenceOperators
-                             +         12                        TK_PLUS  -nan(ind)         lowPrecedenceOperators        yes                           ----
+                             +         12                        TK_PLUS       -nan         lowPrecedenceOperators        yes                           ----
 Node: term, parent: expPrime
-                          ----         -1                           ----  -nan(ind)                       expPrime         no                           term
+                          ----         -1                           ----       -nan                       expPrime         no                           term
 Node: factor, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan                           term         no                         factor
 Node: var, parent: factor
-                          ----         -1                           ----  -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan                         factor         no                            var
 Node: TK_NUM, parent: var
                              1         12                         TK_NUM   1.000000                            var        yes                           ----
 Node: termPrime, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan                           term         no                      termPrime
 Node: expPrime, parent: expPrime
-                          ----         -1                           ----  -nan(ind)                       expPrime         no                       expPrime
+                          ----         -1                           ----       -nan                       expPrime         no                       expPrime
 Node: TK_SEM, parent: assignmentStmt
-                             ;         12                         TK_SEM  -nan(ind)                 assignmentStmt        yes                           ----
+                             ;         12                         TK_SEM       -nan                 assignmentStmt        yes                           ----
 Node: otherStmts, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan                     otherStmts         no                     otherStmts
 Node: TK_ENDWHILE, parent: iterativeStmt
-                      endwhile         13                    TK_ENDWHILE  -nan(ind)                  iterativeStmt        yes                           ----
+                      endwhile         13                    TK_ENDWHILE       -nan                  iterativeStmt        yes                           ----
 Node: otherStmts, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan                     otherStmts         no                     otherStmts
 Node: returnStmt, parent: stmts
-                          ----         -1                           ----  -nan(ind)                          stmts         no                     returnStmt
+                          ----         -1                           ----       -nan                          stmts         no                     returnStmt
 Node: TK_RETURN, parent: returnStmt
-                        return         14                      TK_RETURN  -nan(ind)                     returnStmt        yes                           ----
+                        return         14                      TK_RETURN       -nan                     returnStmt        yes                           ----
 Node: optionalReturn, parent: returnStmt
-                          ----         -1                           ----  -nan(ind)                     returnStmt         no                 optionalReturn
+                          ----         -1                           ----       -nan                     returnStmt         no                 optionalReturn
 Node: TK_SQL, parent: optionalReturn
-                             [         14                         TK_SQL  -nan(ind)                 optionalReturn        yes                           ----
+                             [         14                         TK_SQL       -nan                 optionalReturn        yes                           ----
 Node: idList, parent: optionalReturn
-                          ----         -1                           ----  -nan(ind)                 optionalReturn         no                         idList
+                          ----         -1                           ----       -nan                 optionalReturn         no                         idList
 Node: TK_ID, parent: idList
-                            d3         14                          TK_ID  -nan(ind)                         idList        yes                           ----
+                            d3         14                          TK_ID       -nan                         idList        yes                           ----
 Node: more_ids, parent: idList
-                          ----         -1                           ----  -nan(ind)                         idList         no                       more_ids
+                          ----         -1                           ----       -nan                         idList         no                       more_ids
 Node: TK_SQR, parent: optionalReturn
-                             ]         14                         TK_SQR  -nan(ind)                 optionalReturn        yes                           ----
+                             ]         14                         TK_SQR       -nan                 optionalReturn        yes                           ----
 Node: TK_SEM, parent: returnStmt
-                             ;         14                         TK_SEM  -nan(ind)                     returnStmt        yes                           ----
+                             ;         14                         TK_SEM       -nan                     returnStmt        yes                           ----
 Node: TK_END, parent: function
-                           end         15                         TK_END  -nan(ind)                       function        yes                           ----
+                           end         15                         TK_END       -nan                       function        yes                           ----
 Node: otherFunctions, parent: otherFunctions
-                          ----         -1                           ----  -nan(ind)                 otherFunctions         no                 otherFunctions
+                          ----         -1                           ----       -nan                 otherFunctions         no                 otherFunctions
 Node: mainFunction, parent: program
-                          ----         -1                           ----  -nan(ind)                        program         no                   mainFunction
+                          ----         -1                           ----       -nan                        program         no                   mainFunction
 Node: TK_MAIN, parent: mainFunction
-                         _main         17                        TK_MAIN  -nan(ind)                   mainFunction        yes                           ----
+                         _main         17                        TK_MAIN       -nan                   mainFunction        yes                           ----
 Node: stmts, parent: mainFunction
-                          ----         -1                           ----  -nan(ind)                   mainFunction         no                          stmts
+                          ----         -1                           ----       -nan                   mainFunction         no                          stmts
 Node: typeDefinitions, parent: stmts
-                          ----         -1                           ----  -nan(ind)                          stmts         no                typeDefinitions
+                          ----         -1                           ----       -nan                          stmts         no                typeDefinitions
 Node: declarations, parent: stmts
-                          ----         -1                           ----  -nan(ind)                          stmts         no                   declarations
+                          ----         -1                           ----       -nan                          stmts         no                   declarations
 Node: declaration, parent: declarations
-                          ----         -1                           ----  -nan(ind)                   declarations         no                    declaration
+                          ----         -1                           ----       -nan                   declarations         no                    declaration
 Node: TK_TYPE, parent: declaration
-                          type         18                        TK_TYPE  -nan(ind)                    declaration        yes                           ----
+                          type         18                        TK_TYPE       -nan                    declaration        yes                           ----
 Node: dataType, parent: declaration
-                          ----         -1                           ----  -nan(ind)                    declaration         no                       dataType
+                          ----         -1                           ----       -nan                    declaration         no                       dataType
 Node: primitiveDatatype, parent: dataType
-                          ----         -1                           ----  -nan(ind)                       dataType         no              primitiveDatatype
+                          ----         -1                           ----       -nan                       dataType         no              primitiveDatatype
 Node: TK_INT, parent: primitiveDatatype
-                           int         18                         TK_INT  -nan(ind)              primitiveDatatype        yes                           ----
+                           int         18                         TK_INT       -nan              primitiveDatatype        yes                           ----
 Node: TK_COLON, parent: declaration
-                             :         18                       TK_COLON  -nan(ind)                    declaration        yes                           ----
+                             :         18                       TK_COLON       -nan                    declaration        yes                           ----
 Node: TK_ID, parent: declaration
-                            b3         18                          TK_ID  -nan(ind)                    declaration        yes                           ----
+                            b3         18                          TK_ID       -nan                    declaration        yes                           ----
 Node: global_or_not, parent: declaration
-                          ----         -1                           ----  -nan(ind)                    declaration         no                  global_or_not
+                          ----         -1                           ----       -nan                    declaration         no                  global_or_not
 Node: TK_SEM, parent: declaration
-                             ;         18                         TK_SEM  -nan(ind)                    declaration        yes                           ----
+                             ;         18                         TK_SEM       -nan                    declaration        yes                           ----
 Node: declarations, parent: declarations
-                          ----         -1                           ----  -nan(ind)                   declarations         no                   declarations
+                          ----         -1                           ----       -nan                   declarations         no                   declarations
 Node: declaration, parent: declarations
-                          ----         -1                           ----  -nan(ind)                   declarations         no                    declaration
+                          ----         -1                           ----       -nan                   declarations         no                    declaration
 Node: TK_TYPE, parent: declaration
-                          type         19                        TK_TYPE  -nan(ind)                    declaration        yes                           ----
+                          type         19                        TK_TYPE       -nan                    declaration        yes                           ----
 Node: dataType, parent: declaration
-                          ----         -1                           ----  -nan(ind)                    declaration         no                       dataType
+                          ----         -1                           ----       -nan                    declaration         no                       dataType
 Node: primitiveDatatype, parent: dataType
-                          ----         -1                           ----  -nan(ind)                       dataType         no              primitiveDatatype
+                          ----         -1                           ----       -nan                       dataType         no              primitiveDatatype
 Node: TK_REAL, parent: primitiveDatatype
-                          real         19                        TK_REAL  -nan(ind)              primitiveDatatype        yes                           ----
+                          real         19                        TK_REAL       -nan              primitiveDatatype        yes                           ----
 Node: TK_COLON, parent: declaration
-                             :         19                       TK_COLON  -nan(ind)                    declaration        yes                           ----
+                             :         19                       TK_COLON       -nan                    declaration        yes                           ----
 Node: TK_ID, parent: declaration
-                        c4bd56         19                          TK_ID  -nan(ind)                    declaration        yes                           ----
+                        c4bd56         19                          TK_ID       -nan                    declaration        yes                           ----
 Node: global_or_not, parent: declaration
-                          ----         -1                           ----  -nan(ind)                    declaration         no                  global_or_not
+                          ----         -1                           ----       -nan                    declaration         no                  global_or_not
 Node: TK_SEM, parent: declaration
-                             ;         19                         TK_SEM  -nan(ind)                    declaration        yes                           ----
+                             ;         19                         TK_SEM       -nan                    declaration        yes                           ----
 Node: declarations, parent: declarations
-                          ----         -1                           ----  -nan(ind)                   declarations         no                   declarations
+                          ----         -1                           ----       -nan                   declarations         no                   declarations
 Node: otherStmts, parent: stmts
-                          ----         -1                           ----  -nan(ind)                          stmts         no                     otherStmts
+                          ----         -1                           ----       -nan                          stmts         no                     otherStmts
 Node: stmt, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan                     otherStmts         no                           stmt
 Node: assignmentStmt, parent: stmt
-                          ----         -1                           ----  -nan(ind)                           stmt         no                 assignmentStmt
+                          ----         -1                           ----       -nan                           stmt         no                 assignmentStmt
 Node: singleOrRecId, parent: assignmentStmt
-                          ----         -1                           ----  -nan(ind)                 assignmentStmt         no                  singleOrRecId
+                          ----         -1                           ----       -nan                 assignmentStmt         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                            b3         20                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                            b3         20                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: TK_ASSIGNOP, parent: assignmentStmt
-                          <---         20                    TK_ASSIGNOP  -nan(ind)                 assignmentStmt        yes                           ----
+                          <---         20                    TK_ASSIGNOP       -nan                 assignmentStmt        yes                           ----
 Node: arithmeticExpression, parent: assignmentStmt
-                          ----         -1                           ----  -nan(ind)                 assignmentStmt         no           arithmeticExpression
+                          ----         -1                           ----       -nan                 assignmentStmt         no           arithmeticExpression
 Node: term, parent: arithmeticExpression
-                          ----         -1                           ----  -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan           arithmeticExpression         no                           term
 Node: factor, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan                           term         no                         factor
 Node: var, parent: factor
-                          ----         -1                           ----  -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan                         factor         no                            var
 Node: TK_NUM, parent: var
                              7         20                         TK_NUM   7.000000                            var        yes                           ----
 Node: termPrime, parent: term
-                          ----         -1                           ----  -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan                           term         no                      termPrime
 Node: expPrime, parent: arithmeticExpression
-                          ----         -1                           ----  -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan           arithmeticExpression         no                       expPrime
 Node: TK_SEM, parent: assignmentStmt
-                             ;         20                         TK_SEM  -nan(ind)                 assignmentStmt        yes                           ----
+                             ;         20                         TK_SEM       -nan                 assignmentStmt        yes                           ----
 Node: otherStmts, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan                     otherStmts         no                     otherStmts
 Node: stmt, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan                     otherStmts         no                           stmt
 Node: funCallStmt, parent: stmt
-                          ----         -1                           ----  -nan(ind)                           stmt         no                    funCallStmt
+                          ----         -1                           ----       -nan                           stmt         no                    funCallStmt
 Node: outputParameters, parent: funCallStmt
-                          ----         -1                           ----  -nan(ind)                    funCallStmt         no               outputParameters
+                          ----         -1                           ----       -nan                    funCallStmt         no               outputParameters
 Node: TK_SQL, parent: outputParameters
-                             [         21                         TK_SQL  -nan(ind)               outputParameters        yes                           ----
+                             [         21                         TK_SQL       -nan               outputParameters        yes                           ----
 Node: idList, parent: outputParameters
-                          ----         -1                           ----  -nan(ind)               outputParameters         no                         idList
+                          ----         -1                           ----       -nan               outputParameters         no                         idList
 Node: TK_ID, parent: idList
-                        c4bd56         21                          TK_ID  -nan(ind)                         idList        yes                           ----
+                        c4bd56         21                          TK_ID       -nan                         idList        yes                           ----
 Node: more_ids, parent: idList
-                          ----         -1                           ----  -nan(ind)                         idList         no                       more_ids
+                          ----         -1                           ----       -nan                         idList         no                       more_ids
 Node: TK_SQR, parent: outputParameters
-                             ]         21                         TK_SQR  -nan(ind)               outputParameters        yes                           ----
+                             ]         21                         TK_SQR       -nan               outputParameters        yes                           ----
 Node: TK_ASSIGNOP, parent: outputParameters
-                          <---         21                    TK_ASSIGNOP  -nan(ind)               outputParameters        yes                           ----
+                          <---         21                    TK_ASSIGNOP       -nan               outputParameters        yes                           ----
 Node: TK_CALL, parent: funCallStmt
-                          call         21                        TK_CALL  -nan(ind)                    funCallStmt        yes                           ----
+                          call         21                        TK_CALL       -nan                    funCallStmt        yes                           ----
 Node: TK_FUNID, parent: funCallStmt
-                         _sumN         21                       TK_FUNID  -nan(ind)                    funCallStmt        yes                           ----
+                         _sumN         21                       TK_FUNID       -nan                    funCallStmt        yes                           ----
 Node: TK_WITH, parent: funCallStmt
-                          with         21                        TK_WITH  -nan(ind)                    funCallStmt        yes                           ----
+                          with         21                        TK_WITH       -nan                    funCallStmt        yes                           ----
 Node: TK_PARAMETERS, parent: funCallStmt
-                    parameters         21                  TK_PARAMETERS  -nan(ind)                    funCallStmt        yes                           ----
+                    parameters         21                  TK_PARAMETERS       -nan                    funCallStmt        yes                           ----
 Node: inputParameters, parent: funCallStmt
-                          ----         -1                           ----  -nan(ind)                    funCallStmt         no                inputParameters
+                          ----         -1                           ----       -nan                    funCallStmt         no                inputParameters
 Node: TK_SQL, parent: inputParameters
-                             [         21                         TK_SQL  -nan(ind)                inputParameters        yes                           ----
+                             [         21                         TK_SQL       -nan                inputParameters        yes                           ----
 Node: idList, parent: inputParameters
-                          ----         -1                           ----  -nan(ind)                inputParameters         no                         idList
+                          ----         -1                           ----       -nan                inputParameters         no                         idList
 Node: TK_ID, parent: idList
-                            b3         21                          TK_ID  -nan(ind)                         idList        yes                           ----
+                            b3         21                          TK_ID       -nan                         idList        yes                           ----
 Node: more_ids, parent: idList
-                          ----         -1                           ----  -nan(ind)                         idList         no                       more_ids
+                          ----         -1                           ----       -nan                         idList         no                       more_ids
 Node: TK_SQR, parent: inputParameters
-                             ]         21                         TK_SQR  -nan(ind)                inputParameters        yes                           ----
+                             ]         21                         TK_SQR       -nan                inputParameters        yes                           ----
 Node: TK_SEM, parent: funCallStmt
-                             ;         21                         TK_SEM  -nan(ind)                    funCallStmt        yes                           ----
+                             ;         21                         TK_SEM       -nan                    funCallStmt        yes                           ----
 Node: otherStmts, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan                     otherStmts         no                     otherStmts
 Node: stmt, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan                     otherStmts         no                           stmt
 Node: ioStmt, parent: stmt
-                          ----         -1                           ----  -nan(ind)                           stmt         no                         ioStmt
+                          ----         -1                           ----       -nan                           stmt         no                         ioStmt
 Node: TK_WRITE, parent: ioStmt
-                         write         22                       TK_WRITE  -nan(ind)                         ioStmt        yes                           ----
+                         write         22                       TK_WRITE       -nan                         ioStmt        yes                           ----
 Node: TK_OP, parent: ioStmt
-                             (         22                          TK_OP  -nan(ind)                         ioStmt        yes                           ----
+                             (         22                          TK_OP       -nan                         ioStmt        yes                           ----
 Node: var, parent: ioStmt
-                          ----         -1                           ----  -nan(ind)                         ioStmt         no                            var
+                          ----         -1                           ----       -nan                         ioStmt         no                            var
 Node: singleOrRecId, parent: var
-                          ----         -1                           ----  -nan(ind)                            var         no                  singleOrRecId
+                          ----         -1                           ----       -nan                            var         no                  singleOrRecId
 Node: TK_ID, parent: singleOrRecId
-                        c4bd56         22                          TK_ID  -nan(ind)                  singleOrRecId        yes                           ----
+                        c4bd56         22                          TK_ID       -nan                  singleOrRecId        yes                           ----
 Node: option_single_constructed, parent: singleOrRecId
-                          ----         -1                           ----  -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan                  singleOrRecId         no      option_single_constructed
 Node: TK_CL, parent: ioStmt
-                             )         22                          TK_CL  -nan(ind)                         ioStmt        yes                           ----
+                             )         22                          TK_CL       -nan                         ioStmt        yes                           ----
 Node: TK_SEM, parent: ioStmt
-                             ;         22                         TK_SEM  -nan(ind)                         ioStmt        yes                           ----
+                             ;         22                         TK_SEM       -nan                         ioStmt        yes                           ----
 Node: otherStmts, parent: otherStmts
-                          ----         -1                           ----  -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan                     otherStmts         no                     otherStmts
 Node: returnStmt, parent: stmts
-                          ----         -1                           ----  -nan(ind)                          stmts         no                     returnStmt
+                          ----         -1                           ----       -nan                          stmts         no                     returnStmt
 Node: TK_RETURN, parent: returnStmt
-                        return         23                      TK_RETURN  -nan(ind)                     returnStmt        yes                           ----
+                        return         23                      TK_RETURN       -nan                     returnStmt        yes                           ----
 Node: optionalReturn, parent: returnStmt
-                          ----         -1                           ----  -nan(ind)                     returnStmt         no                 optionalReturn
+                          ----         -1                           ----       -nan                     returnStmt         no                 optionalReturn
 Node: TK_SEM, parent: returnStmt
-                             ;         23                         TK_SEM  -nan(ind)                     returnStmt        yes                           ----
+                             ;         23                         TK_SEM       -nan                     returnStmt        yes                           ----
 Node: TK_END, parent: mainFunction
-                           end         24                         TK_END  -nan(ind)                   mainFunction        yes                           ----
+                           end         24                         TK_END       -nan                   mainFunction        yes                           ----

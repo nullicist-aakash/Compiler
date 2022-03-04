@@ -7,7 +7,7 @@ compile:
 	gcc -c driver.c -o bin/driver.o
 	gcc -o Compiler.out bin/lexer.o bin/stack.o bin/trie.o bin/parser.o bin/driver.o -fsanitize=address
 	rm -r bin
-	./Compiler.out
+	
 clean:
 	rm -r bin
 	rm Compiler.out

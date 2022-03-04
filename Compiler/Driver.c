@@ -56,6 +56,11 @@ void printLexerOutput(char* path)
 			printf("Line no. %d: Error: Unknown Pattern <%s>\n", tk->line_number, tk->lexeme);
 		else
 			printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);
+
+		if (tk->lexeme != NULL)
+			free(tk->lexeme);
+
+		free(tk);
 	}
 }
 
@@ -64,15 +69,12 @@ int main(int argc, char** argv)
 	clear_screen();
 	loadLexer();
 	loadParser();
-	/*
+	
 	if (argc != 3)
 	{
-		fprintf(stderr, "Argument list is not valid!\n");
+		fprintf(stderr, "usage: Compiler.out <source_ode_file> <parser_output_file>\n");
 		exit(-1);
-	}*/
-
-	argv[1] = "testcase2.txt";
-	argv[2] = "TreeOutput.txt";
+	}
 
 	int option = 0;
 	int start = 1;
@@ -116,10 +118,12 @@ int main(int argc, char** argv)
 		if (option == MAX_OPTIONS)
 		{
 			start_time = clock();
+			TreeNode* node = parseInputSourceCode(argv[1]);
 			end_time = clock();
 			double total_CPU_time = (double)(end_time - start_time);
 			printf("Total CPU Time Taken: %f\n", total_CPU_time);
 			printf("Total CPU Time taken in seconds: %f\n", total_CPU_time / CLOCKS_PER_SEC);
+			freeParseTree(node);
 			continue;
 		}
 
@@ -148,6 +152,8 @@ int main(int argc, char** argv)
 			FILE* fptr = fopen(argv[2], "w");
 			printParseTree(node, fptr);
 			fclose(fptr);
+
+			freeParseTree(node);
 		}
 		
 

@@ -12,6 +12,7 @@
 #include <assert.h>
 #include "stack.h"
 
+ParserData* parserData;
 
 int isTerminal(int index)
 {
@@ -619,4 +620,24 @@ void printParseTree(TreeNode* node, FILE* fptr)
 
 	for (int i = 0; i < node->child_count; ++i)
 		printParseTree(node->children[i], fptr);
+}
+
+void freeParseTree(TreeNode* node)
+{
+	for (int i = 0; i < node->child_count; ++i)
+	{
+		freeParseTree(node->children[i]);
+		free(node->children[i]);
+	}
+
+	if (node->token != NULL)
+	{
+		if (node->token->lexeme != NULL)
+			free(node->token->lexeme);
+
+		free(node->token);
+	}
+
+	if (node->child_count > 0)
+		free(node->children);
 }

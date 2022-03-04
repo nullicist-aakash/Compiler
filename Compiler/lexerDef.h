@@ -7,8 +7,7 @@
 *****************************************/
 
 
-#ifndef LEXERDEF_H
-#define LEXERDEF_H
+#pragma  once
 #include "trie.h"
 #include "stdio.h"
 
@@ -115,10 +114,8 @@ typedef struct
 
 } Buffer;
 
-LexerData* lexerData;
-Buffer* b;
+extern LexerData* lexerData;
+extern Buffer* b;
 
 #define TWIN_BUFF_SIZE 50
 #define DEFINITION_LOC "DFA_Structure.txt"
-
-#endif
