@@ -1,4 +1,15 @@
-#pragma once
+/***************************************
+				GROUP-08
+  Yash Bansal			-   2019A7PS0484P
+  Sourabh S Yelluru		-   2018B3A70815P
+  NIHIR AGARWAL			-   2018B4A70701P
+  Aakash				-   2018B4A70887P
+*****************************************/
+
+
+#ifndef LEXERDEF_H
+#define LEXERDEF_H
+#include "Trie.h"
 #include "stdio.h"
 
 typedef enum TokenType
@@ -107,3 +118,7 @@ typedef struct
 LexerData* lexerData;
 Buffer* b;
 
+#define TWIN_BUFF_SIZE 50
+#define DEFINITION_LOC "DFA_Structure.txt"
+
+#endif

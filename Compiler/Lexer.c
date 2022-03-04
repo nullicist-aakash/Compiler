@@ -1,13 +1,35 @@
-#include "lexer.h"
+/***************************************
+				GROUP-08
+  Yash Bansal			-   2019A7PS0484P
+  Sourabh S Yelluru		-   2018B3A70815P
+  NIHIR AGARWAL			-   2018B4A70701P
+  Aakash				-   2018B4A70887P
+*****************************************/
+
+
+#include "lexerDef.h"
 #include "Trie.h"
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
-#define TWIN_BUFF_SIZE 50
-#define DEFINITION_LOC "DFA_Structure.txt"
 
+void loadFile(FILE* fp)
+{
+	if (b != NULL)
+	{
+		free(b->archived);
+		free(b->working);
+		free(b);
+	}
+
+	b = calloc(1, sizeof(Buffer));
+	b->working = calloc(TWIN_BUFF_SIZE, sizeof(char));
+	b->archived = calloc(TWIN_BUFF_SIZE, sizeof(char));
+	b->fp = fp;
+	b->line_number = 1;
+}
 
 void loadTokens(FILE* fp)
 {
@@ -105,6 +127,23 @@ void loadKeywords(FILE* fp)
 	}
 }
 
+void loadLexer()
+{
+	assert(lexerData == NULL);
+	FILE* fp = fopen(DEFINITION_LOC, "r");
+	lexerData = calloc(1, sizeof(LexerData));
+
+	assert(fp != NULL);
+
+	fscanf(fp, "%d %d %d %d %d\n", &lexerData->num_tokens, &lexerData->num_states, &lexerData->num_transitions, &lexerData->num_finalstates, &lexerData->num_keywords);
+	loadTokens(fp);
+	loadTransitions(fp);
+	loadFinalStates(fp);
+	loadKeywords(fp);
+
+	fclose(fp);
+}
+
 char getChar(int i)
 {
 	if (b->charTaken == i)
@@ -134,38 +173,9 @@ char getChar(int i)
 	return b->archived[i];
 }
 
-void loadLexer()
-{
-	assert(lexerData == NULL);
-	FILE* fp = fopen(DEFINITION_LOC, "r");
-	lexerData = calloc(1, sizeof(LexerData));
 
-	assert(fp != NULL);
 
-	fscanf(fp, "%d %d %d %d %d\n", &lexerData->num_tokens, &lexerData->num_states, &lexerData->num_transitions, &lexerData->num_finalstates, &lexerData->num_keywords);
-	loadTokens(fp);
-	loadTransitions(fp);
-	loadFinalStates(fp);
-	loadKeywords(fp);
 
-	fclose(fp);
-}
-
-void loadFile(FILE* fp)
-{
-	if (b != NULL)
-	{
-		free(b->archived);
-		free(b->working);
-		free(b);
-	}
-
-	b = calloc(1, sizeof(Buffer));
-	b->working = calloc(TWIN_BUFF_SIZE, sizeof(char));
-	b->archived = calloc(TWIN_BUFF_SIZE, sizeof(char));
-	b->fp = fp;
-	b->line_number = 1;
-}
 
 Token* DFA(int start_index)
 {
