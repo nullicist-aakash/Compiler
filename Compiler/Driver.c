@@ -151,6 +151,15 @@ void main(int argc, char** argv)
 			TreeNode* node = parseInputSourceCode(argv[1]);
 
 			FILE* fptr = fopen(argv[2], "w");
+			fprintf(fptr, "Group 8 Output File.\n%30s %10s %30s %15s %30s %10s %30s\n",
+				"Lexeme",
+				"LineNumber",
+				"TokenName",
+				"Value (if Num)",
+				"ParentSymbol",
+				"Is Leaf",
+				"NodeSymbol");
+
 			printParseTree(node, fptr);
 			fclose(fptr);
 
