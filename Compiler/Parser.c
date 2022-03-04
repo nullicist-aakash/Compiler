@@ -418,23 +418,16 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 
 	while (lookahead != NULL)
 	{
-	//	printf("\nStack: \n\t");
-
 		StackNode* temp = s->top;
 		while (temp->data != -1)
-		{
-	//		printf("%s ", parserData->symbolType2symbolStr[temp->data]);
 			temp = temp->prev;
-		}
-
-	//	printf("\nToken (%d): %s\n", lookahead->line_number, lexerData->tokenType2tokenStr[lookahead->type]);
 
 		if (lookahead->type == TK_ERROR_LENGTH ||
 			lookahead->type == TK_ERROR_PATTERN ||
 			lookahead->type == TK_ERROR_SYMBOL)
 		{
 			flag = 1; 
-	//		printf("Inside Error token\n");
+
 			if (lookahead->type == TK_ERROR_LENGTH)
 				printf("Line %d \t\tError: Identifier is longer than the prescribed length.\n", lookahead->line_number);
 			else if (lookahead->type == TK_ERROR_SYMBOL)
@@ -453,15 +446,18 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 		// if top of stack matches with input terminal (terminal at top of stack)
 		if (stack_top == input_terminal)
 		{
-	//		printf("Stack top matches the input\n");
+			node->isLeaf = 1;
+			node->token = lookahead;
 			_pop(&node, s);
 			lookahead = getNextToken();
 			continue;
 		}
+
 		int line_number = lookahead->line_number;
 		char* la_token = parserData->symbolType2symbolStr[input_terminal];
 		char* lexeme = lookahead->lexeme;
 		char* expected_token = parserData->symbolType2symbolStr[stack_top];
+
 		// if top of stack is terminal but it is not matching with input look-ahead
 		if (isTerminal(stack_top))
 		{
@@ -480,11 +476,6 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 		{
 			int* production = parserData->productions[production_number];
 			int production_size = parserData->productionSize[production_number];
-
-	//		printf("Expanding along the production\n\t%s -> ", parserData->symbolType2symbolStr[production[0]]);
-			for (int i = 1; i < production_size; ++i);
-	//			printf("%s ", parserData->symbolType2symbolStr[production[i]]);
-	//		printf("\n");
 
 			if (production_size == 2 && production[1] == 0)
 			{
@@ -506,7 +497,6 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 				node->children[i - 1]->parent = node;
 				node->children[i - 1]->symbol_index = production[i];
 				node->children[i - 1]->parent_child_index = i - 1;
-				node->children[i - 1]->isLeaf = 0;
 			}
 
 			node = node->children[0];
@@ -516,14 +506,13 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 		// if the production is not found and neither it is in sync set
 		if (production_number == -1)
 		{
-	//		printf("No valid transistion found\n");
 			lookahead = getNextToken();
 			continue;
 		}
 
 		// left case is for sync set
 		assert(production_number == -2);
-	//	printf("Handling for the sync set");
+
 		flag = 1;
 		printf("Line %d \t\tError: Invalid token %s encountered with value %s stack top %s\n", line_number, la_token, lexeme, expected_token);
 		_pop(&node, s);
@@ -538,9 +527,72 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 	return parseTree;
 }
 
-void printParseTree(TreeNode* node, char* outputFile)
+int getIntVal(char* str)
 {
-	FILE* fptr = fopen(outputFile, "a+");
+	int val = 0;
+
+	for (int i = str[0] == '-' ? 1 : 0; i < strlen(str); ++i)
+	{
+		val *= 10;
+		val += str[i] - '0';
+	}
+
+	return str[0] == '-' ? -val : val;
+}
+
+double getVal(Token* token)
+{
+	double zr = 0;
+	if (token == NULL)
+		return zr / zr;
+	if (token->type != TK_RNUM && token->type != TK_NUM)
+		return zr / zr;
+
+	char* str = calloc(strlen(token->lexeme) + 1, sizeof(char));
+	strcpy(str, token->lexeme);
+
+	int dotLoc = -1;
+	int eLoc = -1;
+
+	for (int i = 0; i < strlen(str); ++i)
+	{
+		if (str[i] == '.')
+			dotLoc = i;
+		if (str[i] == 'E')
+			eLoc = i;
+	}
+
+	str[dotLoc] = '\0';
+	str[eLoc] = '\0';
+
+	double val = getIntVal(str);
+
+	if (dotLoc >= 0)
+	{
+		double f = getIntVal(str + dotLoc + 1);
+		f /= 100;
+		val += f;
+	}
+
+	if (eLoc >= 0)
+	{
+		double e = getIntVal(str + eLoc + 1);
+		double pow = 1;
+		for (int i = 0; i < (e > 0 ? e : -e); ++i)
+			pow *= 10;
+
+		if (e < 0)
+			pow = 1 / pow;
+
+		val *= pow;
+	}
+
+	free(str);
+	return val;
+}
+
+void printParseTree(TreeNode* node, FILE* fptr)
+{
 	if (fptr == NULL) {
 		perror("Error opening file");
 		return;
@@ -555,16 +607,16 @@ void printParseTree(TreeNode* node, char* outputFile)
 		char* A = node->isLeaf ? node->token->lexeme : "----";
 		int B = node->isLeaf ? node->token->line_number : -1;
 		char* C = !(node->isLeaf) ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
-		int D = 0;
+		double D = getVal(node->token);
 		char* E = node->parent == NULL ? "root" : parserData->symbolType2symbolStr[node->parent->symbol_index];
 		char* F = node->isLeaf ? "yes" : "no";
 		char* G = node->isLeaf ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
-		fprintf(fptr, "%30s %10d %30s %5d %30s %10s %30s\n", A, B, C, D, E, F, G);
+
+		fprintf(fptr, "%30s %10d %30s %10f %30s %10s %30s\n", A, B, C, D, E, F, G);
 	}
 	else
-		fprintf(fptr, "Root\n");
+		fprintf(fptr, "%30s %10d %30s %10s %30s %10s %30s\n", "----", -1, "----", "-nan(ind)", "ROOT", "no", "program");
 
 	for (int i = 0; i < node->child_count; ++i)
-		printParseTree(node->children[i], outputFile);
-	fclose(fptr);
+		printParseTree(node->children[i], fptr);
 }

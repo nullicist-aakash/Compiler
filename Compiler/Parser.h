@@ -48,7 +48,7 @@ extern ParserData* parserData;
 extern TreeNode* parseTree;
 
 void loadParser();
-void printParseTree(TreeNode* node, char* outputFile);
+void printParseTree(TreeNode* node, FILE* outputFile);
 TreeNode* parseInputSourceCode(char* fileLoc);
 
 #endif

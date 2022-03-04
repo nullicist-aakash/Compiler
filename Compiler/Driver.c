@@ -145,7 +145,9 @@ int main(int argc, char** argv)
 		{
 			TreeNode* node = parseInputSourceCode(argv[1]);
 
-			printParseTree(node, argv[2]);
+			FILE* fptr = fopen(argv[2], "w");
+			printParseTree(node, fptr);
+			fclose(fptr);
 		}
 		
 

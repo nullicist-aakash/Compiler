@@ -55,6 +55,7 @@
     <Text Include="t1.txt" />
     <Text Include="DFA_Structure.txt" />
     <Text Include="Parser_Structure.txt" />
+    <Text Include="testcase2.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
