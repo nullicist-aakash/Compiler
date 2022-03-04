@@ -17,7 +17,13 @@
 
 ParserData* parserData;
 
-
+void printBitset(char* bitset, int n) {
+	printf("BITSET : ");
+	for (int i = 0; i < n; i++) {
+		if (BITTEST(bitset, i)) printf("%d ", i);
+	}
+	printf("\n");
+}
 int isTerminal(int index)
 {
 	return index >= 0 && index < parserData->num_terminals;
@@ -40,10 +46,9 @@ int isEqual(char* bitset1, char* bitset2, int n) {
 	return 1;
 }
 void setUnion(char* bitset1, char* bitset2, int n, int* flag) {
-
+	
 	for (int i = 0; i < n; i++) {
 		char c = bitset1[i];
-		
 		bitset1[i] = bitset1[i] | bitset2[i];
 		if (c != bitset1[i])  *flag = *flag + 1; 		
 
@@ -97,22 +102,71 @@ void printFollowSets()
 {
 	for (int i = 0; i < parserData->num_non_terminals; ++i)
 	{
+		int cnt = 0;
 		printf("Follow set of %s: { ", parserData->symbolType2symbolStr[i + parserData->num_terminals]);
 		for (int j = 0; j < parserData->num_terminals; ++j)
-			if (BITTEST(parserData->followSet[i], j))
+			if (BITTEST(parserData->followSet[i], j)) {
+				cnt++;
+				printf("%s, ", parserData->symbolType2symbolStr[j]);
+			}
+		if(cnt)
+			printf("\b\b");
+		printf("}\n");
+	}
+}
+void printFirstSets()
+{
+	for (int i = 0; i < parserData->num_non_terminals; ++i)
+	{
+		printf("First set of %s: { ", parserData->symbolType2symbolStr[i + parserData->num_terminals]);
+		for (int j = 0; j < parserData->num_terminals; ++j)
+			if (BITTEST(parserData->firstSet[i], j))
 				printf("%s, ", parserData->symbolType2symbolStr[j]);
 		printf("\b\b }\n");
 	}
 }
-
+void addToFirstSet(int lhs, int symbol,int* change) {
+	char** bitset1 = calloc(1,sizeof(char*));
+	*bitset1 = parserData->firstSet[lhs];
+	int t = parserData->num_terminals;
+	int n = parserData->num_non_terminals;
+	if (isTerminal(symbol)) {
+		if (!BITTEST(*bitset1, symbol) && symbol) {
+			BITSET(*bitset1, symbol);
+			*change = 1;
+		}
+	}
+	else 
+		setUnion(*bitset1, parserData->firstSet[symbol - t], n, change);
+}
+void addToFollowSet(char* bitset, int symbol, int* change, int* nullFlag) {
+	char** bitset1 = calloc(1, sizeof(char*));
+	*bitset1 = bitset;
+	int t = parserData->num_terminals;
+	int nt = parserData->num_non_terminals;
+	char* nullable = parserData->nullable;
+	if (isTerminal(symbol))
+	{
+		*nullFlag = 0;
+		if (!BITTEST(*bitset1, symbol))
+			BITSET(*bitset1, symbol);
+	}
+	else
+	{
+		setUnion(*bitset1, parserData->firstSet[symbol - t], nt, change);
+		if (!BITTEST(nullable, symbol))
+			*nullFlag = 0;
+	}
+}
 void populateFirstSets()
 {
 	int n = parserData->num_non_terminals;
-	int tnt = n + parserData->num_terminals;
+	int t = parserData->num_terminals;
+	int tnt = n + t;
 
 	parserData->firstSet = calloc(n, sizeof(char*));
 	for (int i = 0; i < n; i++)
-		parserData->firstSet[i] = calloc(parserData->num_terminals, sizeof(char));
+		parserData->firstSet[i] = calloc(t, sizeof(char));
 	int** rules = parserData->productions;
 	int flag = 1;
 	char* nullable = parserData->nullable;
@@ -122,33 +176,14 @@ void populateFirstSets()
 
 		int change = 0;
 		for (int i = 0; i < parserData->num_productions; i++) {
-			int lhs = rules[i][0] - parserData->num_terminals;
-
-
+			int lhs = rules[i][0] - t;
 			int k = parserData->productionSize[i];
-			int nullableUntilNow = 1;
 			int j = 1;
 
-			while (j < k && nullableUntilNow) {
-				if (isTerminal(rules[i][j])) {
-					nullableUntilNow = 0;
-					if (rules[i][j] == 0) {
-					}
-					if (!BITTEST(parserData->firstSet[lhs], rules[i][j])) {
-						if (rules[i][j]) {
-							BITSET(parserData->firstSet[lhs], rules[i][j]);
-
-							change = 1;
-						}
-						else
-							continue;
-					}
-					j++;
-					continue;
-				}
-				setUnion(parserData->firstSet[lhs], parserData->firstSet[rules[i][j] - parserData->num_terminals], n, &change);
+			while (j < k) {
+				addToFirstSet(lhs, rules[i][j], &change);
 				if (!BITTEST(nullable, rules[i][j]))
-					nullableUntilNow = 0;
+					break;
 				j++;
 			}
 
@@ -178,37 +213,18 @@ void populateFollowSets()
 			for (int i = 1; i < k; i++) {
 				if (!isTerminal(rules[ind][i]))
 				{
-					char* temp = calloc(parserData->num_terminals, sizeof(char));
+					char* temp = calloc(ts, sizeof(char));
 					int nullableFlag = 1;
 					for (int j = i + 1; j < k; j++)
 					{
-						if (isTerminal(rules[ind][j]))
-						{
-							nullableFlag = 0;
-							if (!BITTEST(temp, rules[ind][j]))
-							{
-								BITSET(temp, rules[ind][j]);
-							}
+						int dummy = 0;
+						addToFollowSet(temp,rules[ind][j],&dummy,&nullableFlag);
+						if (!nullableFlag)
 							break;
-						}
-						else
-						{
-							int dummy = 0;
-							setUnion(temp, parserData->firstSet[rules[ind][j] - ts], nts, &dummy);
-							if (!BITTEST(nullable, rules[ind][j]))
-							{
-								nullableFlag = 0;
-								break;
-							}
-						}
-
 					}
 					setUnion(parserData->followSet[rules[ind][i] - ts], temp, nts, &change);
 					if (nullableFlag || i == k - 1)
-					{
 						setUnion(parserData->followSet[rules[ind][i] - ts], parserData->followSet[lhs], nts, &change);
-					}
-
 				}
 			}
 		}
