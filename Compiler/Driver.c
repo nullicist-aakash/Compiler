@@ -64,7 +64,7 @@ void printLexerOutput(char* path)
 	}
 }
 
-int main(int argc, char** argv)
+void main(int argc, char** argv)
 {
 	clear_screen();
 	loadLexer();
