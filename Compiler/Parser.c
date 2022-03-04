@@ -29,9 +29,8 @@ int isTerminal(int index)
 	return index >= 0 && index < parserData->num_terminals;
 }
 
-char* bitAnd(char* bitset1, char* bitset2, int n, int* flag)
+char* bitAnd(char* bitset3, char* bitset1, char* bitset2, int n, int* flag)
 {
-	char* bitset3 = calloc(n, sizeof(char));
 	for (int i = 0; i < BITNSLOTS(n); i++) {
 		bitset3[i] = bitset1[i] & bitset2[i];
 		if (bitset3[i] != bitset1[i])
@@ -70,7 +69,6 @@ void computeNullable()
 		for (int j = 1; j < parserData->productionSize[i]; j++)
 			BITSET(productionBitset[i], rules[i][j]);
 
-
 	}
 
 	parserData->nullable = calloc(BITNSLOTS(n), sizeof(char));
@@ -85,16 +83,20 @@ void computeNullable()
 
 	}
 	int flag = 1;
+	char* bitset3 = calloc(n, sizeof(char));
 	while (flag) {
 		flag = 0;
 		for (int i = 0; i < parserData->num_productions; i++) {
 			int changed = 0;
-			if (isEqual(bitAnd(parserData->nullable, productionBitset[i], n, &changed), productionBitset[i], n)) {
+			if (isEqual(bitAnd(bitset3,parserData->nullable, productionBitset[i], n, &changed), productionBitset[i], n)) {
 				BITSET(parserData->nullable, rules[i][0]);
 				flag = changed;
 			}
 		}
 	}
+	free(bitset3);
+	for (int i = 0; i < parserData->num_productions; i++)
+		free(productionBitset[i]);
 	free(productionBitset);
 }
 
@@ -138,6 +140,7 @@ void addToFirstSet(int lhs, int symbol,int* change) {
 	}
 	else 
 		setUnion(*bitset1, parserData->firstSet[symbol - t], n, change);
+	free(bitset1);
 }
 void addToFollowSet(char* bitset, int symbol, int* change, int* nullFlag) {
 	char** bitset1 = calloc(1, sizeof(char*));
@@ -157,6 +160,7 @@ void addToFollowSet(char* bitset, int symbol, int* change, int* nullFlag) {
 		if (!BITTEST(nullable, symbol))
 			*nullFlag = 0;
 	}
+	free(bitset1);
 }
 void populateFirstSets()
 {
@@ -225,6 +229,7 @@ void populateFollowSets()
 					setUnion(parserData->followSet[rules[ind][i] - ts], temp, nts, &change);
 					if (nullableFlag || i == k - 1)
 						setUnion(parserData->followSet[rules[ind][i] - ts], parserData->followSet[lhs], nts, &change);
+					free(temp);
 				}
 			}
 		}
@@ -540,4 +545,8 @@ TreeNode* parseSourceCode(char* fileLoc)
 	
 	fclose(fp);
 	return parseTree;
+}
+
+void freeParser() {
+
 }
