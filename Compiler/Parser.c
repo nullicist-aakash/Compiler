@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "../helpers/Stack.h"
-#include "../Lexer/Lexer.h"
+#include "Stack.h"
+#include "Lexer.h"
 
 /* for CHAR_BIT */
 #define CHAR_BIT 8
@@ -13,6 +13,7 @@
 #define BITCLEAR(a, b) ((a)[BITSLOT(b)] &= ~BITMASK(b))
 #define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
+#define PARSER_DATA_LOC "Parser_Structure.txt"
 
 ParserData* parserData;
 
@@ -342,7 +343,7 @@ void loadParser()
 {
 	assert(parserData == NULL);
 
-	FILE* fp = fopen("./Parser/Parser_Structure.txt", "r");
+	FILE* fp = fopen(PARSER_DATA_LOC, "r");
 	parserData = calloc(1, sizeof(ParserData));
 
 	assert(fp != NULL);

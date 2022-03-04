@@ -4,9 +4,8 @@
 #include <errno.h>
 #include <time.h> 
 
-#include "Lexer/Lexer.h"
-
-#include "Parser/Parser.h"
+#include "Lexer.h"
+#include "Parser.h"
 
 #define MAX_OPTIONS 4
 

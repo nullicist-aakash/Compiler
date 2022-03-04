@@ -1,6 +1,5 @@
 #pragma once
-#include <stdio.h>
-#include "../helpers/Trie.h"
+#include "stdio.h"
 
 typedef enum TokenType
 {
@@ -76,14 +75,14 @@ typedef struct Token
 	int length;
 } Token;
 
-typedef struct 
+typedef struct
 {
 	int num_tokens;
 	int num_states;
 	int num_transitions;
 	int num_finalstates;
 	int num_keywords;
-	
+
 	int** productions;
 	TokenType* finalStates;
 	char** tokenType2tokenStr;
@@ -93,12 +92,18 @@ typedef struct
 
 } LexerData;
 
-extern LexerData* lexerData;
+typedef struct
+{
+	FILE* fp;
+	char* working;
+	char* archived;
 
-void loadLexer();
+	int charTaken;
+	int line_number;
+	int start_index;
 
-void loadFile(FILE*);
+} Buffer;
 
-Token* getNextToken();
+LexerData* lexerData;
+Buffer* b;
 
-void removeComments(FILE* source, FILE* destination);

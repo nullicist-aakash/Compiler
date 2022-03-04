@@ -30,6 +30,18 @@
     <ClCompile Include="helpers\Stack.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Lexer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Parser.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stack.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Trie.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helpers\Trie.h">
@@ -44,6 +56,24 @@
     <ClInclude Include="helpers\Stack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="lexerDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="parserDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lexer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Stack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Trie.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Lexer\DFA_Structure.txt">
@@ -53,5 +83,7 @@
     <Text Include="Parser\Parser_Structure.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="DFA_Structure.txt" />
+    <Text Include="Parser_Structure.txt" />
   </ItemGroup>
 </Project>

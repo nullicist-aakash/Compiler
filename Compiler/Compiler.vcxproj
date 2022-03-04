@@ -141,20 +141,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Driver.c" />
-    <ClCompile Include="helpers\Stack.c" />
-    <ClCompile Include="helpers\Trie.c" />
-    <ClCompile Include="Lexer\Lexer.c" />
-    <ClCompile Include="Parser\Parser.c" />
+    <ClCompile Include="Lexer.c" />
+    <ClCompile Include="Parser.c" />
+    <ClCompile Include="Stack.c" />
+    <ClCompile Include="Trie.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="helpers\Stack.h" />
-    <ClInclude Include="helpers\Trie.h" />
-    <ClInclude Include="Lexer\Lexer.h" />
-    <ClInclude Include="Parser\Parser.h" />
+    <ClInclude Include="Lexer.h" />
+    <ClInclude Include="lexerDef.h" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="parserDef.h" />
+    <ClInclude Include="Stack.h" />
+    <ClInclude Include="Trie.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Lexer\DFA_Structure.txt" />
-    <Text Include="Parser\Parser_Structure.txt" />
+    <Text Include="DFA_Structure.txt" />
+    <Text Include="Parser_Structure.txt" />
     <Text Include="t1.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

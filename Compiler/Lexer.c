@@ -1,27 +1,13 @@
-#include "Lexer.h"
-#include "../helpers/Trie.h"
+#include "lexer.h"
+#include "Trie.h"
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
 #define TWIN_BUFF_SIZE 50
-#define DEFINITION_LOC "./DFA_Structure.txt"
+#define DEFINITION_LOC "DFA_Structure.txt"
 
-typedef struct
-{
-	FILE* fp;
-	char* working;
-	char* archived;
-
-	int charTaken;
-	int line_number;
-	int start_index;
-
-} Buffer;
-
-LexerData* lexerData;
-Buffer* b;
 
 void loadTokens(FILE* fp)
 {
@@ -151,7 +137,7 @@ char getChar(int i)
 void loadLexer()
 {
 	assert(lexerData == NULL);
-	FILE* fp = fopen("./Lexer/DFA_Structure.txt", "r");
+	FILE* fp = fopen(DEFINITION_LOC, "r");
 	lexerData = calloc(1, sizeof(LexerData));
 
 	assert(fp != NULL);
@@ -306,4 +292,27 @@ void removeComments(FILE* source, FILE* destination)
 		if (!is_comment)
 			fprintf(destination, "%c", c);
 	}
+}
+
+void freeLexerData()
+{
+	for (int i = 0; i < lexerData->num_tokens; ++i)
+		free(lexerData->tokenType2tokenStr[i]);
+	free(lexerData->tokenType2tokenStr);
+
+	free(lexerData->tokenStr2tokenType);
+
+	for (int i = 0; i < lexerData->num_states; ++i)
+		free(lexerData->productions[i]);
+	free(lexerData->productions);
+
+	free(lexerData->finalStates);
+
+	free(lexerData->symbolTable);
+
+	free(b->working);
+	free(b->archived);
+	free(b);
+
+	free(lexerData);
 }

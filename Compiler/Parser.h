@@ -1,8 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 #define MAX 200
-#include "../helpers/Trie.h"
-#include "../Lexer/Lexer.h"
+#include "Trie.h"
+#include "Lexer.h"
 #include <stdio.h>
 
 typedef struct 
