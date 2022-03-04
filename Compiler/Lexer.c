@@ -308,6 +308,7 @@ void removeComments(FILE* source, FILE* destination)
 
 void freeLexerData()
 {
+	printf("Called\n");
 	for (int i = 0; i < lexerData->num_tokens; ++i)
 		free(lexerData->tokenType2tokenStr[i]);
 	free(lexerData->tokenType2tokenStr);

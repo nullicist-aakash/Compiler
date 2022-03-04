@@ -112,6 +112,7 @@ int main(int argc, char** argv)
 
 		if (option == 0)
 		{
+			freeLexerData();
 			printf("Bye bye from group 8 compiler\n");
 			break;
 		}
