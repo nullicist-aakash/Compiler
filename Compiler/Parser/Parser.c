@@ -427,12 +427,20 @@ TreeNode* parseSourceCode(char* fileLoc)
 			lookahead->type == TK_ERROR_SYMBOL)
 		{
 	//		printf("Inside Error token\n");
+			if (lookahead->type == TK_ERROR_LENGTH)
+				printf("Line %d \tError: Identifier is longer than the prescribed length.\n", lookahead->line_number);
+			else if (lookahead->type == TK_ERROR_SYMBOL)
+				printf("Line %d \tError: Unknwon Symbol <%s>\n", lookahead->line_number, lookahead->lexeme);
+			else if (lookahead->type == TK_ERROR_PATTERN)
+				printf("Line %d \tError: Unknown Pattern <%s>\n", lookahead->line_number, lookahead->lexeme);
+
 			lookahead = getNextToken();
 			continue;
 		}
-
+		
 		int stack_top = top(s);
 		int input_terminal = lexerToParserToken(lookahead->type);;
+
 
 		// if top of stack matches with input terminal (terminal at top of stack)
 		if (stack_top == input_terminal)
@@ -442,11 +450,14 @@ TreeNode* parseSourceCode(char* fileLoc)
 			lookahead = getNextToken();
 			continue;
 		}
-
+		int line_number = lookahead->line_number;
+		char* la_token = parserData->symbolType2symbolStr[input_terminal];
+		char* lexeme = lookahead->lexeme;
+		char* expected_token = parserData->symbolType2symbolStr[stack_top];
 		// if top of stack is terminal but it is not matching with input look-ahead
 		if (isTerminal(stack_top))
 		{
-	//		printf("Stack top doesn't match the lookahead\n");
+			printf("Line %d \tError: The token %s for lexeme %s does not match with the expected token %s\n",line_number,la_token,lexeme,expected_token);
 			_pop(&node, s);
 			continue;
 		}
@@ -504,6 +515,7 @@ TreeNode* parseSourceCode(char* fileLoc)
 		// left case is for sync set
 		assert(production_number == -2);
 	//	printf("Handling for the sync set");
+		printf("Line %d \tError: Invalid token %s encountered with value %s stack top %s\n", line_number, la_token, lexeme, expected_token);
 		_pop(&node, s);
 	}
 
