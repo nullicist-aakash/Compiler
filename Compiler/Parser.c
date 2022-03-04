@@ -220,6 +220,8 @@ void populateFollowSets()
 					setUnion(parserData->followSet[rules[ind][i] - ts], temp, nts, &change);
 					if (nullableFlag || i == k - 1)
 						setUnion(parserData->followSet[rules[ind][i] - ts], parserData->followSet[lhs], nts, &change);
+
+					free(temp);
 				}
 			}
 		}
@@ -520,11 +522,13 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 	}
 
 	assert(top(s) == -1);
-	
+	free(s->top);
+	free(s);
 	fclose(fp);
 	
 	if(!flag)
-		printf("Input source code is syntactically correct...........\n");
+		printf("Input source code is syntactically correct.\n");
+
 	return parseTree;
 }
 
@@ -625,10 +629,7 @@ void printParseTree(TreeNode* node, FILE* fptr)
 void freeParseTree(TreeNode* node)
 {
 	for (int i = 0; i < node->child_count; ++i)
-	{
 		freeParseTree(node->children[i]);
-		free(node->children[i]);
-	}
 
 	if (node->token != NULL)
 	{
@@ -640,4 +641,6 @@ void freeParseTree(TreeNode* node)
 
 	if (node->child_count > 0)
 		free(node->children);
+
+	free(node);
 }
