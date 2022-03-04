@@ -1,8 +1,16 @@
+/***************************************
+				GROUP-08
+  Yash Bansal			-   2019A7PS0484P
+  Sourabh S Yelluru		-   2018B3A70815P
+  Nihir Agarwal			-   2018B4A70701P
+  Aakash				-   2018B4A70887P
+*****************************************/
+
 #include "parserDef.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "Stack.h"
+#include "stack.h"
 
 
 int isTerminal(int index)
@@ -354,17 +362,11 @@ void loadParser()
 	parserData->symbolType2symbolStr = calloc(parserData->num_terminals + parserData->num_non_terminals, sizeof(char*));
 	parserData->symbolStr2symbolType = calloc(1, sizeof(Trie));
 	loadSymbols(fp);
-	printf("Calculating Productions\n");
 	loadProductions(fp);
 
-	printf("Calculating Nullables\n");
 	computeNullable();
-	printf("Calculating First\n");
 	populateFirstSets();
-	printf("Calculating Follow\n");
 	populateFollowSets();
-
-	printf("Calculating PT\n");
 	computeParseTable();
 	populateSyncSets();
 
@@ -394,7 +396,7 @@ void _pop(TreeNode** node, Stack* s)
 	assert((*node)->symbol_index == top(s));
 }
 
-TreeNode* parseSourceCode(char* fileLoc)
+TreeNode* parseInputSourceCode(char* fileLoc)
 {
 	TreeNode* parseTree;
 	FILE* fp = fopen(fileLoc, "r");
@@ -411,6 +413,8 @@ TreeNode* parseSourceCode(char* fileLoc)
 	TreeNode* node = parseTree;
 
 	Token* lookahead = getNextToken();
+
+	int flag = 0;
 
 	while (lookahead != NULL)
 	{
@@ -429,13 +433,14 @@ TreeNode* parseSourceCode(char* fileLoc)
 			lookahead->type == TK_ERROR_PATTERN ||
 			lookahead->type == TK_ERROR_SYMBOL)
 		{
+			flag = 1; 
 	//		printf("Inside Error token\n");
 			if (lookahead->type == TK_ERROR_LENGTH)
-				printf("Line %d \tError: Identifier is longer than the prescribed length.\n", lookahead->line_number);
+				printf("Line %d \t\tError: Identifier is longer than the prescribed length.\n", lookahead->line_number);
 			else if (lookahead->type == TK_ERROR_SYMBOL)
-				printf("Line %d \tError: Unknwon Symbol <%s>\n", lookahead->line_number, lookahead->lexeme);
+				printf("Line %d \t\tError: Unknwon Symbol <%s>\n", lookahead->line_number, lookahead->lexeme);
 			else if (lookahead->type == TK_ERROR_PATTERN)
-				printf("Line %d \tError: Unknown Pattern <%s>\n", lookahead->line_number, lookahead->lexeme);
+				printf("Line %d \t\tError: Unknown Pattern <%s>\n", lookahead->line_number, lookahead->lexeme);
 
 			lookahead = getNextToken();
 			continue;
@@ -460,7 +465,8 @@ TreeNode* parseSourceCode(char* fileLoc)
 		// if top of stack is terminal but it is not matching with input look-ahead
 		if (isTerminal(stack_top))
 		{
-			printf("Line %d \tError: The token %s for lexeme %s does not match with the expected token %s\n",line_number,la_token,lexeme,expected_token);
+			flag = 1;
+			printf("Line %d \t\tError: The token %s for lexeme %s does not match with the expected token %s\n",line_number,la_token,lexeme,expected_token);
 			_pop(&node, s);
 			continue;
 		}
@@ -518,12 +524,47 @@ TreeNode* parseSourceCode(char* fileLoc)
 		// left case is for sync set
 		assert(production_number == -2);
 	//	printf("Handling for the sync set");
-		printf("Line %d \tError: Invalid token %s encountered with value %s stack top %s\n", line_number, la_token, lexeme, expected_token);
+		flag = 1;
+		printf("Line %d \t\tError: Invalid token %s encountered with value %s stack top %s\n", line_number, la_token, lexeme, expected_token);
 		_pop(&node, s);
 	}
 
 	assert(top(s) == -1);
 	
 	fclose(fp);
+	
+	if(!flag)
+		printf("Input source code is syntactically correct...........\n");
 	return parseTree;
+}
+
+void printParseTree(TreeNode* node, char* outputFile)
+{
+	FILE* fptr = fopen(outputFile, "a+");
+	if (fptr == NULL) {
+		perror("Error opening file");
+		return;
+	}
+	if (node->parent != NULL)
+		fprintf(fptr, "Node: %s, parent: %s\n", parserData->symbolType2symbolStr[node->symbol_index], parserData->symbolType2symbolStr[node->parent->symbol_index]);
+	else
+		fprintf(fptr, "On root\n");
+
+	if (node->parent != NULL)
+	{
+		char* A = node->isLeaf ? node->token->lexeme : "----";
+		int B = node->isLeaf ? node->token->line_number : -1;
+		char* C = !(node->isLeaf) ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
+		int D = 0;
+		char* E = node->parent == NULL ? "root" : parserData->symbolType2symbolStr[node->parent->symbol_index];
+		char* F = node->isLeaf ? "yes" : "no";
+		char* G = node->isLeaf ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
+		fprintf(fptr, "%30s %10d %30s %5d %30s %10s %30s\n", A, B, C, D, E, F, G);
+	}
+	else
+		fprintf(fptr, "Root\n");
+
+	for (int i = 0; i < node->child_count; ++i)
+		printParseTree(node->children[i], outputFile);
+	fclose(fptr);
 }

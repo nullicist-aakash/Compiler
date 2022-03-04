@@ -1,11 +1,11 @@
 compile:
 	mkdir bin
-	gcc -c Lexer.c -o bin/Lexer.o
-	gcc -c Stack.c -o bin/Stack.o
-	gcc -c Trie.c -o bin/Trie.o
-	gcc -c Parser.c -o bin/Parser.o
-	gcc -c Driver.c -o bin/Driver.o
-	gcc -O0 -o Compiler.out bin/Lexer.o bin/Stack.o bin/Trie.o bin/Parser.o bin/Driver.o -fsanitize=address
+	gcc -c lexer.c -o bin/lexer.o
+	gcc -c stack.c -o bin/stack.o
+	gcc -c trie.c -o bin/trie.o
+	gcc -c parser.c -o bin/parser.o
+	gcc -c driver.c -o bin/driver.o
+	gcc -o Compiler.out bin/lexer.o bin/stack.o bin/trie.o bin/parser.o bin/driver.o -fsanitize=address
 	rm -r bin
 	./Compiler.out
 clean:

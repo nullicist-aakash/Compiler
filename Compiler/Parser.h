@@ -1,8 +1,16 @@
+/***************************************
+				GROUP-08
+  Yash Bansal			-   2019A7PS0484P
+  Sourabh S Yelluru		-   2018B3A70815P
+  Nihir Agarwal			-   2018B4A70701P
+  Aakash				-   2018B4A70887P
+*****************************************/
+
 #ifndef PARSER_H
 #define PARSER_H
 #define MAX 200
-#include "Trie.h"
-#include "Lexer.h"
+#include "trie.h"
+#include "lexer.h"
 #include <stdio.h>
 
 typedef struct 
@@ -40,6 +48,7 @@ extern ParserData* parserData;
 extern TreeNode* parseTree;
 
 void loadParser();
-TreeNode* parseSourceCode(char* fileLoc);
+void printParseTree(TreeNode* node, char* outputFile);
+TreeNode* parseInputSourceCode(char* fileLoc);
 
 #endif

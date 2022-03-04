@@ -2,13 +2,13 @@
 				GROUP-08
   Yash Bansal			-   2019A7PS0484P
   Sourabh S Yelluru		-   2018B3A70815P
-  NIHIR AGARWAL			-   2018B4A70701P
+  Nihir Agarwal			-   2018B4A70701P
   Aakash				-   2018B4A70887P
 *****************************************/
-#include "Trie.h"
-#include "Stack.h"
+#include "trie.h"
+#include "stack.h"
 #include <stdio.h>
-#include "Lexer.h"
+#include "lexer.h"
 
 
 typedef struct
@@ -56,6 +56,6 @@ extern TreeNode* parseTree;
 #define BITCLEAR(a, b) ((a)[BITSLOT(b)] &= ~BITMASK(b))
 #define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
-#define PARSER_DATA_LOC "Parser_Structure.txt"
+#define PARSER_DATA_LOC "grammar.txt"
 
 ParserData* parserData;
