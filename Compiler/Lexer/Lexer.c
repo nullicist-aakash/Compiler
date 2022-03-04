@@ -42,14 +42,14 @@ void loadTokens(FILE* fp)
 
 void loadTransitions(FILE* fp)
 {
-	lexerData->transitions = calloc(lexerData->num_states, sizeof(int**));
+	lexerData->productions = calloc(lexerData->num_states, sizeof(int**));
 
 	for (int i = 0; i < lexerData->num_states; ++i)
 	{
-		lexerData->transitions[i] = calloc(128, sizeof(int*));
+		lexerData->productions[i] = calloc(128, sizeof(int*));
 
 		for (int j = 0; j < 128; ++j)
-			lexerData->transitions[i][j] = -1;
+			lexerData->productions[i][j] = -1;
 	}
 
 	for (int i = 0; i < lexerData->num_transitions; ++i)
@@ -64,24 +64,24 @@ void loadTransitions(FILE* fp)
 			if (BUFF[j] == '\0')
 				break;
 
-			lexerData->transitions[from][BUFF[j]] = to;
+			lexerData->productions[from][BUFF[j]] = to;
 		}
 	}
 
 	// Comment
 	for (int i = 0; i < 128; i++)
-		lexerData->transitions[48][i] = 48;
+		lexerData->productions[48][i] = 48;
 
-	lexerData->transitions[48]['\n'] = -1;
+	lexerData->productions[48]['\n'] = -1;
 
 	// White spaces
-	lexerData->transitions[0][' '] =
-		lexerData->transitions[0]['\t'] =
-		lexerData->transitions[0]['\r'] = 50;
+	lexerData->productions[0][' '] =
+		lexerData->productions[0]['\t'] =
+		lexerData->productions[0]['\r'] = 50;
 
-	lexerData->transitions[50][' '] =
-		lexerData->transitions[50]['\t'] =
-		lexerData->transitions[50]['\r'] = 50;
+	lexerData->productions[50][' '] =
+		lexerData->productions[50]['\t'] =
+		lexerData->productions[50]['\r'] = 50;
 }
 
 void loadFinalStates(FILE* fp)
@@ -102,6 +102,7 @@ void loadFinalStates(FILE* fp)
 
 void loadKeywords(FILE* fp)
 {
+	lexerData->keyword2Str = calloc(lexerData->num_keywords, sizeof(char*));
 	if (lexerData->symbolTable == NULL)
 		lexerData->symbolTable = calloc(lexerData->num_tokens, sizeof(char*));
 
@@ -109,6 +110,9 @@ void loadKeywords(FILE* fp)
 	{
 		char BUFF1[64], BUFF2[64];
 		fscanf(fp, "%s %s\n", BUFF1, BUFF2);
+
+		lexerData->keyword2Str[i] = calloc(strlen(BUFF2) + 1, sizeof(char));
+		strcpy(lexerData->keyword2Str[i], BUFF2);
 
 		TrieNode* ref = trie_getRef(lexerData->symbolTable, BUFF1);
 		ref->entry.value = trie_getVal(lexerData->tokenStr2tokenType, BUFF2).value;
@@ -146,6 +150,7 @@ char getChar(int i)
 
 void loadLexer()
 {
+	assert(lexerData == NULL);
 	FILE* fp = fopen("./Lexer/DFA_Structure.txt", "r");
 	lexerData = calloc(1, sizeof(LexerData));
 
@@ -191,14 +196,13 @@ Token* DFA(int start_index)
 	{
 		char input = getChar(start_index);
 
-		if (1)
-		{
-			last_final = cur_state;
-			ttype = lexerData->finalStates[cur_state];
-			input_final_pos = start_index - 1;
-		}
 
-		cur_state = lexerData->transitions[cur_state][input];
+		last_final = cur_state;
+		ttype = lexerData->finalStates[cur_state];
+		input_final_pos = start_index - 1;
+
+
+		cur_state = lexerData->productions[cur_state][input];
 
 		//if (cur_state == 49)
 		//	b->line_number++;
@@ -212,7 +216,7 @@ Token* DFA(int start_index)
 				token->length = 1;
 				return token;
 			}
-			if (lexerData->finalStates[last_final] == -1 && last_final!=0)
+			if (lexerData->finalStates[last_final] == -1 && last_final != 0)
 			{
 				Token* token = calloc(1, sizeof(Token));
 				token->type = TK_ERROR_PATTERN;

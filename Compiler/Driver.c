@@ -6,11 +6,12 @@
 
 #include "Lexer/Lexer.h"
 
+#include "Parser/Parser.h"
+
 #define MAX_OPTIONS 4
 
 void clear_screen()
 {
-
 #ifdef _WIN32
 	system("cls");
 #endif
@@ -51,11 +52,36 @@ void printLexerOutput(char* path)
 	}
 }
 
+void traverse(TreeNode* node)
+{
+	if (node->parent != NULL)
+		printf("Node: %s, parent: %s\n", parserData->symbolType2symbolStr[node->symbol_index], parserData->symbolType2symbolStr[node->parent->symbol_index]);
+	else
+		printf("On root\n");
+
+	if (node->parent != NULL)
+	{
+		char* A = node->isLeaf ? node->token->lexeme : "----";
+		int B = node->isLeaf ? node->token->line_number : -1;
+		char* C = !(node->isLeaf) ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
+		int D = 0;
+		char* E = node->parent == NULL ? "root" : parserData->symbolType2symbolStr[node->parent->symbol_index];
+		char* F = node->isLeaf ? "yes" : "no";
+		char* G = node->isLeaf ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
+		printf("%30s %10d %30s %5d %30s %10s %30s\n", A, B, C, D, E, F, G);
+	}
+	else
+		printf("Root\n");
+
+	for (int i = 0; i < node->child_count; ++i)
+		traverse(node->children[i]);
+}
+
 int main(int argc, char** argv)
 {
 	clear_screen();
-
 	loadLexer();
+	loadParser();
 	/*
 	if (argc != 3)
 	{
@@ -130,6 +156,12 @@ int main(int argc, char** argv)
 		}
 		else if (option == 2)
 			printLexerOutput(argv[1]);
+		else if (option == 3)
+		{
+			TreeNode* node = parseSourceCode(argv[1]);
+
+			traverse(node);
+		}
 		end_time = clock();
 
 	} while (option != 0);

@@ -1,5 +1,4 @@
-#ifndef LEXER_h
-#define LEXER_H
+#pragma once
 #include <stdio.h>
 #include "../helpers/Trie.h"
 
@@ -85,9 +84,10 @@ typedef struct
 	int num_finalstates;
 	int num_keywords;
 	
-	int** transitions;
+	int** productions;
 	TokenType* finalStates;
 	char** tokenType2tokenStr;
+	char** keyword2Str;
 	Trie* tokenStr2tokenType;
 	Trie* symbolTable;	// move to global in future
 
@@ -102,5 +102,3 @@ void loadFile(FILE*);
 Token* getNextToken();
 
 void removeComments(FILE* source, FILE* destination);
-
-#endif
