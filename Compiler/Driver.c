@@ -72,7 +72,9 @@ void main(int argc, char** argv)
 	
 	if (argc != 3)
 	{
-		fprintf(stderr, "usage: Compiler.out <source_ode_file> <parser_output_file>\n");
+		char path[MAX_BUF];
+		char* buf = getcwd(NULL, 0);
+		fprintf(stderr, "usage: %s <source_ode_file> <parser_output_file>\n",buf);
 		exit(-1);
 	}
 
