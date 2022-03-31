@@ -487,6 +487,7 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 			}
 
 			pop(s);
+			node->productionNumber = production_number;
 			node->child_count = production_size - 1;
 			node->children = calloc(node->child_count, sizeof(TreeNode*));
 

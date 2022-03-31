@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include "lexer.h"
 
-
 typedef struct
 {
 	int num_non_terminals;
@@ -34,6 +33,7 @@ typedef struct TreeNode
 	int symbol_index;
 	int child_count;
 	int parent_child_index;
+	int productionNumber;
 
 	Token* token;
 

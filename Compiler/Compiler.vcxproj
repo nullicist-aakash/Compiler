@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AST.c" />
     <ClCompile Include="Driver.c" />
     <ClCompile Include="Lexer.c" />
     <ClCompile Include="Parser.c" />
@@ -147,6 +148,7 @@
     <ClCompile Include="Trie.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AST.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="lexerDef.h" />
     <ClInclude Include="Parser.h" />

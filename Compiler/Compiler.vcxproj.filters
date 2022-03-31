@@ -30,6 +30,9 @@
     <ClCompile Include="Trie.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AST.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lexerDef.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Trie.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AST.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
