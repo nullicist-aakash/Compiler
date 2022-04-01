@@ -295,9 +295,9 @@ ASTNode* performRecursion(TreeNode* input, TreeNode* parent, ASTNode* inherited)
 		//<declaration> ===> TK_TYPE <dataType> TK_COLON TK_ID <global_or_not> TK_SEM
 		//<declaration>.treenode = createTreeNode(<dataType>.data, TK_ID.value, <global_or_not>.isGlobal);
 		allocateChildren(node, 3);
-		node->children[0] = performRecursion(input->children[0], input, NULL);
-		node->children[1] = performRecursion(input->children[1], input, NULL);
-		node->children[2] = performRecursion(input->children[2], input, NULL);
+		node->children[0] = performRecursion(input->children[1], input, NULL);
+		node->children[1] = performRecursion(input->children[3], input, NULL);
+		node->children[2] = performRecursion(input->children[4], input, NULL);
 	}
 	else if (input->productionNumber == 33)
 	{
@@ -368,7 +368,7 @@ ASTNode* performRecursion(TreeNode* input, TreeNode* parent, ASTNode* inherited)
 		//<assignmentStmt>.treenode = createTreeNode(<singleOrRecId>.treenode, <arithmeticExpression>.treenode;
 		allocateChildren(node, 2);
 		node->children[0] = performRecursion(input->children[0], input, NULL);
-		node->children[1] = performRecursion(input->children[1], input, NULL);
+		node->children[1] = performRecursion(input->children[2], input, NULL);
 	}
 	else if (input->productionNumber == 43)
 	{
@@ -583,9 +583,10 @@ ASTNode* performRecursion(TreeNode* input, TreeNode* parent, ASTNode* inherited)
 		//<booleanExpression> ===> TK_OP <booleanExpression>1 TK_CL <logicalOp> TK_OP <booleanExpression>2 TK_CL
 		//<booleanExpression>.treenode = createTreeNode(<logicalOp>.data, <booleanExpression>1.treenode, <booleanExpression>2.treenode);
 		allocateChildren(node, 3);
-		node->children[0] = performRecursion(input->children[0], input, NULL);
+		node->children[0] = performRecursion(input->children[3], input, NULL);
 		node->children[1] = performRecursion(input->children[1], input, NULL);
-		node->children[2] = performRecursion(input->children[2], input, NULL);
+		node->children[2] = performRecursion(input->children[5], input, NULL);
+		//CHECK THIS OUT - iska TK_OP ka kuch nahi hoga?
 	}
 	else if (input->productionNumber == 72)
 	{
@@ -601,114 +602,136 @@ ASTNode* performRecursion(TreeNode* input, TreeNode* parent, ASTNode* inherited)
 		allocateChildren(node, 2);
 		node->children[0] = performRecursion(input->children[0], input, NULL);
 		node->children[1] = performRecursion(input->children[1], input, NULL);
+		//CHECK THIS OUT +  iska rule m TK_OP ka kuch nahi hoga ? 
 	}
 	else if (input->productionNumber == 74)
 	{
 		//<var> ===> <singleOrRecId>
 		//<var>.treenode =  <singleOrRecId>.treenode;
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 75)
 	{
 		//<var> ===> TK_NUM
 		//<var>.treenode = createTreeNode(TK_NUM.value);
-	
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 76)
 	{
 		//<var> ===> TK_RNUM
  		//<var>.treenode = createTreeNode(TK_RNUM.value);
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 77)
 	{
 		//<logicalOp> ===> TK_AND
 		//<logicalOp>.data=”&&&”;
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 78)
 	{
 		//<logicalOp> ===> TK_OR
 		//<logicalOp>.data=”@@@”;
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 79)
 	{
 		//<relationalOp> ===> TK_LT
 		//<relationalOp>.data=”<”;
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 80)
 	{
 		//<relationalOp> ===> TK_LE
 		//<relationalOp>.data=”<=”;
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 81)
 	{
 		//<relationalOp> ===> TK_EQ
 		//<relationalOp>.data=”==”;
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 82)
 	{
 		//<relationalOp> ===> TK_GT
 		//<relationalOp>.data=”>”;
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 83)
 	{
 		//<relationalOp> ===> TK_GE
 		//<relationalOp>.data=”>=”;
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 84)
 	{
 		//<relationalOp> ===> TK_NE
 		//<relationalOp>.data=”!=”;
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 85)
 	{
 		//<returnStmt> ===> TK_RETURN <optionalReturn> TK_SEM
 		//<returnStmt>.treenode = <optionalReturn>.treenode;
-
+		free(node);
+		return performRecursion(input->children[1], input, NULL);
 	}
 	else if (input->productionNumber == 86)
 	{
 		//<optionalReturn> ===> TK_SQL <idList> TK_SQR
  		//<optionalReturn>.treenode = <idList>.treenode;
-
+		free(node);
+		return performRecursion(input->children[1], input, NULL);
 	}
 	else if (input->productionNumber == 87)
 	{
 		//<optionalReturn> ===> eps
 		//<optionalReturn>.treenode = NULL;
-	
+		free(node);
+		return NULL;
 	}
 	else if (input->productionNumber == 88)
 	{
 		//<idList> ===> TK_ID <more_ids>
 		//<idList>.treenode = createTreeNodeList(head = TK_ID.value, tail = <more_ids>.treenode);
 
+		//TODO
 	}
 	else if (input->productionNumber == 89)
 	{
 		//<more_ids> ===> TK_COMMA <idList>
 		//<more_ids>.treenode = <idList>.treenode;
-
+		free(node);
+		return performRecursion(input->children[1], input, NULL);
+		//CHECK THIS OUT - Ye wala createTreeNodeList nahi hona tha?
 	}
 	else if (input->productionNumber == 90)
 	{
 		//<more_ids> ===> eps
 		//<more_ids>.treenode = NULL;
-
+		free(node);
+		return performRecursion(input->children[0], input, NULL);
 	}
 	else if (input->productionNumber == 91)
 	{
 		//<definetypestmt> ===> TK_DEFINETYPE <A> TK_RUID1 TK_AS TK_RUID2
 		//<definetypestmt>.treenode = createTreeNode(<A>.data, TK_RUID1.value ,TK_RUID2.value)
-
+		allocateChildren(node, 3);
+		node->children[0] = performRecursion(input->children[1], input, NULL);
+		node->children[1] = performRecursion(input->children[2], input, NULL);
+		node->children[2] = performRecursion(input->children[4], input, NULL);
 	}
 	else if (input->productionNumber == 92)
 	{
