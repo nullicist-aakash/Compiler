@@ -1,3 +1,10 @@
+/***************************************
+				GROUP-08
+  Yash Bansal			-   2019A7PS0484P
+  Sourabh S Yelluru		-   2018B3A70815P
+  Nihir Agarwal			-   2018B4A70701P
+  Aakash				-   2018B4A70887P
+*****************************************/
 #pragma once
 
 #include "parserDef.h"
@@ -12,15 +19,15 @@
 */
 typedef struct ASTNode
 {
-	int symbol_index;
 	int isLeaf;
-	struct ASTNode* parent;
+	int isGlobal;
+	struct ASTNode *parent;
 
-	Token* token;
-	ASTNode* type;
+	Token *token;
+	ASTNode *type;
 	int childCount;
-	struct ASTNode** children;
-	struct ASTNode* sibling;
+	struct ASTNode **children;
+	struct ASTNode *sibling;
 } ASTNode;
 
-ASTNode* createTree(TreeNode*);
+ASTNode *createAST(TreeNode *);

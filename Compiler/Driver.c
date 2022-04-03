@@ -10,12 +10,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <time.h> 
+#include <time.h>
 
 #include "lexer.h"
 #include "parser.h"
+#include "ast.h"
 
-#define MAX_OPTIONS 4
+#define MAX_OPTIONS 5
 
 void clear_screen()
 {
@@ -33,9 +34,9 @@ void clear_screen()
 #endif
 }
 
-void printLexerOutput(char* path)
+void printLexerOutput(char *path)
 {
-	FILE* fp = fopen(path, "r");
+	FILE *fp = fopen(path, "r");
 
 	if (!fp)
 	{
@@ -45,7 +46,7 @@ void printLexerOutput(char* path)
 
 	loadFile(fp);
 
-	Token* tk;
+	Token *tk;
 	while ((tk = getNextToken()) != NULL)
 	{
 		if (tk->type == TK_ERROR_LENGTH)
@@ -64,12 +65,15 @@ void printLexerOutput(char* path)
 	}
 }
 
-void main(int argc, char** argv)
+void print_AST(ASTNode *ast, int tab)
+{
+}
+void main(int argc, char **argv)
 {
 	clear_screen();
 	loadLexer();
 	loadParser();
-	
+
 	if (argc != 3)
 	{
 		fprintf(stderr, "usage: stage1exe <source_ode_file> <parser_output_file>\n");
@@ -102,7 +106,8 @@ void main(int argc, char** argv)
 
 		printf("Select an option: ");
 		scanf("%d", &option);
-		while ((c = getchar()) != '\n' && c != EOF);
+		while ((c = getchar()) != '\n' && c != EOF)
+			;
 		clear_screen();
 
 		if (option < 0 || option > MAX_OPTIONS)
@@ -117,10 +122,10 @@ void main(int argc, char** argv)
 			printf("Bye bye from group 8 compiler\n");
 			break;
 		}
-		if (option == MAX_OPTIONS)
+		if (option == 4)
 		{
 			start_time = clock();
-			TreeNode* node = parseInputSourceCode(argv[1]);
+			TreeNode *node = parseInputSourceCode(argv[1]);
 			end_time = clock();
 			double total_CPU_time = (double)(end_time - start_time);
 			printf("Total CPU Time Taken: %f\n", total_CPU_time);
@@ -131,7 +136,7 @@ void main(int argc, char** argv)
 
 		if (option == 1)
 		{
-			FILE* source = fopen(argv[1], "r");
+			FILE *source = fopen(argv[1], "r");
 
 			if (source == NULL)
 			{
@@ -147,24 +152,29 @@ void main(int argc, char** argv)
 			printLexerOutput(argv[1]);
 		else if (option == 3)
 		{
-			TreeNode* node = parseInputSourceCode(argv[1]);
+			TreeNode *node = parseInputSourceCode(argv[1]);
 
-			FILE* fptr = fopen(argv[2], "w");
+			FILE *fptr = fopen(argv[2], "w");
 			fprintf(fptr, "Group 8 Output File.\n%30s %10s %30s %15s %30s %10s %30s\n",
-				"Lexeme",
-				"LineNumber",
-				"TokenName",
-				"Value (if Num)",
-				"ParentSymbol",
-				"Is Leaf",
-				"NodeSymbol");
+					"Lexeme",
+					"LineNumber",
+					"TokenName",
+					"Value (if Num)",
+					"ParentSymbol",
+					"Is Leaf",
+					"NodeSymbol");
 
 			printParseTree(node, fptr);
 			fclose(fptr);
 
 			freeParseTree(node);
 		}
-		
+		else if (option == 5)
+		{
+			TreeNode *node = parseInputSourceCode(argv[1]);
+			ASTNode *ast = createAST(node);
+			print_AST(ast, 0);
+		}
 
 	} while (option != 0);
 }
