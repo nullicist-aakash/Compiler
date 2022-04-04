@@ -5,7 +5,9 @@
   Nihir Agarwal			-   2018B4A70701P
   Aakash				-   2018B4A70887P
 *****************************************/
-#include "ast.h"
+#include "AST.h"
+#include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 Token *copy_token(Token *input)
@@ -15,7 +17,7 @@ Token *copy_token(Token *input)
 
 	Token *out = calloc(1, sizeof(Token));
 	out->type = input->type;
-	out->lexeme = calloc(out->length, sizeof(char));
+	out->lexeme = calloc(input->length + 1, sizeof(char));
 	strcpy(out->lexeme, input->lexeme);
 	out->line_number = input->line_number;
 	out->start_index = input->line_number;
@@ -34,10 +36,10 @@ ASTNode *createLeafNode(TreeNode *leaf, TreeNode *parent)
 	assert(leaf != NULL && leaf->isLeaf);
 
 	ASTNode *node = calloc(1, sizeof(ASTNode));
+	node->sym_index = leaf->symbol_index;
 	node->token = copy_token(leaf->token);
 	node->isLeaf = 1;
 	node->childCount = 0;
-	node->parent = parent;
 	return node;
 }
 
@@ -50,7 +52,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 
 	ASTNode *node = calloc(1, sizeof(ASTNode));
 	node->isLeaf = 0;
-	node->parent = parent;
+	node->sym_index = input->symbol_index;
 
 	if (input->productionNumber == 0)
 	{
@@ -237,7 +239,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		//<typeDefinition> ===> TK_RECORD TK_RUID <fieldDefinitions> TK_ENDRECORD
 		//<typeDefinition>.treenode = createTreeNode(TK_RUID, <fieldDefinitions>.treenode);
 		//<typeDefinition>.data = "record"
-		node->token = copy_token(input->children[0], input, NULL);
+		node->token = copy_token(input->children[0]->token);
 		allocateChildren(node, 2);
 		node->children[0] = performRecursion(input->children[1], input, NULL);
 		node->children[1] = performRecursion(input->children[2], input, NULL);
@@ -247,7 +249,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		// typeDefinition> ===> TK_UNION TK_RUID <fieldDefinitions> TK_ENDUNION
 		//<typeDefinition>.treenode = createTreeNode(TK_RUID, <fieldDefinitions>.treenode);
 		//<typeDefinition>.data = "union"
-		node->token = copy_token(input->children[0], input, NULL);
+		node->token = copy_token(input->children[0]->token);
 		allocateChildren(node, 2);
 		node->children[0] = performRecursion(input->children[1], input, NULL);
 		node->children[1] = performRecursion(input->children[2], input, NULL);
@@ -422,7 +424,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		dot->children[0] = inherited;
 		dot->children[1] = id;
 
-		return performRecursion(input->children[2], input, dot);
+		return performRecursion(input->children[1], input, dot);
 	}
 	else if (input->productionNumber == 46)
 	{
@@ -462,7 +464,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		dot->children[0] = inherited;
 		dot->children[1] = id;
 
-		return performRecursion(input->children[2], input, dot);
+		return performRecursion(input->children[1], input, dot);
 	}
 	else if (input->productionNumber == 50)
 	{

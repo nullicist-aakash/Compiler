@@ -5,6 +5,7 @@
   Nihir Agarwal			-   2018B4A70701P
   Aakash				-   2018B4A70887P
 *****************************************/
+#pragma once
 #include "trie.h"
 #include "stack.h"
 #include <stdio.h>

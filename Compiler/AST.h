@@ -21,10 +21,10 @@ typedef struct ASTNode
 {
 	int isLeaf;
 	int isGlobal;
-	struct ASTNode *parent;
+	int sym_index;
 
 	Token *token;
-	ASTNode *type;
+	struct ASTNode *type;
 	int childCount;
 	struct ASTNode **children;
 	struct ASTNode *sibling;

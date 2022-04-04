@@ -479,7 +479,9 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 		{
 			int* production = parserData->productions[production_number];
 			int production_size = parserData->productionSize[production_number];
+			node->productionNumber = production_number;
 
+			// empty production
 			if (production_size == 2 && production[1] == 0)
 			{
 				_pop(&node, s);
@@ -487,7 +489,6 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 			}
 
 			pop(s);
-			node->productionNumber = production_number;
 			node->child_count = production_size - 1;
 			node->children = calloc(node->child_count, sizeof(TreeNode*));
 

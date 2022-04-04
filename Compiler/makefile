@@ -1,5 +1,5 @@
 compile:
-	mkdir bin
+	mkdir bin || true
 	gcc -c lexer.c -o bin/lexer.o
 	gcc -c stack.c -o bin/stack.o
 	gcc -c trie.c -o bin/trie.o

@@ -62,6 +62,7 @@
     <Text Include="DFA_Structure.txt" />
     <Text Include="Parser_Structure.txt" />
     <Text Include="testcase2.txt" />
+    <Text Include="grammar.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
