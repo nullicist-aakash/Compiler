@@ -1,56 +1,40 @@
 #pragma once
 
-enum TypeEntry
+enum TypeTag
 {
 	NUM,
 	RNUM,
 	FUNCTION,
 	DERIVED,
-	ARRAY,
 	BOOL,
 	VOID
 };
 
-struct Type;
-
-typedef struct
-{
-	int val;
-} NumEntry;
-
-typedef struct
-{
-	float val;
-} RNumEntry;
-
-typedef struct
-{
-	bool val;
-} BoolEntry;
+struct TypeInfo;
 
 typedef struct
 {
 	int argCount;
-	Type** argTypes;
+	TypeInfo** argTypes;
 
-	Type* retType;
+	TypeInfo* retType;
 } FuncEntry;
 
 typedef struct
 {
 	int isUnion;
-	int fieldCount;
-	Type** fields;
+	TypeInfo* type;
+	TypeInfo* next;
 } DerivedEntry;
 
-typedef struct
+typedef union
 {
-	int count;
-	Type* type;
-} ArrayEntry;
+	FuncEntry func;
+	DerivedEntry derived;
+} TypeStructure;
 
-typedef struct Type
+typedef struct 
 {
-	TypeEntry entry;
-	void* val;
-} Type;
+	TypeTag entryType;
+	TypeStructure val;
+} TypeInfo;
