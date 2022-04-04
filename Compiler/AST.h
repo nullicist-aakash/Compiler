@@ -8,6 +8,7 @@
 #pragma once
 
 #include "parserDef.h"
+
 /*rules
  isLeaf = true iff current node is leaf
  symbol_index = current non terminal index

@@ -155,6 +155,7 @@
     <ClInclude Include="parserDef.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="Trie.h" />
+    <ClInclude Include="typeInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="DFA_Structure.txt" />

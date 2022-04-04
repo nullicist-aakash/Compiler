@@ -5,10 +5,7 @@
   Nihir Agarwal			-   2018B4A70701P
   Aakash				-   2018B4A70887P
 *****************************************/
-
-#ifndef TRIE_H
-#define TRIE_H
-
+#pragma once
 #define TRIE_CHILD_COUNT 64
 
 typedef union TrieEntry {
@@ -28,12 +25,9 @@ typedef struct Trie{
 } Trie;
 
 
-// returns 0 on success, -1 on error
 TrieNode* trie_getRef(Trie* t, char* key);
 
 // returns 1 on success, 0 on not found
 int trie_exists(Trie* t, char* key);
 
 TrieEntry trie_getVal(Trie* t, char* key);
-
-#endif

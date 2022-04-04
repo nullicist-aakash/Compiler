@@ -10,6 +10,23 @@
 #include <string.h>
 #include <assert.h>
 
+int count_functions(TreeNode* input)
+{
+	int ct = 1;
+
+	// first goto left child of program
+	input = input->children[0];
+
+	// while we have any child of current node, it means it will expand into function
+	while (input->child_count != 0)
+	{
+		++ct;
+		input = input->children[1];
+	}
+
+	return ct;
+}
+
 Token *copy_token(Token *input)
 {
 	assert(input != NULL);
