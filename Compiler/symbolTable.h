@@ -1,5 +1,4 @@
 #pragma once
-
 #include "AST.h"
 
 typedef enum
@@ -33,6 +32,7 @@ typedef struct
 {
     struct TypeInfoList *argTypes;
     struct TypeInfoList *retType;
+    int index;
 } FuncEntry;
 
 typedef struct
@@ -49,8 +49,4 @@ typedef struct TypeInfo
     void *val; // Pointer to type information
 } TypeInfo;
 
-void initSymbolTable();
-void addTypeEntry(char *, ASTNode *);
-TypeLog *getTypeInfo(char *);
-void addIdEntry(char *, ASTNode *);
-ASTNode *getIdInfo(char *);
+void loadSymbolTable(ASTNode *);
