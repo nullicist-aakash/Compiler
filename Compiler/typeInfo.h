@@ -14,39 +14,44 @@ typedef enum
 
 struct TypeInfo;
 
+// Acts as an intermediate, which helps for type definitions
+typedef struct
+{
+	int refCount;
+	TypeInfo entry;
+} TypeLog;
+
+// List of types in Rec or Union
 typedef struct TypeInfoList
 {
-	char* name;
-	struct TypeInfo** val;
-	struct TypeInfoList* next;
+	char *name;
+	struct TypeLog *val; // Points to information of current Type
+	struct TypeInfoList *next;
 } TypeInfoList;
 
 typedef struct
 {
-	int argCount;
-	struct TypeInfo*** argTypes;
-
-	struct TypeInfo*** retType;
+	struct TypeInfoList *argTypes;
+	struct TypeInfoList *retType;
 } FuncEntry;
 
 typedef struct
 {
 	int isUnion;
-	int isPrefixReq;
-	char* name;
-	TypeInfoList* list;
+	char *name; // Name of record/union
+	TypeInfoList *list;
 } DerivedEntry;
 
 typedef struct TypeInfo
 {
 	TypeTag entryType;
-	int width;
-	void* val;
+	int width; // Memory to allocate to variable of this type
+	void *val; // Pointer to type information
 } TypeInfo;
 
-extern Trie* typeTable;
+extern Trie *typeTable;
 
 void init_typeTable();
-int addStructInfo(ASTNode*);
-int addFunctionInfo(ASTNode*);
-int addTypedefInfo(ASTNode*);
+int addStructInfo(ASTNode *);
+int addFunctionInfo(ASTNode *);
+int addTypedefInfo(ASTNode *);
