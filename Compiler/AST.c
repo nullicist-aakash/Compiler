@@ -6,12 +6,11 @@
   Aakash				-   2018B4A70887P
 *****************************************/
 #include "AST.h"
-#include "typeInfo.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
-int count_functions(TreeNode* input)
+int count_functions(TreeNode *input)
 {
 	int ct = 1;
 

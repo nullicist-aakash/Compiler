@@ -1,4 +1,4 @@
-#include "typeInfo.h"
+#include "symbolTable.h"
 #include "string.h"
 
 Trie *typeTable;
@@ -7,17 +7,17 @@ void init_typeTable()
 {
 	typeTable = calloc(1, sizeof(Trie));
 
-	TypeInfo **intInfo = calloc(1, sizeof(TypeInfo *));
-	*intInfo = calloc(1, sizeof(TypeInfo));
-	(*intInfo)->entryType = INT;
-	(*intInfo)->width = 4;
+	TypeLog *intInfo = calloc(1, sizeof(TypeLog));
+	intInfo->refCount = 1;
+	intInfo->entry.entryType = INT;
+	intInfo->entry.width = 8;
 
 	trie_getRef(typeTable, "int")->entry.ptr = intInfo;
 
-	TypeInfo **realInfo = calloc(1, sizeof(TypeInfo *));
-	*realInfo = calloc(1, sizeof(TypeInfo));
-	(*realInfo)->entryType = REAL;
-	(*realInfo)->width = 4;
+	TypeLog *realInfo = calloc(1, sizeof(TypeLog));
+	realInfo->refCount = 1;
+	realInfo->entry.entryType = REAL;
+	realInfo->entry.width = 8;
 
 	trie_getRef(typeTable, "real")->entry.ptr = realInfo;
 }
