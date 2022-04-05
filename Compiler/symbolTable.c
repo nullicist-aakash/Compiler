@@ -1,8 +1,44 @@
 #include "symbolTable.h"
 #include "Trie.h"
-#include "string.h"
+#include <string.h>
+
+typedef enum {
+    NAME_REDEFINED,
+    NON_EXISTENT_TYPE,
+    NAME_TYPE_MISMTACH,
+    REDEFINED_ALIAS,
+    UNDEFINED_TYPE,
+    INVALID_TYPE,
+    DUPLICATE_FIELD_NAME,
+}ErrorType;
+
+typedef struct {
+    ErrorType etype;
+    ASTNode* errnode;
+    ErrorListNode* next;
+}ErrorListNode;
+
+typedef struct {
+    ErrorListNode* head;
+}ErrorList;
+
+typedef struct 
+{
+    ASTNode* node;
+    ASTNodeListNode* next;
+
+}ASTNodeListNode;
+
+typedef struct
+{
+    ASTNodeListNode* head;
+    ASTNodeListNode* tail;
+}ASTNodeList;
 
 Trie *typeTable;
+Trie* prefixTable;
+char errMsg[30];
+ErrorList* errList;
 
 void initTypeTable()
 {
@@ -23,87 +59,155 @@ void initTypeTable()
     trie_getRef(typeTable, "real")->entry.ptr = realInfo;
 }
 
-int addStructInfo(ASTNode *node)
+void initPrefixTable()
 {
-    Token *name = node->children[0]->token;
+    prefixTable = calloc(1, sizeof(Trie));
+}
 
-    if (trie_exists(typeTable, name->lexeme) == 0)
-        return -1;
+TypeLog* getMediator(char* key) 
+{
+    TrieNode* node = trie_getRef(typeTable, key);
 
-    DerivedEntry *entry = calloc(1, sizeof(DerivedEntry));
-    TypeInfo *newStruct = calloc(1, sizeof(TypeInfo));
-    newStruct->entryType = DERIVED;
-    newStruct->val = entry;
+    if (node->entry.value == 0)
+        node->entry.ptr = calloc(1, sizeof(TypeLog));
 
-    if (strcmp("union", node->token->lexeme) == 0)
-        entry->isUnion = 1;
-    else
-        entry->isUnion = 0;
+    return (TypeLog*)node->entry.ptr;
+}
 
-    entry->name = calloc(name->length + 1, sizeof(char));
-    strcpy(entry->name, name->lexeme);
+void addToList(ASTNodeList* list, ASTNode* val)
+{
+    // The beauty
+    list->tail = (list->head ? list->tail->next : list->head) = calloc(1, sizeof(ASTNodeListNode));
+    
+    // The beast
+    list->tail->node = value;
+}
 
-    TypeInfoList *typeNode;
-    ASTNode *fieldNode = node->children[1];
+void addToErrorList(ASTNode* node, ErrorType type) {
+    // The beauty
+    list->tail = (list->head ? list->tail->next : list->head) = calloc(1, sizeof(ErrorListNode));
 
-    while (fieldNode)
+    // The beast
+    list->tail->errnode = node;
+    list->tail->errorType = type;
+}
+
+void printErrors() 
+{
+
+}
+
+void firstPassErrorCheck(ASTNode* node) 
+{
+    if (node->token->type != TK_DEFINETYPE)
     {
-        if (entry->list == NULL)
-        {
-            entry->list = calloc(1, sizeof(TypeInfoList));
-            typeNode = entry->list;
-        }
-        else
-        {
-            typeNode->next = calloc(1, sizeof(TypeInfoList));
-            typeNode = typeNode->next;
-        }
-
-        char *type = fieldNode->type->token->lexeme;
-
-        typeNode->name = calloc(fieldNode->token->length + 1, sizeof(char));
-        strcpy(typeNode->name, fieldNode->type->token->lexeme);
-
-        typeNode->val = (TypeInfo **)trie_getRef(typeTable, type)->entry.ptr;
-
-        fieldNode = fieldNode->sibling;
+        if (trie_exists(prefixTable, node->children[0]->token->lexeme))
+            addToErrorList(node, NAME_REDEFINED);
+        return;
     }
 
-    // TODO: I have feeling that this code will give some error but idk what it is before running it
-    TypeInfo **entryToAdd = calloc(1, sizeof(TypeInfo *));
-    *entryToAdd = newStruct;
-    trie_getRef(typeTable, name->lexeme)->entry.ptr = entryToAdd;
-    return 0;
+    // TODO : Errors 
+
 }
 
-int addTypedefInfo(ASTNode *node)
+void firstPassPreprocess(ASTNode* root, ASTNodeList* typeDefList, ASTNodeList* definitionList)
 {
-    Token *from = node->children[1]->token;
-    Token *to = node->children[2]->token;
-
-    if (trie_exists(typeTable, to->lexeme) == 0)
-        return -1;
-}
-
-void fillTypeDefInfo(ASTNode *typeNode)
-{
-}
-
-void fillDeclInfo(ASTNode *declNode)
-{
-}
-
-void loadSymbolTable(ASTNode *root)
-{
-    ASTNode *func = root->children[0];
-    while (func != NULL)
+    // Step 1 : Segregate typdef and struct from AST 
+    ASTNode* func = root->children[0];
+    ASTNode* main = root->children[1];
+    
+    while (func != NULL) 
     {
-        fillTypeDefInfo(func->children[2]->children[0]);
-        fillDeclInfo(func->children[2]->children[1]);
+        ASTNode* stmt = func->children[2]->children[0];
+
+        while (stmt != NULL) {
+            if (stmt->token->type == TK_DEFINETYPE)
+                addtoList(typeDefList, stmt);
+            else
+                addToList(definitionList, stmt);
+            stmt = stmt->sibling;
+        }
+
         func = func->sibling;
     }
 
     func = root->children[1];
-    fillTypeDefInfo(func->children[2]->children[0]);
-    fillDeclInfo(func->children[2]->children[1]);
+
+    ASTNode* stmt = func->children[2]->children[0];
+
+    while (stmt != NULL) {
+        if (stmt->token->type == TK_DEFINETYPE)
+            addtoList(typeDefList, stmt);
+        else
+            addToList(definitionList, stmt);
+        stmt = stmt->sibling;
+    }
+}
+
+void firstPassPostprocess(ASTNodeList* typeDefList, ASTNodeList* definitionList) 
+{
+    // Struct definitions
+    ASTNodeListNode* curr = definitionList->head;
+
+    while (curr) 
+    {
+        if (firstPassErrorCheck(curr->node) == -1)
+        {
+            curr = curr->next;
+            continue;
+        }
+
+        trie_getRef(prefixTable, curr->node->children[0]->token->lexeme)->entry.value =
+            curr->node->token->type;
+
+        TypeLog* mediator = getMediator(curr->node->children[0]->token->lexeme);
+        mediator->refCount = 1;
+        mediator->entry.type = DERIVED;
+        mediator->entry.width = -1;
+
+        curr = curr->next;
+    }
+    // Typedef 
+    curr = typeDefList->head;
+    while (curr)
+    {
+        if (firstPassErrorCheck(curr->node) == -1)
+        {
+            curr = curr->next;
+            continue;
+        }
+
+        char* oldName = curr->node->children[1]->token->lexeme;
+        char* newName = curr->node->children[2]->token->lexeme;
+
+        TypeLog* mediator = getMediator(oldName);
+        mediator->refCount++;
+
+        trie_getRef(typeTable, newName)->entry.ptr = mediator;
+
+        trie_getRef(prefixTable, newName)->entry.value = curr->node->token->type;
+
+        curr = curr->next;
+    }
+    //printError
+    printErrors();
+}
+
+void secondPass(ASTNodeList* definitionList)
+{
+
+}
+
+void loadSymbolTable(ASTNode *root)
+{
+    errList = calloc(1, sizeof(ErrorList));
+    ASTNodeList* typeDefList = calloc(1, sizeof(ASTNodeList));
+    ASTNodeList* definitionList = calloc(1, sizeof(ASTNodeList));
+    initTypeTable();
+    initPrefixTable();
+
+    firstPassPreprocess(root, typeDefList, definitionList);
+    firstPassPostprocess(typeDefList, definitionList);
+    secondPass(definitionList);
+    
 }

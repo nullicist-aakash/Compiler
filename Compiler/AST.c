@@ -843,7 +843,6 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		node->children[0] = performRecursion(input->children[1], input, NULL);
 		node->children[1] = performRecursion(input->children[2], input, NULL);
 		node->children[2] = performRecursion(input->children[4], input, NULL);
-		addTypedefInfo(node);
 	}
 	else if (input->productionNumber == 93)
 	{

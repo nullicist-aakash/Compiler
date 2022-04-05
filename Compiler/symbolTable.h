@@ -24,7 +24,7 @@ typedef struct
 typedef struct TypeInfoList
 {
     char *name;
-    struct TypeLog *val; // Points to information of current Type
+    struct TypeLog *type; // Points to information of current Type
     struct TypeInfoList *next;
 } TypeInfoList;
 
@@ -37,6 +37,7 @@ typedef struct
 
 typedef struct
 {
+    //TODO : Check if necessary before code generation
     int isUnion;
     char *name; // Name of record/union
     TypeInfoList *list;
@@ -46,7 +47,7 @@ typedef struct TypeInfo
 {
     TypeTag entryType;
     int width; // Memory to allocate to variable of this type
-    void *val; // Pointer to type information
+    void *structure; // Pointer to type information
 } TypeInfo;
 
 void loadSymbolTable(ASTNode *);
