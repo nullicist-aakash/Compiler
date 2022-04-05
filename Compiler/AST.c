@@ -6,6 +6,7 @@
   Aakash				-   2018B4A70887P
 *****************************************/
 #include "AST.h"
+#include "typeInfo.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -260,16 +261,18 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		allocateChildren(node, 2);
 		node->children[0] = performRecursion(input->children[1], input, NULL);
 		node->children[1] = performRecursion(input->children[2], input, NULL);
+		addStructInfo(node);
 	}
 	else if (input->productionNumber == 24)
 	{
-		// typeDefinition> ===> TK_UNION TK_RUID <fieldDefinitions> TK_ENDUNION
+		//<typeDefinition> ===> TK_UNION TK_RUID <fieldDefinitions> TK_ENDUNION
 		//<typeDefinition>.treenode = createTreeNode(TK_RUID, <fieldDefinitions>.treenode);
 		//<typeDefinition>.data = "union"
 		node->token = copy_token(input->children[0]->token);
 		allocateChildren(node, 2);
 		node->children[0] = performRecursion(input->children[1], input, NULL);
 		node->children[1] = performRecursion(input->children[2], input, NULL);
+		addStructInfo(node);
 	}
 	else if (input->productionNumber == 25)
 	{
@@ -841,6 +844,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		node->children[0] = performRecursion(input->children[1], input, NULL);
 		node->children[1] = performRecursion(input->children[2], input, NULL);
 		node->children[2] = performRecursion(input->children[4], input, NULL);
+		addTypedefInfo(node);
 	}
 	else if (input->productionNumber == 93)
 	{
@@ -863,6 +867,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 ASTNode *createAST(TreeNode *input)
 {
 	assert(input != NULL);
+	init_typeTable();
 
 	return performRecursion(input, NULL, NULL);
 }

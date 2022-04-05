@@ -348,7 +348,6 @@ void loadProductions(FILE* fp)
 		parserData->productionSize[i] = count;
 		for (int j = 0; j < count; j++)
 			parserData->productions[i][j] = symbols[j];
-
 	}
 }
 

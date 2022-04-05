@@ -33,6 +33,9 @@
     <ClCompile Include="AST.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="typeInfo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lexerDef.h">

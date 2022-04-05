@@ -146,6 +146,7 @@
     <ClCompile Include="Parser.c" />
     <ClCompile Include="Stack.c" />
     <ClCompile Include="Trie.c" />
+    <ClCompile Include="typeInfo.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AST.h" />
