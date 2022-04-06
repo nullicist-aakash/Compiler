@@ -194,6 +194,49 @@ void firstPass(ASTNode* node, int struct_done)
     firstPass(node->sibling, struct_done);
 }
 
+
+void printStructInfo(ASTNode* node)
+{
+    if (!node)
+        return;
+
+    if (node->sym_index == 57)
+    {
+        // <program> -> <funcList> <mainFunction>
+        printStructInfo(node->children[0]);
+        printStructInfo(node->children[1]);
+    }
+    else if (node->sym_index == 60 || node->sym_index == 58) //Function names parsed
+    {
+        // <function> -> <inputList><outputList> <stmts>
+        printStructInfo(node->children[2]);
+    }
+    else if (node->sym_index == 68)
+    {
+        // <stmts> -> <definitions> <declarations> <funcBody> <return>
+        printStructInfo(node->children[0]);
+    }
+    else if (node->sym_index == 71) //Type Definition Names Parsed
+    {
+        trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
+            node->token->type;
+
+        TypeLog* mediator = getMediator(node->children[0]->token->lexeme);
+        DerivedEntry* entry = mediator->entry.structure;
+
+        printf("%s is Union: %d\n", entry->name, entry->isUnion);
+        TypeInfoListNode* hd = entry->list->head;
+
+        while (hd)
+        {
+            printf("\t%s is %s\n", hd->name, hd->type->entry.entryType == DERIVED ? ((DerivedEntry*)hd->type->entry.structure)->name : "BUILT IN");
+            hd = hd->next;
+        }
+    }
+
+    printStructInfo(node->sibling);
+}
+
 void secondPass(ASTNode* node, int** adj)
 {
     if (!node)
@@ -268,7 +311,6 @@ void secondPass(ASTNode* node, int** adj)
         // <typeDefinition> -> TK_RUID <fieldDefinitions>
         ASTNode* field = node->children[1];
 
-
         TypeLog* mediator = getMediator(node->children[0]->token->lexeme);
         
         mediator->entry.structure = calloc(1, sizeof(DerivedEntry));
@@ -312,6 +354,7 @@ void loadSymbolTable(ASTNode *root)
     initTables();
 
     firstPass(root, 0);
-    secondPass(root,NULL);
+    secondPass(root, NULL);
+    printStructInfo(root);
     
 }
