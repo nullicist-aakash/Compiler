@@ -322,9 +322,12 @@ void freeLexerData()
 
 	free(lexerData->symbolTable);
 
-	free(b->working);
-	free(b->archived);
-	free(b);
-
+	if (b)
+	{
+		free(b->working);
+		free(b->archived);
+		free(b);
+	}
+	
 	free(lexerData);
 }

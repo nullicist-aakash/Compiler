@@ -20,24 +20,30 @@ typedef struct TypeInfo
 } TypeInfo;
 
 // Acts as an intermediate, which helps for type definitions
-typedef struct
+typedef struct TypeLog
 {
     int refCount;
     struct TypeInfo entry;
 } TypeLog;
 
 // List of types in Rec or Union
-typedef struct TypeInfoList
+typedef struct TypeInfoListNode
 {
     char *name;
     struct TypeLog *type; // Points to information of current Type
-    struct TypeInfoList *next;
-} TypeInfoList;
+    struct TypeInfoListNode *next;
+} TypeInfoListNode;
+
+typedef struct TypeInfoList
+{
+    struct TypeInfoListNode* head;
+    struct TypeInfoListNode* tail;
+}TypeInfoList;
 
 typedef struct
 {
     struct TypeInfoList *argTypes;
-    struct TypeInfoList *retType;
+    struct TypeInfoList *retTypes;
 } FuncEntry;
 
 typedef struct

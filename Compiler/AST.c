@@ -139,7 +139,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 	{
 		//<parameter_list> ===> <dataType> TK_ID <remaining_list>
 		//<parameter_list>.treenode = createTreeNodeList(head = createTreeNode(<dataType>.data, TK_ID.value), tail = <remaining_list>.treenode);
-		node->token = copy_token(input->children[1]->token);
+		node->token = copy_token(input->children[1]->token);	// Stores name of id
 		node->type = performRecursion(input->children[0], input, NULL);
 		node->sibling = performRecursion(input->children[2], input, NULL);
 	}
@@ -861,7 +861,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 	return node;
 }
 
-/*void printTabs(int tabCount)
+void printTabs(int tabCount)
 {
 	while (tabCount--)
 		printf("\t");
@@ -881,7 +881,7 @@ void print(ASTNode* node, int tab)
 		print(node->children[i], tab + 1);
 
 	print(node->sibling, tab);
-}*/
+}
 
 
 ASTNode *createAST(TreeNode *input)
@@ -889,7 +889,7 @@ ASTNode *createAST(TreeNode *input)
 	assert(input != NULL);
 
 	ASTNode* node = performRecursion(input, NULL, NULL);
-	// print(node, 0);
+	print(node, 0);
 
 	return node;
 }

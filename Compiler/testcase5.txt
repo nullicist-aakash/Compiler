@@ -34,7 +34,7 @@ _main
 	union #four
 		type #line : ln; 
 		type #point: pt; 
-		type #traingle:tr;
+		type #triangle:tr;
 	endunion
         definetype record #three as #triangle  
 	record #three 

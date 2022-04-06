@@ -34,6 +34,10 @@ int dataTypeCount = 0;
 int funcCount = 0;
 ErrorList* errList;
 
+// First pass : Collect struct , typedef and pass through typedef list
+// Second pass : Add function, Fill TypeInfo
+
+
 void initTypeTable()
 {
     typeTable = calloc(1, sizeof(Trie));
@@ -42,6 +46,7 @@ void initTypeTable()
     intInfo->refCount = 1;
     intInfo->entry.entryType = INT;
     intInfo->entry.width = 4;
+    intInfo->entry.index = dataTypeCount++;
 
     trie_getRef(typeTable, "int")->entry.ptr = intInfo;
 
@@ -49,6 +54,7 @@ void initTypeTable()
     realInfo->refCount = 1;
     realInfo->entry.entryType = REAL;
     realInfo->entry.width = 4;
+    realInfo->entry.index = dataTypeCount++;
 
     trie_getRef(typeTable, "real")->entry.ptr = realInfo;
 }
@@ -96,6 +102,25 @@ int firstPassErrorCheck(ASTNode* node)
     }
 
     // TODO : Errors 
+    // 1.1 Type Name Redefined
+    // 1.2.1 Non Existent type for Alias
+    // 1.2.2 Alias type mismatch
+    // 1.2.3 Redefined alias name
+    // 1.3.1 Func Name Redefined
+
+    return 0;
+}
+
+int secondPassErrorCheck(ASTNode* node) 
+{
+
+
+    
+    // TODO : Errors 
+    /* For Functions
+        1. Invalid argument type
+        2. Repeated variable name
+    */
     return 0;
 }
 
@@ -112,7 +137,7 @@ void firstPass(ASTNode* node, int struct_done)
         firstPass(node->children[0], 1);
         firstPass(node->children[1], 1);
     }
-    else if (node->sym_index == 60 || node->sym_index == 58)
+    else if (node->sym_index == 60 || node->sym_index == 58) //Function names parsed
     {
         // <function> -> <inputList><outputList> <stmts>
         
@@ -125,6 +150,11 @@ void firstPass(ASTNode* node, int struct_done)
             mediator->entry.entryType = FUNCTION;
             mediator->entry.width = -1;
             mediator->entry.index = funcCount++;
+
+            FuncEntry* entry = calloc(1, sizeof(FuncEntry));
+            mediator->entry.structure = entry;
+            entry->argTypes = calloc(1, sizeof(TypeInfoList));
+            entry->retTypes = calloc(1, sizeof(TypeInfoList));
         }
         
         firstPass(node->children[2], struct_done);
@@ -134,7 +164,7 @@ void firstPass(ASTNode* node, int struct_done)
         // <stmts> -> <definitions> <declarations> <funcBody> <return>
         firstPass(node->children[0], struct_done);
     }
-    else if (node->sym_index == 71 && !struct_done && firstPassErrorCheck(node) != -1)
+    else if (node->sym_index == 71 && !struct_done && firstPassErrorCheck(node) != -1) //Type Definition Names Parsed
     {
         printf("%s %s \n", node->token->lexeme, node->children[0]->token->lexeme);
         trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
@@ -146,7 +176,7 @@ void firstPass(ASTNode* node, int struct_done)
         mediator->entry.width = -1;
         mediator->entry.index = dataTypeCount++;
     }
-    else if (node->sym_index == 108 && struct_done && firstPassErrorCheck(node) != -1)
+    else if (node->sym_index == 108 && struct_done && firstPassErrorCheck(node) != -1) //Type Aliases Parsed
     {
         printf("typdef %s %s as %s\n", node->children[0]->token->lexeme, node->children[1]->token->lexeme, node->children[2]->token->lexeme);
         
@@ -166,7 +196,112 @@ void firstPass(ASTNode* node, int struct_done)
 
 void secondPass(ASTNode* node, int** adj)
 {
+    if (!node)
+        return;
 
+    if (node->sym_index == 57)
+    {
+        // <program> -> <funcList> <mainFunction>
+        secondPass(node->children[0], adj);
+        secondPass(node->children[1], adj);
+    }
+    else if (node->sym_index == 60 || node->sym_index == 58) //Function Type Parsed
+    {
+        // <function> -> <inputList><outputList> <stmts>
+        // Fill input argument 
+        ASTNode* arg = node->children[0];
+
+        TypeLog* mediator = getMediator(node->token->lexeme);
+        FuncEntry* entry = mediator->entry.structure;
+        
+        while (arg)
+        {
+            if (!entry->argTypes->head)
+                entry->argTypes->head = entry->argTypes->tail = calloc(1, sizeof(TypeInfoListNode));
+            else
+            {
+                entry->argTypes->tail->next = calloc(1, sizeof(TypeInfoListNode));
+                entry->argTypes->tail = entry->argTypes->tail->next;
+            }
+
+            // TODO: Check error
+            entry->argTypes->tail->type = (arg->type->sibling ? getMediator(arg->type->sibling->token->lexeme) : getMediator(arg->type->token->lexeme));
+            entry->argTypes->tail->type->refCount++;
+            entry->argTypes->tail->name = calloc(arg->token->length + 1, sizeof(char));
+            strcpy(entry->argTypes->tail->name, arg->token->lexeme);
+
+            arg = arg->sibling;
+        }
+
+        ASTNode* ret = node->children[1];
+
+        while (ret)
+        {
+            if (!entry->retTypes->head)
+                entry->retTypes->head = entry->retTypes->tail = calloc(1, sizeof(TypeInfoListNode));
+            else
+            {
+                entry->retTypes->tail->next = calloc(1, sizeof(TypeInfoListNode));
+                entry->retTypes->tail = entry->retTypes->tail->next;
+            }
+
+            // TODO: Check error
+            entry->retTypes->tail->type = (ret->type->sibling ? getMediator(ret->type->sibling->token->lexeme) : getMediator(ret->type->token->lexeme));
+            entry->retTypes->tail->type->refCount++;
+            entry->retTypes->tail->name = calloc(ret->token->length + 1, sizeof(char));
+            strcpy(entry->retTypes->tail->name, ret->token->lexeme);
+
+            ret = ret->sibling;
+        }
+
+        secondPass(node->children[2], adj);
+    }
+    else if (node->sym_index == 68)
+    {
+        // <stmts> -> <definitions> <declarations> <funcBody> <return>
+
+        secondPass(node->children[0], adj);
+        //TODO Parse declarations
+    }
+    else if (node->sym_index == 71 && secondPassErrorCheck(node) != -1) // Record/Union full type information parsed
+    {
+        // <typeDefinition> -> TK_RUID <fieldDefinitions>
+        ASTNode* field = node->children[1];
+
+        TypeLog* mediator = getMediator(node->children[0]->token->lexeme);
+        
+        mediator->entry.structure = calloc(1, sizeof(DerivedEntry));
+        DerivedEntry* entry = mediator->entry.structure;
+        entry->isUnion = node->token->type == TK_UNION;
+        entry->name = calloc(node->children[0]->token->length + 1, sizeof(char));
+        strcpy(entry->name, node->children[0]->token->lexeme);
+
+        entry->list = calloc(1, sizeof(TypeInfoList));
+
+        while (field)
+        {
+            if (!entry->list->head)
+                entry->list->head = entry->list->tail = calloc(1, sizeof(TypeInfoListNode));
+            else
+            {
+                entry->list->tail->next = calloc(1, sizeof(TypeInfoListNode));
+                entry->list->tail = entry->list->tail->next;
+            }
+
+            TypeInfoListNode* infoNode = entry->list->tail;
+
+            // TODO: Check error
+            infoNode->type = getMediator(field->type->token->lexeme);
+            infoNode->type->refCount++;
+            infoNode->name = calloc(field->token->length + 1, sizeof(char));
+            strcpy(infoNode->name, field->token->lexeme);
+
+            field = field->sibling;
+        }
+
+    }
+
+    secondPass(node->sibling, adj);
 }
 
 void loadSymbolTable(ASTNode *root)
@@ -176,5 +311,6 @@ void loadSymbolTable(ASTNode *root)
     initTables();
 
     firstPass(root, 0);
+    secondPass(root,NULL);
     
 }
