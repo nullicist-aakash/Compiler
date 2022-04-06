@@ -268,6 +268,7 @@ void secondPass(ASTNode* node, int** adj)
         // <typeDefinition> -> TK_RUID <fieldDefinitions>
         ASTNode* field = node->children[1];
 
+
         TypeLog* mediator = getMediator(node->children[0]->token->lexeme);
         
         mediator->entry.structure = calloc(1, sizeof(DerivedEntry));
