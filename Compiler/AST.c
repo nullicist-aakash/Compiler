@@ -260,7 +260,6 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		allocateChildren(node, 2);
 		node->children[0] = performRecursion(input->children[1], input, NULL);
 		node->children[1] = performRecursion(input->children[2], input, NULL);
-		addStructInfo(node);
 	}
 	else if (input->productionNumber == 24)
 	{
@@ -271,7 +270,6 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		allocateChildren(node, 2);
 		node->children[0] = performRecursion(input->children[1], input, NULL);
 		node->children[1] = performRecursion(input->children[2], input, NULL);
-		addStructInfo(node);
 	}
 	else if (input->productionNumber == 25)
 	{
@@ -344,7 +342,8 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		node->token = copy_token(input->children[3]->token);
 		ASTNode *isGlobal = performRecursion(input->children[4], input, NULL);
 		node->isGlobal = isGlobal == NULL ? 0 : 1;
-		free(isGlobal);
+		if (isGlobal)
+			free(isGlobal);
 	}
 	else if (input->productionNumber == 34)
 	{
@@ -862,10 +861,35 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 	return node;
 }
 
+/*void printTabs(int tabCount)
+{
+	while (tabCount--)
+		printf("\t");
+}
+
+void print(ASTNode* node, int tab)
+{
+	if (node == NULL)
+		return;
+
+	printTabs(tab);
+	printf("{ symbol: '%s', lexeme: '%s' }\n", 
+		parserData->symbolType2symbolStr[node->sym_index], 
+		node->token ? node->token->lexeme : "");
+
+	for (int i = 0; i < node->childCount; ++i)
+		print(node->children[i], tab + 1);
+
+	print(node->sibling, tab);
+}*/
+
+
 ASTNode *createAST(TreeNode *input)
 {
 	assert(input != NULL);
-	init_typeTable();
 
-	return performRecursion(input, NULL, NULL);
+	ASTNode* node = performRecursion(input, NULL, NULL);
+	// print(node, 0);
+
+	return node;
 }

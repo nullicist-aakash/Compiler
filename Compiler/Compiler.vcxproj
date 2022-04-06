@@ -145,8 +145,8 @@
     <ClCompile Include="Lexer.c" />
     <ClCompile Include="Parser.c" />
     <ClCompile Include="Stack.c" />
+    <ClCompile Include="symbolTable.c" />
     <ClCompile Include="Trie.c" />
-    <ClCompile Include="typeInfo.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AST.h" />
@@ -155,8 +155,8 @@
     <ClInclude Include="Parser.h" />
     <ClInclude Include="parserDef.h" />
     <ClInclude Include="Stack.h" />
+    <ClInclude Include="symbolTable.h" />
     <ClInclude Include="Trie.h" />
-    <ClInclude Include="typeInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="DFA_Structure.txt" />

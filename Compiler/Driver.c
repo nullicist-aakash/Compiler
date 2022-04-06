@@ -15,6 +15,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "ast.h"
+#include "symbolTable.h"
 
 #define MAX_OPTIONS 5
 
@@ -180,6 +181,8 @@ void main(int argc, char **argv)
 		{
 			TreeNode *node = parseInputSourceCode(argv[1]);
 			ASTNode *ast = createAST(node);
+			//lullu();
+			loadSymbolTable(ast);
 		}
 
 	} while (option != 0);
