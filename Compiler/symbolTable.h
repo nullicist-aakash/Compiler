@@ -13,6 +13,7 @@ typedef enum
 
 typedef struct TypeInfo
 {
+    int index;
     TypeTag entryType;
     int width; // Memory to allocate to variable of this type
     void* structure; // Pointer to type information
@@ -37,7 +38,6 @@ typedef struct
 {
     struct TypeInfoList *argTypes;
     struct TypeInfoList *retType;
-    int index;
 } FuncEntry;
 
 typedef struct

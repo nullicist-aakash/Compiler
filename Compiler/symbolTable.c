@@ -26,10 +26,12 @@ typedef struct {
     ErrorListNode* tail;
 } ErrorList;
 
-Trie *typeTable;
-Trie* prefixTable;
+Trie *typeTable;        // Stores information about records and unions
+Trie* prefixTable;      // Stores the type of defined structure (record/union/typedef)
+Trie* globalSymbolTable;// Stores everything global
+
 int dataTypeCount = 0;
-int typeDefCount = 0;
+int funcCount = 0;
 ErrorList* errList;
 
 void initTypeTable()
@@ -51,9 +53,12 @@ void initTypeTable()
     trie_getRef(typeTable, "real")->entry.ptr = realInfo;
 }
 
-void initPrefixTable()
+void initTables()
 {
+    initTypeTable();
     prefixTable = calloc(1, sizeof(Trie));
+    globalSymbolTable = calloc(1, sizeof(Trie));
+
 }
 
 TypeLog* getMediator(char* key) 
@@ -110,6 +115,18 @@ void firstPass(ASTNode* node, int struct_done)
     else if (node->sym_index == 60 || node->sym_index == 58)
     {
         // <function> -> <inputList><outputList> <stmts>
+        
+        if (!struct_done) 
+        {
+            printf("function name : %s\n", node->token->lexeme);
+
+            TypeLog* mediator = getMediator(node->token->lexeme);
+            mediator->refCount = 1;
+            mediator->entry.entryType = FUNCTION;
+            mediator->entry.width = -1;
+            mediator->entry.index = funcCount++;
+        }
+        
         firstPass(node->children[2], struct_done);
     }
     else if (node->sym_index == 68)
@@ -127,8 +144,7 @@ void firstPass(ASTNode* node, int struct_done)
         mediator->refCount = 1;
         mediator->entry.entryType = DERIVED;
         mediator->entry.width = -1;
-
-        dataTypeCount++;
+        mediator->entry.index = dataTypeCount++;
     }
     else if (node->sym_index == 108 && struct_done && firstPassErrorCheck(node) != -1)
     {
@@ -143,19 +159,22 @@ void firstPass(ASTNode* node, int struct_done)
         trie_getRef(typeTable, newName)->entry.ptr = mediator;
         trie_getRef(prefixTable, newName)->entry.value = node->token->type;
         
-        typeDefCount++;
     }
     
     firstPass(node->sibling, struct_done);
+}
+
+void secondPass(ASTNode* node, int** adj)
+{
+
 }
 
 void loadSymbolTable(ASTNode *root)
 {
     errList = calloc(1, sizeof(ErrorList));
 
-    initTypeTable();
-    initPrefixTable();
+    initTables();
 
-    firstPass(root,0);
+    firstPass(root, 0);
     
 }
