@@ -8,6 +8,7 @@
 #pragma once
 
 #include "parserDef.h"
+struct TypeLog;
 
 /*rules
  isLeaf = true iff current node is leaf
@@ -26,6 +27,7 @@ typedef struct ASTNode
 
 	Token *token;
 	struct ASTNode *type;
+	struct TypeLog* derived_type;
 	int childCount;
 	struct ASTNode **children;
 	struct ASTNode *sibling;

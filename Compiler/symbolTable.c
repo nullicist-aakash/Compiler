@@ -35,7 +35,6 @@ ErrorList* errList;
 
 // First pass : Collect struct , typedef and pass through typedef list
 // Second pass : Add function, Fill TypeInfo, fill variable infos
-// Third pass : fill variable info
 
 void initTables()
 {
@@ -56,6 +55,22 @@ void initTables()
     realInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "real")->entry.ptr = realInfo;
+
+    TypeLog *boolInfo = calloc(1, sizeof(TypeLog *));
+    boolInfo->refCount = 1;
+    boolInfo->entryType = BOOL;
+    boolInfo->width = 4;
+    boolInfo->index = dataTypeCount++;
+
+    trie_getRef(globalSymbolTable, "##bool")->entry.ptr = boolInfo;
+
+    TypeLog *voidInfo = calloc(1, sizeof(TypeLog *));
+    voidInfo->refCount = 1;
+    voidInfo->entryType = VOID;
+    voidInfo->width = 4;
+    voidInfo->index = dataTypeCount++;
+
+    trie_getRef(globalSymbolTable, "##void")->entry.ptr = voidInfo;
     prefixTable = calloc(1, sizeof(Trie));
 }
 
@@ -111,13 +126,6 @@ int secondPassErrorCheck(ASTNode* node)
         1. Invalid argument type
         2. Repeated variable name
     */
-    return 0;
-}
-
-int thirdPassErrorCheck(ASTNode* node) 
-{   
-    // TODO : Errors 
-    // function: duplicate name
     return 0;
 }
 
@@ -203,13 +211,18 @@ void firstPass(ASTNode* node)
     if (node->sym_index == 57)
     {
         // <program> -> <funcList> <mainFunction>
-        firstPass(node->children[0]);
+        ASTNode* func = node->children[0];
+        while (func)
+        {
+            firstPass(func);
+            func = func->sibling;
+        }
+            
         firstPass(node->children[1]);
     }
     else if (node->sym_index == 60 || node->sym_index == 58) //Function names parsed
     {
         // <function> -> <inputList><outputList> <stmts>
-        printf("function name : %s\n", node->token->lexeme);
 
         TypeLog* mediator = getMediator(globalSymbolTable, node->token->lexeme);
         mediator->refCount = 1;
@@ -234,7 +247,6 @@ void firstPass(ASTNode* node)
     }
     else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) //Type Definition Names Parsed
     {
-        printf("%s %s \n", node->token->lexeme, node->children[0]->token->lexeme);
         trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
             node->token->type;
 
@@ -247,8 +259,6 @@ void firstPass(ASTNode* node)
     }
     else if (node->sym_index == 108 && firstPassErrorCheck(node) != -1) //Type Aliases Parsed
     {
-        printf("typdef %s %s as %s\n", node->children[0]->token->lexeme, node->children[1]->token->lexeme, node->children[2]->token->lexeme);
-        
         char* oldName = node->children[1]->token->lexeme;
         char* newName = node->children[2]->token->lexeme;
 
@@ -271,7 +281,13 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
     if (node->sym_index == 57)
     {
         // <program> -> <funcList> <mainFunction>
-        secondPass(node->children[0], adj, symTable);
+        ASTNode* func = node->children[0];
+        while (func)
+        {
+            secondPass(func, adj, symTable);
+            func = func->sibling;
+        }
+
         secondPass(node->children[1], adj, symTable);
     }
     else if (node->sym_index == 60 || node->sym_index == 58) //Function Type Parsed
@@ -298,8 +314,6 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
             entry->argTypes->tail->type->refCount++;
             entry->argTypes->tail->name = calloc(arg->token->length + 1, sizeof(char));
             strcpy(entry->argTypes->tail->name, arg->token->lexeme);
-
-            printf("Function: %s, input %s is of type %d\n", entry->name, entry->argTypes->tail->name, entry->argTypes->tail->type->entryType);
 
             arg = arg->sibling;
         }
@@ -393,6 +407,11 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
     secondPass(node->sibling, adj, symTable);
 }
 
+void calculateWidth()
+{
+
+}
+
 void loadSymbolTable(ASTNode *root)
 {
     errList = calloc(1, sizeof(ErrorList));
@@ -401,6 +420,12 @@ void loadSymbolTable(ASTNode *root)
 
     firstPass(root);
     secondPass(root, NULL, globalSymbolTable);
-    
+    calculateWidth();
+
     iterateTrie(globalSymbolTable, iterationFunction);
+}
+
+int printErrors()
+{
+    return errList->head == NULL ? -1 : 0;
 }

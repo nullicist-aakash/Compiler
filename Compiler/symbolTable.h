@@ -59,4 +59,12 @@ typedef struct
     TypeInfoList *list;
 } DerivedEntry;
 
+extern Trie *globalSymbolTable;        // Stores information about records and unions
+extern Trie* prefixTable;      // Stores the type of defined structure (record/union/typedef)
+
+extern int dataTypeCount;
+extern int identifierCount;        // both function and variables
+
 void loadSymbolTable(ASTNode *);
+
+int printErrors();

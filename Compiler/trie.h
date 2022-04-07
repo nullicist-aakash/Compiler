@@ -19,11 +19,9 @@ typedef struct TrieNode
 	struct TrieNode* children[TRIE_CHILD_COUNT];
 } TrieNode;
 
-
 typedef struct Trie{
 	TrieNode* root;
 } Trie;
-
 
 TrieNode* trie_getRef(Trie* t, char* key);
 
