@@ -5,7 +5,7 @@
   Nihir Agarwal			-   2018B4A70701P
   Aakash				-   2018B4A70887P
 *****************************************/
-#include "AST.h"
+#include "ast.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>

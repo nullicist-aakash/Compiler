@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "symbolTable.h"
-#include "Trie.h"
+#include "trie.h"
 
 typedef enum {
     NAME_REDEFINED,
