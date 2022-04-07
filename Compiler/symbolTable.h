@@ -5,25 +5,21 @@ typedef enum
 {
     INT,
     REAL,
-    FUNCTION,
     DERIVED,
     BOOL,
-    VOID
+    VOID,
+    FUNCTION,
+    VARIABLE
 } TypeTag;
-
-typedef struct TypeInfo
-{
-    int index;
-    TypeTag entryType;
-    int width; // Memory to allocate to variable of this type
-    void* structure; // Pointer to type information
-} TypeInfo;
 
 // Acts as an intermediate, which helps for type definitions
 typedef struct TypeLog
 {
     int refCount;
-    struct TypeInfo entry;
+    int index;
+    TypeTag entryType;
+    int width; // Memory to allocate to variable of this type
+    void* structure; // Pointer to type information
 } TypeLog;
 
 // List of types in Rec or Union
@@ -40,10 +36,19 @@ typedef struct TypeInfoList
     struct TypeInfoListNode* tail;
 }TypeInfoList;
 
+typedef struct VariableEntry
+{
+    char* name;
+    struct TypeLog* type;
+} VariableEntry;
+
 typedef struct
 {
+    char* name;
+    int identifierCount;
     struct TypeInfoList *argTypes;
     struct TypeInfoList *retTypes;
+    Trie* symbolTable;
 } FuncEntry;
 
 typedef struct

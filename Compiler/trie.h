@@ -31,3 +31,5 @@ TrieNode* trie_getRef(Trie* t, char* key);
 int trie_exists(Trie* t, char* key);
 
 TrieEntry trie_getVal(Trie* t, char* key);
+
+void iterateTrie(Trie* t, void (*fptr)(TrieEntry*));

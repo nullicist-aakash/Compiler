@@ -84,3 +84,20 @@ TrieEntry trie_getVal(Trie* t, char* key)
 
 	return traverse->entry;
 }
+
+void dfs(TrieNode* node, void (*fptr)(TrieEntry*))
+{
+	if (node == NULL)
+		return;
+
+	if (node->entry.value != 0)
+		fptr(&node->entry);
+	
+	for (int i = 0; i < TRIE_CHILD_COUNT; ++i)
+		dfs(node->children[i], fptr);
+}
+
+void iterateTrie(Trie* t, void (*fptr)(TrieEntry*))
+{
+	dfs(t->root, fptr);
+}
