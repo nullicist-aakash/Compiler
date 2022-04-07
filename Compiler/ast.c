@@ -524,7 +524,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		// <iterativeStmt>.treenode = createTreeNode("while", <booleanExpressions>.treenode, createTreeNodeList(head = <stmt>.treenode, tail = <otherStmts>.treenode));
 
 		node->token = copy_token(input->children[0]->token);
-		allocateChildren(node, 3);
+		allocateChildren(node, 2);
 		node->children[0] = performRecursion(input->children[2], input, NULL);
 		node->children[1] = performRecursion(input->children[4], input, NULL);
 		node->children[1]->sibling = performRecursion(input->children[5], input, NULL);

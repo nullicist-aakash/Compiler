@@ -124,7 +124,7 @@ int secondPassErrorCheck(ASTNode* node)
     return 0;
 }
 
-void firstPass(ASTNode* node, int struct_done)
+void firstPass(ASTNode* node)
 {
     if (!node)
         return;
@@ -132,51 +132,45 @@ void firstPass(ASTNode* node, int struct_done)
     if (node->sym_index == 57)
     {
         // <program> -> <funcList> <mainFunction>
-        firstPass(node->children[0], 0);
-        firstPass(node->children[1], 0);
-        firstPass(node->children[0], 1);
-        firstPass(node->children[1], 1);
+        firstPass(node->children[0]);
+        firstPass(node->children[1]);
     }
     else if (node->sym_index == 60 || node->sym_index == 58) //Function names parsed
     {
         // <function> -> <inputList><outputList> <stmts>
-        
-        if (!struct_done) 
-        {
-            printf("function name : %s\n", node->token->lexeme);
+        printf("function name : %s\n", node->token->lexeme);
 
-            TypeLog* mediator = getMediator(node->token->lexeme);
-            mediator->refCount = 1;
-            mediator->entry.entryType = FUNCTION;
-            mediator->entry.width = -1;
-            mediator->entry.index = funcCount++;
+        TypeLog* mediator = getMediator(node->token->lexeme);
+        mediator->refCount = 1;
+        mediator->entry.entryType = FUNCTION;
+        mediator->entry.width = -1;
+        mediator->entry.index = funcCount++;
 
-            FuncEntry* entry = calloc(1, sizeof(FuncEntry));
-            mediator->entry.structure = entry;
-            entry->argTypes = calloc(1, sizeof(TypeInfoList));
-            entry->retTypes = calloc(1, sizeof(TypeInfoList));
-        }
-        
-        firstPass(node->children[2], struct_done);
+        FuncEntry* entry = calloc(1, sizeof(FuncEntry));
+        mediator->entry.structure = entry;
+        entry->argTypes = calloc(1, sizeof(TypeInfoList));
+        entry->retTypes = calloc(1, sizeof(TypeInfoList));
+        firstPass(node->children[2]);
     }
     else if (node->sym_index == 68)
     {
         // <stmts> -> <definitions> <declarations> <funcBody> <return>
-        firstPass(node->children[0], struct_done);
+        firstPass(node->children[0]);
     }
-    else if (node->sym_index == 71 && !struct_done && firstPassErrorCheck(node) != -1) //Type Definition Names Parsed
+    else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) //Type Definition Names Parsed
     {
         printf("%s %s \n", node->token->lexeme, node->children[0]->token->lexeme);
         trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
             node->token->type;
 
         TypeLog* mediator = getMediator(node->children[0]->token->lexeme);
+        mediator->entry.structure = calloc(1, sizeof(DerivedEntry));
         mediator->refCount = 1;
         mediator->entry.entryType = DERIVED;
         mediator->entry.width = -1;
         mediator->entry.index = dataTypeCount++;
     }
-    else if (node->sym_index == 108 && struct_done && firstPassErrorCheck(node) != -1) //Type Aliases Parsed
+    else if (node->sym_index == 108 && firstPassErrorCheck(node) != -1) //Type Aliases Parsed
     {
         printf("typdef %s %s as %s\n", node->children[0]->token->lexeme, node->children[1]->token->lexeme, node->children[2]->token->lexeme);
         
@@ -186,12 +180,10 @@ void firstPass(ASTNode* node, int struct_done)
         TypeLog* mediator = getMediator(oldName);
         mediator->refCount++;
 
-        trie_getRef(typeTable, newName)->entry.ptr = mediator;
         trie_getRef(prefixTable, newName)->entry.value = node->token->type;
-        
     }
     
-    firstPass(node->sibling, struct_done);
+    firstPass(node->sibling);
 }
 
 
@@ -218,9 +210,6 @@ void printStructInfo(ASTNode* node)
     }
     else if (node->sym_index == 71) //Type Definition Names Parsed
     {
-        trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
-            node->token->type;
-
         TypeLog* mediator = getMediator(node->children[0]->token->lexeme);
         DerivedEntry* entry = mediator->entry.structure;
 
@@ -313,7 +302,6 @@ void secondPass(ASTNode* node, int** adj)
 
         TypeLog* mediator = getMediator(node->children[0]->token->lexeme);
         
-        mediator->entry.structure = calloc(1, sizeof(DerivedEntry));
         DerivedEntry* entry = mediator->entry.structure;
         entry->isUnion = node->token->type == TK_UNION;
         entry->name = calloc(node->children[0]->token->length + 1, sizeof(char));
@@ -353,7 +341,7 @@ void loadSymbolTable(ASTNode *root)
 
     initTables();
 
-    firstPass(root, 0);
+    firstPass(root);
     secondPass(root, NULL);
     printStructInfo(root);
     
