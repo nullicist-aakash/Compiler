@@ -341,6 +341,8 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
         }
 
         local_func = entry;
+        secondPass(node->children[0], adj, entry->symbolTable);
+        secondPass(node->children[1], adj, entry->symbolTable);
         secondPass(node->children[2], adj, entry->symbolTable);
     }
     else if (node->sym_index == 68)
@@ -389,7 +391,7 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
             field = field->sibling;
         }
     }  
-    else if (node->sym_index == 77 && secondPassErrorCheck(node) != -1)
+    else if ((node->sym_index == 63 || node->sym_index == 77) && secondPassErrorCheck(node) != -1)
     {
         // <declaration> ===> { token: TK_ID, type: <dataType> }
         // <dataType> ==> { TK_INT, TK_REAL, { TK_RECORD/TK_UNION, TK_RUID } }

@@ -16,6 +16,7 @@
 #include "parser.h"
 #include "ast.h"
 #include "symbolTable.h"
+#include "typeChecker.h"
 
 #define MAX_OPTIONS 5
 
@@ -64,15 +65,6 @@ void printLexerOutput(char *path)
 
 		free(tk);
 	}
-}
-
-void print_AST(ASTNode* ast, int tab)
-{
-	int temp = tab;
-	while (temp--)
-		printf("\t");
-
-
 }
 
 void main(int argc, char **argv)
@@ -181,8 +173,9 @@ void main(int argc, char **argv)
 		{
 			TreeNode *node = parseInputSourceCode(argv[1]);
 			ASTNode *ast = createAST(node);
-			//lullu();
 			loadSymbolTable(ast);
+			typeChecker_init();
+			assignTypes(ast);
 		}
 
 	} while (option != 0);
