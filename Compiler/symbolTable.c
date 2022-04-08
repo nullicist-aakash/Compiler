@@ -426,8 +426,12 @@ void calculateWidth(int* sortedList, int index, int** adj)
     {
         DerivedEntry* t = structList[actualIndex]->structure;
 
-        for (int i = 0; i <= dataTypeCount; i++)
-            width += adj[actualIndex][i] * structList[adj[actualIndex][i]]->width;
+        for (int i = 0; i < dataTypeCount; i++)
+        {
+            printf("adding to width of %d: %d*%d\n",actualIndex, adj[i][actualIndex], structList[i]->width);
+            width += adj[i][actualIndex] * structList[i]->width;
+        }
+        printf("====\n");
 
         structList[actualIndex]->width = width;
     }
@@ -440,6 +444,12 @@ void populateWidth(int** adj, int size)
     if (err == -1)
     {
         // TODO : Throw error when cycle detected
+    }
+    for (int i = 0; i < dataTypeCount; i++)
+    {
+        for (int j = 0; j < dataTypeCount; j++)
+            printf("%d ", adj[i][j]);
+        printf("\n");
     }
     for (int i = 0; i < size; i++)
         calculateWidth(sortedList, i, adj);
