@@ -93,7 +93,7 @@ void assignTypes(ASTNode* node)
         ASTNode* func = node->children[0];
         while (func)
         {
-            assignTypes(func->children[0]);
+            assignTypes(func);
             func = func->sibling;
         }
 
@@ -102,7 +102,7 @@ void assignTypes(ASTNode* node)
     else if (node->sym_index == 58 || node->sym_index == 60)
     {
         // function/main-function
-        localSymbolTable = ((FuncEntry*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->symbolTable;
+        localSymbolTable = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->symbolTable;
         assignTypes(node->children[2]);
     }
     else if (node->sym_index == 68)
@@ -163,11 +163,12 @@ void assignTypes(ASTNode* node)
         
         while (temp)
         {
-            temp->derived_type = ((VariableEntry *)trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr)->type;
+            VariableEntry* entry = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
 
-            if (temp->derived_type == NULL)
-                temp->derived_type = ((VariableEntry *)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->type;
-                
+            if (entry == NULL)
+                entry = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
+
+            temp->derived_type = entry;
             temp = temp->sibling;
         }
         // TODO
@@ -206,10 +207,12 @@ void assignTypes(ASTNode* node)
     }
     else if (node->token->type == TK_ID)
     {
-        node->derived_type = ((VariableEntry*)trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr)->type;
+        VariableEntry* entry = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
 
-        if (node->derived_type == NULL)
-            node->derived_type = ((VariableEntry*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->type;
+        if (entry == NULL)
+           entry = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
+
+        node->derived_type = entry->type;
     }
     else if (node->token->type == TK_DOT)
     {

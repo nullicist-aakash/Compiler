@@ -148,6 +148,7 @@
     <ClCompile Include="symbolTable.c" />
     <ClCompile Include="toposort.c" />
     <ClCompile Include="Trie.c" />
+    <ClCompile Include="typeChecker.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AST.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="symbolTable.h" />
     <ClInclude Include="toposort.h" />
     <ClInclude Include="Trie.h" />
+    <ClInclude Include="typeChecker.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="DFA_Structure.txt" />
