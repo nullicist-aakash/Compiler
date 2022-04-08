@@ -1,11 +1,12 @@
 #include "toposort.h"
+#include <stdlib.h>
 int ind;
 int cycle_detected;
 
-void cycle_dfs(int** adj, int t, int*fin, int* vis)
+void cycle_dfs(int** adj, int t, int* fin, int* vis)
 {
 	vis[t] = 1;
-	for (int i = 1; i < adj[t][0]; i++)
+	for (int i = 0; i < adj[t][0]; i++)
 	{
 		if (vis[adj[t][i]] == 0)
 			cycle_dfs(adj, adj[t][i], fin, vis);
@@ -16,12 +17,16 @@ void cycle_dfs(int** adj, int t, int*fin, int* vis)
 	fin[t] = 1;
 }
 
-void topo_dfs(int** adj, int t, int*arr, int* vis)
+void topo_dfs(int** adj, int t, int* arr, int* vis, int size)
 {
 	vis[t] = 1;
-	for (int i = 1; i < adj[t][0]; i++)
-		if (vis[adj[t][i]] == 0)
-			topo_dfs(adj, adj[t][i], arr  ,vis);
+	
+	for (int i = 0; i < size; i++)
+	{
+		if (vis[i] == 0 && adj[t][i] > 0)
+			topo_dfs(adj, i, arr, vis, size);
+	}
+
 	arr[ind] = t;
 	ind++;
 }
@@ -40,8 +45,8 @@ int topologicalSort(int** adj, int* sortedList, int size)
 
 	//check cycle
 	for (int i = 0; i < size; i++)
-		if(vis[i]==0)
-			cycle_dfs(adj,i, fin, vis);
+		if (vis[i] == 0)
+			cycle_dfs(adj, i, fin, vis);
 
 	if (cycle_detected == 1)
 	{
@@ -57,10 +62,19 @@ int topologicalSort(int** adj, int* sortedList, int size)
 
 	for (int i = 0; i < size; i++)
 		if (vis[i] == 0)
-			dfs(adj,i, arr, vis);
+			topo_dfs(adj, i, arr, vis, size);
 
 	for (int i = 0; i < size; i++)
 		sortedList[i] = arr[size - i - 1];
+
+	for (int i = 0; i < size; i++)
+		printf("%d ", arr[i]);
+	printf("\n");
+
+	for (int i = 0; i < size; i++)
+		printf("%d ", sortedList[i]);
+	printf("\n");
+
 	free(vis);
 	free(arr);
 	free(fin);

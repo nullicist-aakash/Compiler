@@ -45,7 +45,7 @@ void initTables()
     TypeLog *intInfo = calloc(1, sizeof(TypeLog));
     intInfo->refCount = 1;
     intInfo->entryType = INT;
-    intInfo->width = 4;
+    intInfo->width = 8;
     intInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "int")->entry.ptr = intInfo;
@@ -53,7 +53,7 @@ void initTables()
     TypeLog *realInfo = calloc(1, sizeof(TypeLog *));
     realInfo->refCount = 1;
     realInfo->entryType = REAL;
-    realInfo->width = 4;
+    realInfo->width = 8;
     realInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "real")->entry.ptr = realInfo;
@@ -61,7 +61,7 @@ void initTables()
     TypeLog *boolInfo = calloc(1, sizeof(TypeLog *));
     boolInfo->refCount = 1;
     boolInfo->entryType = BOOL;
-    boolInfo->width = 4;
+    boolInfo->width = 8;
     boolInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "##bool")->entry.ptr = boolInfo;
@@ -69,11 +69,13 @@ void initTables()
     TypeLog *voidInfo = calloc(1, sizeof(TypeLog *));
     voidInfo->refCount = 1;
     voidInfo->entryType = VOID;
-    voidInfo->width = 4;
+    voidInfo->width = 8;
     voidInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "##void")->entry.ptr = voidInfo;
     prefixTable = calloc(1, sizeof(Trie));
+
+    
 }
 
 TypeLog* getMediator(Trie* t, char* key) 
@@ -365,6 +367,8 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
 
         entry->list = calloc(1, sizeof(TypeInfoList));
 
+        structList[mediator->index] = mediator;
+
         while (field)
         {
             if (!entry->list->head)
@@ -383,6 +387,11 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
             infoNode->name = calloc(field->token->length + 1, sizeof(char));
             strcpy(infoNode->name, field->token->lexeme);
 
+            adj[infoNode->type->index][mediator->index]++;
+            
+            printf("Entering %s into %s\n", infoNode->type->entryType == INT ? "int" :
+                infoNode->type->entryType == REAL ? "real" :
+                ((DerivedEntry*)infoNode->type->structure)->name, entry->name);
             field = field->sibling;
         }
     }  
@@ -404,8 +413,6 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
         entry->name = calloc(node->token->length + 1, sizeof(char));
         strcpy(entry->name, node->token->lexeme);
         entry->type = getMediator(globalSymbolTable, node->type->sibling == NULL ? node->type->token->lexeme : node->type->sibling->token->lexeme);
-
-        structList[mediator->index] = mediator;
     }
 
     secondPass(node->sibling, adj, symTable);
@@ -413,19 +420,16 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
 
 void calculateWidth(int* sortedList, int index, int** adj)
 {
-    TypeLog* currStruct = structList[index];
-    int rowSize = adj[index][0];
     int width = 0;
-    if (currStruct->entryType == DERIVED)
+    int actualIndex = sortedList[index];
+    if (structList[actualIndex]->entryType == DERIVED)
     {
-        DerivedEntry* t = currStruct->structure;
-        TypeInfoListNode* curr = t->list->head;
-        for (int i = 1; i <= rowSize; i++)
-        {
-            width += structList[adj[index][i]]->width;
-            curr = curr->next;
-        }
-        currStruct->width = width;
+        DerivedEntry* t = structList[actualIndex]->structure;
+
+        for (int i = 0; i <= dataTypeCount; i++)
+            width += adj[actualIndex][i] * structList[adj[actualIndex][i]]->width;
+
+        structList[actualIndex]->width = width;
     }
 }
 
@@ -450,10 +454,18 @@ void loadSymbolTable(ASTNode *root)
     firstPass(root);
 
     structList = calloc(dataTypeCount, sizeof(TypeLog*));
+    structList[0] = trie_getRef(globalSymbolTable, "int")->entry.ptr;
+    structList[1] = trie_getRef(globalSymbolTable, "real")->entry.ptr;
+    structList[2] = trie_getRef(globalSymbolTable, "##bool")->entry.ptr;
+    structList[3] = trie_getRef(globalSymbolTable, "##void")->entry.ptr;
     int** adj = calloc(dataTypeCount, sizeof(int*));
+    for (int i = 0; i < dataTypeCount; i++)
+        adj[i] = calloc(dataTypeCount, sizeof(int));
+    
 
     secondPass(root, adj, globalSymbolTable);
-    //populateWidth(adj,dataTypeCount);
+
+    populateWidth(adj, dataTypeCount);
 
     iterateTrie(globalSymbolTable, iterationFunction);
 }
