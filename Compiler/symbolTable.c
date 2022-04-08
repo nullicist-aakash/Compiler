@@ -4,6 +4,7 @@
 
 #include "symbolTable.h"
 #include "trie.h"
+#include "toposort.h"
 
 typedef enum {
     NAME_REDEFINED,
@@ -32,6 +33,7 @@ Trie* prefixTable;      // Stores the type of defined structure (record/union/ty
 int dataTypeCount = 0;
 int identifierCount = 0;        // both function and variables
 ErrorList* errList;
+TypeLog** structList;
 
 // First pass : Collect struct , typedef and pass through typedef list
 // Second pass : Add function, Fill TypeInfo, fill variable infos
@@ -402,14 +404,41 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
         entry->name = calloc(node->token->length + 1, sizeof(char));
         strcpy(entry->name, node->token->lexeme);
         entry->type = getMediator(globalSymbolTable, node->type->sibling == NULL ? node->type->token->lexeme : node->type->sibling->token->lexeme);
+
+        structList[mediator->index] = mediator;
     }
 
     secondPass(node->sibling, adj, symTable);
 }
 
-void calculateWidth()
+void calculateWidth(int* sortedList, int index, int** adj)
 {
+    TypeLog* currStruct = structList[index];
+    int rowSize = adj[index][0];
+    int width = 0;
+    if (currStruct->entryType == DERIVED)
+    {
+        DerivedEntry* t = currStruct->structure;
+        TypeInfoListNode* curr = t->list->head;
+        for (int i = 1; i <= rowSize; i++)
+        {
+            width += structList[adj[index][i]]->width;
+            curr = curr->next;
+        }
+        currStruct->width = width;
+    }
+}
 
+void populateWidth(int** adj, int size)
+{
+    int* sortedList = calloc(size, sizeof(int));
+    int err = topologicalSort(adj, sortedList, size);
+    if (err == -1)
+    {
+        // TODO : Throw error when cycle detected
+    }
+    for (int i = 0; i < size; i++)
+        calculateWidth(sortedList, i, adj);
 }
 
 void loadSymbolTable(ASTNode *root)
@@ -419,8 +448,12 @@ void loadSymbolTable(ASTNode *root)
     initTables();
 
     firstPass(root);
-    secondPass(root, NULL, globalSymbolTable);
-    calculateWidth();
+
+    structList = calloc(dataTypeCount, sizeof(TypeLog*));
+    int** adj = calloc(dataTypeCount, sizeof(int*));
+
+    secondPass(root, adj, globalSymbolTable);
+    //populateWidth(adj,dataTypeCount);
 
     iterateTrie(globalSymbolTable, iterationFunction);
 }

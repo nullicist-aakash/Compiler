@@ -36,6 +36,9 @@
     <ClCompile Include="symbolTable.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="toposort.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lexerDef.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="symbolTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="toposort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

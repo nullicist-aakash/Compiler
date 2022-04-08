@@ -146,6 +146,7 @@
     <ClCompile Include="Parser.c" />
     <ClCompile Include="Stack.c" />
     <ClCompile Include="symbolTable.c" />
+    <ClCompile Include="toposort.c" />
     <ClCompile Include="Trie.c" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +157,7 @@
     <ClInclude Include="parserDef.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="symbolTable.h" />
+    <ClInclude Include="toposort.h" />
     <ClInclude Include="Trie.h" />
   </ItemGroup>
   <ItemGroup>
