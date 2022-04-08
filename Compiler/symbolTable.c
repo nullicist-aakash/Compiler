@@ -138,10 +138,16 @@ void iterationFunction(TrieEntry* entry)
     TypeLog* typelog = entry->ptr;
 
     if (typelog->entryType == INT)
-        printf("%s", "int");
+        printf("%s\n", "int");
         
     if (typelog->entryType == REAL)
-        printf("%s", "real");
+        printf("%s\n", "real");
+        
+    if (typelog->entryType == BOOL)
+        printf("%s\n", "bool");
+        
+    if (typelog->entryType == VOID)
+        printf("%s\n", "void");
         
     if (typelog->entryType == FUNCTION)
     {
@@ -173,7 +179,10 @@ void iterationFunction(TrieEntry* entry)
             hd = hd->next;
         }
         printf("\n");
+        printf("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, typelog->width);
         iterateTrie(func->symbolTable, iterationFunction);
+    
+        printf("Done with function\n");
     }
     else if (typelog->entryType == DERIVED)
     {
@@ -193,6 +202,7 @@ void iterationFunction(TrieEntry* entry)
         }
 
         printf("\n");
+        printf("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, typelog->width);
     }
     else if (typelog->entryType == VARIABLE)
     {
@@ -202,9 +212,7 @@ void iterationFunction(TrieEntry* entry)
                 var->type->entryType == REAL ? "real" : 
                 ((DerivedEntry*)var->type->structure)->name);
         printf("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, ((VariableEntry*)typelog->structure)->type->width);
-        return;
     }
-    printf("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, typelog->width);
       
 }
 
@@ -216,13 +224,7 @@ void firstPass(ASTNode* node)
     if (node->sym_index == 57)
     {
         // <program> -> <funcList> <mainFunction>
-        ASTNode* func = node->children[0];
-        while (func)
-        {
-            firstPass(func);
-            func = func->sibling;
-        }
-            
+        firstPass(node->children[0]);
         firstPass(node->children[1]);
     }
     else if (node->sym_index == 60 || node->sym_index == 58) //Function names parsed
@@ -286,13 +288,7 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
     if (node->sym_index == 57)
     {
         // <program> -> <funcList> <mainFunction>
-        ASTNode* func = node->children[0];
-        while (func)
-        {
-            secondPass(func, adj, symTable);
-            func = func->sibling;
-        }
-
+        secondPass(node->children[0], adj, symTable);
         secondPass(node->children[1], adj, symTable);
     }
     else if (node->sym_index == 60 || node->sym_index == 58) //Function Type Parsed
@@ -354,12 +350,7 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
         secondPass(node->children[0], adj, symTable);
 
         ASTNode* declarationNode = node->children[1];
-
-        while (declarationNode)
-        {
-            secondPass(declarationNode, adj, symTable);
-            declarationNode = declarationNode->sibling;
-        }
+        secondPass(declarationNode, adj, symTable);
     }
     else if (node->sym_index == 71 && secondPassErrorCheck(node) != -1) // Record/Union full type information parsed
     {
@@ -395,10 +386,6 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
             strcpy(infoNode->name, field->token->lexeme);
 
             adj[infoNode->type->index][mediator->index]++;
-            
-            printf("Entering %s into %s\n", infoNode->type->entryType == INT ? "int" :
-                infoNode->type->entryType == REAL ? "real" :
-                ((DerivedEntry*)infoNode->type->structure)->name, entry->name);
             field = field->sibling;
         }
     }  
@@ -434,11 +421,7 @@ void calculateWidth(int* sortedList, int index, int** adj)
         DerivedEntry* t = structList[actualIndex]->structure;
 
         for (int i = 0; i < dataTypeCount; i++)
-        {
-            printf("adding to width of %d: %d*%d\n",actualIndex, adj[i][actualIndex], structList[i]->width);
             width += adj[i][actualIndex] * structList[i]->width;
-        }
-        printf("====\n");
         structList[actualIndex]->width = width;
     }
 }
@@ -447,16 +430,12 @@ void populateWidth(int** adj, int size)
 {
     int* sortedList = calloc(size, sizeof(int));
     int err = topologicalSort(adj, sortedList, size);
+
     if (err == -1)
     {
         // TODO : Throw error when cycle detected
     }
-    for (int i = 0; i < dataTypeCount; i++)
-    {
-        for (int j = 0; j < dataTypeCount; j++)
-            printf("%d ", adj[i][j]);
-        printf("\n");
-    }
+
     for (int i = 0; i < size; i++)
         calculateWidth(sortedList, i, adj);
 }

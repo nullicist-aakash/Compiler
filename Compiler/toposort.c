@@ -67,14 +67,6 @@ int topologicalSort(int** adj, int* sortedList, int size)
 	for (int i = 0; i < size; i++)
 		sortedList[i] = arr[size - i - 1];
 
-	for (int i = 0; i < size; i++)
-		printf("%d ", arr[i]);
-	printf("\n");
-
-	for (int i = 0; i < size; i++)
-		printf("%d ", sortedList[i]);
-	printf("\n");
-
 	free(vis);
 	free(arr);
 	free(fin);

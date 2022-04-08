@@ -350,7 +350,6 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		//<global_or_not> ===> TK_COLON TK_GLOBAL
 		//<global_or_not>.isGlobal = true;
 		node->isGlobal = 1;
-		return NULL;
 	}
 	else if (input->productionNumber == 35)
 	{
@@ -873,9 +872,10 @@ void print(ASTNode* node, int tab)
 		return;
 
 	printTabs(tab);
-	printf("{ symbol: '%s', lexeme: '%s' }\n", 
+	printf("{ symbol: '%s', lexeme: '%s', isGlobal: %d }\n", 
 		parserData->symbolType2symbolStr[node->sym_index], 
-		node->token ? node->token->lexeme : "");
+		node->token ? node->token->lexeme : "",
+		node->isGlobal);
 
 	for (int i = 0; i < node->childCount; ++i)
 		print(node->children[i], tab + 1);
