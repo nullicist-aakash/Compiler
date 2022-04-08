@@ -172,8 +172,8 @@ void iterationFunction(TrieEntry* entry)
 
             hd = hd->next;
         }
-
         printf("\n");
+        iterateTrie(func->symbolTable, iterationFunction);
     }
     else if (typelog->entryType == DERIVED)
     {
@@ -201,8 +201,9 @@ void iterationFunction(TrieEntry* entry)
                 var->type->entryType == INT ? "int" : 
                 var->type->entryType == REAL ? "real" : 
                 ((DerivedEntry*)var->type->structure)->name);
+        printf("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, ((VariableEntry*)typelog->structure)->type->width);
+        return;
     }
-
     printf("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, typelog->width);
       
 }
@@ -351,8 +352,14 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
         // <stmts> -> <definitions> <declarations> <funcBody> <return>
 
         secondPass(node->children[0], adj, symTable);
-        secondPass(node->children[1], adj, symTable);
-        //TODO Parse declarations
+
+        ASTNode* declarationNode = node->children[1];
+
+        while (declarationNode)
+        {
+            secondPass(declarationNode, adj, symTable);
+            declarationNode = declarationNode->sibling;
+        }
     }
     else if (node->sym_index == 71 && secondPassErrorCheck(node) != -1) // Record/Union full type information parsed
     {
@@ -432,7 +439,6 @@ void calculateWidth(int* sortedList, int index, int** adj)
             width += adj[i][actualIndex] * structList[i]->width;
         }
         printf("====\n");
-
         structList[actualIndex]->width = width;
     }
 }
