@@ -42,6 +42,9 @@
     <ClCompile Include="typeChecker.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="logger.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lexerDef.h">
@@ -74,13 +77,16 @@
     <ClInclude Include="typeChecker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="t1.txt" />
     <Text Include="DFA_Structure.txt" />
     <Text Include="Parser_Structure.txt" />
     <Text Include="testcase2.txt" />
     <Text Include="grammar.txt" />
+    <Text Include="compiler.log" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />

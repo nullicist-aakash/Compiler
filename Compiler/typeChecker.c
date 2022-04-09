@@ -168,7 +168,7 @@ void assignTypes(ASTNode* node)
             if (entry == NULL)
                 entry = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
 
-            temp->derived_type = entry;
+            temp->derived_type = entry->type;
             temp = temp->sibling;
         }
         // TODO
@@ -207,12 +207,12 @@ void assignTypes(ASTNode* node)
     }
     else if (node->token->type == TK_ID)
     {
-        VariableEntry* entry = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
+        TypeLog* entry = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
 
         if (entry == NULL)
            entry = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
 
-        node->derived_type = entry->type;
+        node->derived_type = ((VariableEntry*)entry->structure)->type;
     }
     else if (node->token->type == TK_DOT)
     {

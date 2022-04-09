@@ -17,6 +17,7 @@
 #include "ast.h"
 #include "symbolTable.h"
 #include "typeChecker.h"
+#include "logger.h"
 
 #define MAX_OPTIONS 5
 
@@ -78,6 +79,8 @@ void main(int argc, char **argv)
 		fprintf(stderr, "usage: stage1exe <source_ode_file> <parser_output_file>\n");
 		exit(-1);
 	}
+
+	freopen("compiler.log", "w", stderr);
 
 	int option = 0;
 	int start = 1;
@@ -171,11 +174,23 @@ void main(int argc, char **argv)
 		}
 		else if (option == 5)
 		{
-			TreeNode *node = parseInputSourceCode(argv[1]);
-			ASTNode *ast = createAST(node);
+			logIt("Parse Tree ==========\n");
+			TreeNode* node = parseInputSourceCode(argv[1]);
+			printParseTree(node, stderr);
+			logIt("Parse Tree Completed ==========\n");
+
+			logIt("AST Started ==========\n");
+			ASTNode* ast = createAST(node);
+			logIt("AST Completed ==========\n");
+
+			logIt("Symbol Table Started ==========\n");
 			loadSymbolTable(ast);
+			logIt("Symbol Table Completed ==========\n");
+
+			logIt("Type Checking Started ==========\n");
 			typeChecker_init();
 			assignTypes(ast);
+			logIt("Type Checking Completed ==========\n");
 		}
 
 	} while (option != 0);

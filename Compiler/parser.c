@@ -11,6 +11,7 @@
 #include <string.h>
 #include <assert.h>
 #include "stack.h"
+#include "logger.h"
 
 ParserData* parserData;
 
@@ -402,6 +403,14 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 {
 	TreeNode* parseTree;
 	FILE* fp = fopen(fileLoc, "r");
+
+	if (fp == NULL)
+	{
+		printf("Error opening file: %s", fileLoc);
+		exit(-1);
+	}
+	logIt("File open success: %s\n", fileLoc);
+
 	loadFile(fp);
 
 	Stack* s = calloc(1, sizeof(Stack));
@@ -527,8 +536,8 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 	free(s);
 	fclose(fp);
 	
-	if(!flag)
-		printf("Input source code is syntactically correct.\n");
+	if (!flag)
+		fprintf(stderr, "Input source code is syntactically correct.\n");
 
 	return parseTree;
 }

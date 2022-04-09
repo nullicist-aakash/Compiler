@@ -6,6 +6,7 @@
   Aakash				-   2018B4A70887P
 *****************************************/
 #include "ast.h"
+#include "logger.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -448,7 +449,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		//<moreExpansions> ===> eps
 		//<moreExpansions>.treeNode = NULL;
 		free(node);
-		return NULL;
+		return inherited;
 	}
 	else if (input->productionNumber == 47)
 	{
@@ -863,7 +864,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 void printTabs(int tabCount)
 {
 	while (tabCount--)
-		printf("\t");
+		logIt("\t");
 }
 
 void print(ASTNode* node, int tab)
@@ -872,7 +873,7 @@ void print(ASTNode* node, int tab)
 		return;
 
 	printTabs(tab);
-	printf("{ symbol: '%s', lexeme: '%s', isGlobal: %d }\n", 
+	logIt("{ symbol: '%s', lexeme: '%s', isGlobal: %d }\n",
 		parserData->symbolType2symbolStr[node->sym_index], 
 		node->token ? node->token->lexeme : "",
 		node->isGlobal);
@@ -883,13 +884,15 @@ void print(ASTNode* node, int tab)
 	print(node->sibling, tab);
 }
 
-
 ASTNode *createAST(TreeNode *input)
 {
 	assert(input != NULL);
 
 	ASTNode* node = performRecursion(input, NULL, NULL);
+
+	logIt("========== Printing AST Structure ==========\n");
 	print(node, 0);
+	logIt("========== Printing AST Structure Done ==========\n");
 
 	return node;
 }

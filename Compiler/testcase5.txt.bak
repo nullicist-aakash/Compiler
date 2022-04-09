@@ -16,8 +16,8 @@ output parameter list[real d3];
 	b5b567 <--- b5c6*2;
 	b3 <--- b5c6-d5cc34;
 	while ( b5b567 <= d5cc34)
-		read(d5cc34);
-		d3 <--- d3 + d5cc34;
+		read(c3bd);
+		d3 <--- d3 + c3bd;
 		b5b567 <--- b5b567 + 1;
 	endwhile
 	return [d3];

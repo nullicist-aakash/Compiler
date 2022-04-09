@@ -143,6 +143,7 @@
     <ClCompile Include="AST.c" />
     <ClCompile Include="Driver.c" />
     <ClCompile Include="Lexer.c" />
+    <ClCompile Include="logger.c" />
     <ClCompile Include="Parser.c" />
     <ClCompile Include="Stack.c" />
     <ClCompile Include="symbolTable.c" />
@@ -154,6 +155,7 @@
     <ClInclude Include="AST.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="lexerDef.h" />
+    <ClInclude Include="logger.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="parserDef.h" />
     <ClInclude Include="Stack.h" />
@@ -163,10 +165,10 @@
     <ClInclude Include="typeChecker.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="compiler.log" />
     <Text Include="DFA_Structure.txt" />
     <Text Include="grammar.txt" />
     <Text Include="Parser_Structure.txt" />
-    <Text Include="t1.txt" />
     <Text Include="testcase2.txt" />
   </ItemGroup>
   <ItemGroup>
