@@ -1,24 +1,53 @@
 #include "typeChecker.h"
+#include "logger.h"
+
 #include <assert.h>
 #include <string.h>
 
 TypeLog* real, *integer, *boolean, *void_empty;
+int isTypeError = 0;
 
-TypeLog* finalType(TypeLog* left, TypeLog* right, TokenType op)
+int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
 {
+    TypeLog* left = leftNode->derived_type;
+    TypeLog* right = rightNode->derived_type;
+    while (leftNode && rightNode)
+    {
+        if (left != right || left == boolean || left == void_empty || !left || !right)
+            return 0;
+
+        leftNode = leftNode->sibling;
+        rightNode = rightNode->sibling;
+
+        left = leftNode->derived_type;
+        right = rightNode->derived_type;
+    }
+    return !leftNode && !rightNode;
+}
+
+TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
+{
+    TypeLog* left = leftNode->derived_type;
+    TypeLog* right = rightNode->derived_type;
+    TokenType op = opToken->type;
+    
     if (op == TK_ASSIGNOP)
     {
-        if (left == right && left != boolean && left != void_empty)
-            return left;
-        
+        if (areCompatible(leftNode, rightNode))
+            return void_empty;
+
+        isTypeError = 1;
+        logIt("Assignment with incompatible types at line no. %d \n", opToken->line_number);
         return NULL;
     }
 
     if (op == TK_PLUS || op == TK_MINUS)
     {
-        if (left == right && left!=boolean && left!=void_empty)
-            return left;
-        
+        if (left == right && left != boolean && left != void_empty && left && right)
+            return void_empty;
+
+        isTypeError = 1;
+        logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
         return NULL;
     }
 
@@ -48,6 +77,8 @@ TypeLog* finalType(TypeLog* left, TypeLog* right, TokenType op)
         if (left == boolean && right == boolean)
             return boolean;
         
+        isTypeError = 1;
+        logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
         return NULL;
     }
 
@@ -59,6 +90,8 @@ TypeLog* finalType(TypeLog* left, TypeLog* right, TokenType op)
         if (left == integer && right == integer)
             return boolean;
         
+        isTypeError = 1;
+        logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
         return NULL;
     }
 
@@ -66,6 +99,9 @@ TypeLog* finalType(TypeLog* left, TypeLog* right, TokenType op)
     {
         if (left == boolean)
             return boolean;
+        
+        isTypeError = 1;
+        logIt("Operation %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, opToken->line_number);
         return NULL;
     }
     assert(0);
@@ -121,7 +157,7 @@ void assignTypes(ASTNode* node)
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
         // TODO The type of an identifier of union data type is reported as an error.
-        node->derived_type = finalType(node->children[0]->derived_type, node->children[1]->derived_type, TK_ASSIGNOP);
+        node->derived_type = finalType(node->children[0], node->children[1], TK_ASSIGNOP);
     }
     else if (node->sym_index == 86)
     {
@@ -171,7 +207,7 @@ void assignTypes(ASTNode* node)
             temp->derived_type = entry->type;
             temp = temp->sibling;
         }
-        // TODO
+        // TODO 
     }
     else if (node->sym_index == 108)
     {
@@ -197,13 +233,13 @@ void assignTypes(ASTNode* node)
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
 
-        node->derived_type = finalType(node->children[0]->derived_type, node->children[1]->derived_type, node->token->type);
+        node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
     else if (node->token->type == TK_NOT)
     {
         assignTypes(node->children[0]);
 
-        node->derived_type = finalType(node->children[0]->derived_type, NULL, node->token->type);
+        node->derived_type = finalType(node->children[0], NULL, node->token);
     }
     else if (node->token->type == TK_ID)
     {
