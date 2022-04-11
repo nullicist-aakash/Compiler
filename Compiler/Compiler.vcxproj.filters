@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\testcases">
+      <UniqueIdentifier>{7d4d002a-5a59-4c80-9459-72cc3f7e0c7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Driver.c">
@@ -80,13 +83,38 @@
     <ClInclude Include="logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IRGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="DFA_Structure.txt" />
-    <Text Include="Parser_Structure.txt" />
-    <Text Include="testcase2.txt" />
-    <Text Include="grammar.txt" />
-    <Text Include="compiler.log" />
+    <Text Include="grammar.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="DFA_Structure.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="testcase2.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="testcase1.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="testcase3.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="testcase4.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="testcase5.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="testcase6.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="Target.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />

@@ -157,7 +157,7 @@ void assignTypes(ASTNode* node)
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
         // TODO The type of an identifier of union data type is reported as an error.
-        node->derived_type = finalType(node->children[0], node->children[1], TK_ASSIGNOP);
+        node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
     else if (node->sym_index == 86)
     {
