@@ -13,14 +13,14 @@ int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
     TypeLog* right = rightNode->derived_type;
     while (leftNode && rightNode)
     {
+        left = leftNode->derived_type;
+        right = rightNode->derived_type;
+
         if (left != right || left == boolean || left == void_empty || !left || !right)
             return 0;
 
         leftNode = leftNode->sibling;
         rightNode = rightNode->sibling;
-
-        left = leftNode->derived_type;
-        right = rightNode->derived_type;
     }
     return !leftNode && !rightNode;
 }
@@ -28,7 +28,7 @@ int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
 TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
 {
     TypeLog* left = leftNode->derived_type;
-    TypeLog* right = rightNode->derived_type;
+    TypeLog* right = rightNode ? rightNode->derived_type : NULL;
     TokenType op = opToken->type;
     
     if (op == TK_ASSIGNOP)

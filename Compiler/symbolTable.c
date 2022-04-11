@@ -426,10 +426,13 @@ void calculateWidth(int* sortedList, int index, int** adj)
     int actualIndex = sortedList[index];
     if (structList[actualIndex]->entryType == DERIVED)
     {
+        int isUnion = ((DerivedEntry*)(structList[actualIndex]->structure))->isUnion;
         DerivedEntry* t = structList[actualIndex]->structure;
 
         for (int i = 0; i < dataTypeCount; i++)
-            width += adj[i][actualIndex] * structList[i]->width;
+            width = isUnion ?
+            (width > adj[i][actualIndex] * structList[i]->width ? width : adj[i][actualIndex] * structList[i]->width) :
+            (width + adj[i][actualIndex] * structList[i]->width);
         structList[actualIndex]->width = width;
     }
 }
