@@ -8,7 +8,8 @@
 #include "toposort.h"
 #include "logger.h"
 
-typedef enum {
+typedef enum
+{
     NAME_REDEFINED,
     NON_EXISTENT_TYPE,
     NAME_TYPE_MISMTACH,
@@ -18,24 +19,26 @@ typedef enum {
     DUPLICATE_FIELD_NAME,
 } ErrorType;
 
-typedef struct ErrorListNode {
+typedef struct ErrorListNode
+{
     ErrorType etype;
-    ASTNode* errnode;
-    struct ErrorListNode* next;
+    ASTNode *errnode;
+    struct ErrorListNode *next;
 } ErrorListNode;
 
-typedef struct {
-    ErrorListNode* head;
-    ErrorListNode* tail;
+typedef struct
+{
+    ErrorListNode *head;
+    ErrorListNode *tail;
 } ErrorList;
 
-Trie *globalSymbolTable;        // Stores information about records and unions
-Trie* prefixTable;      // Stores the type of defined structure (record/union/typedef)
+Trie *globalSymbolTable; // Stores information about records and unions
+Trie *prefixTable;       // Stores the type of defined structure (record/union/typedef)
 
 int dataTypeCount = 0;
-int identifierCount = 0;        // both function and variables
-ErrorList* errList;
-TypeLog** structList;
+int identifierCount = 0; // both function and variables
+ErrorList *errList;
+TypeLog **structList;
 
 // First pass : Collect struct , typedef and pass through typedef list
 // Second pass : Add function, Fill TypeInfo, fill variable infos
@@ -78,18 +81,18 @@ void initTables()
     prefixTable = calloc(1, sizeof(Trie));
 }
 
-TypeLog* getMediator(Trie* t, char* key) 
+TypeLog *getMediator(Trie *t, char *key)
 {
-    TrieNode* node = trie_getRef(t, key);
+    TrieNode *node = trie_getRef(t, key);
 
     if (node->entry.value == 0)
         node->entry.ptr = calloc(1, sizeof(TypeLog));
 
-    return (TypeLog*)node->entry.ptr;
+    return (TypeLog *)node->entry.ptr;
 }
 
-void addToErrorList(ASTNode* node, ErrorType type)
- {
+void addToErrorList(ASTNode *node, ErrorType type)
+{
     if (!errList->head)
         errList->head = errList->tail = calloc(1, sizeof(ErrorListNode));
     else
@@ -102,7 +105,7 @@ void addToErrorList(ASTNode* node, ErrorType type)
     errList->tail->errnode = node;
 }
 
-int firstPassErrorCheck(ASTNode* node) 
+int firstPassErrorCheck(ASTNode *node)
 {
     if (node->token->type != TK_DEFINETYPE)
     {
@@ -113,7 +116,7 @@ int firstPassErrorCheck(ASTNode* node)
         }
     }
 
-    // TODO : Errors 
+    // TODO : Errors
     // 1.1 Type Name Redefined
     // 1.2.1 Non Existent type for Alias
     // 1.2.2 Alias type mismatch
@@ -123,9 +126,9 @@ int firstPassErrorCheck(ASTNode* node)
     return 0;
 }
 
-int secondPassErrorCheck(ASTNode* node) 
-{   
-    // TODO : Errors 
+int secondPassErrorCheck(ASTNode *node)
+{
+    // TODO : Errors
     /* For Functions
         1. Invalid argument type
         2. Repeated variable name
@@ -133,36 +136,35 @@ int secondPassErrorCheck(ASTNode* node)
     return 0;
 }
 
-void iterationFunction(TrieEntry* entry)
+void iterationFunction(TrieEntry *entry)
 {
-    TypeLog* typelog = entry->ptr;
+    TypeLog *typelog = entry->ptr;
 
     if (typelog->entryType == INT)
         logIt("%s\n", "int");
-        
+
     else if (typelog->entryType == REAL)
         logIt("%s\n", "real");
-        
+
     else if (typelog->entryType == BOOL)
         logIt("%s\n", "bool");
-        
+
     else if (typelog->entryType == VOID)
         logIt("%s\n", "void");
-        
+
     else if (typelog->entryType == FUNCTION)
     {
-        FuncEntry* func = typelog->structure;
+        FuncEntry *func = typelog->structure;
         logIt("Function Name: %s and is stored at address %p\n", func->name, func);
         logIt("\tinput: ");
 
-        TypeInfoListNode* hd = func->argTypes->head;
+        TypeInfoListNode *hd = func->argTypes->head;
         while (hd)
         {
             logIt(" { %s: %s } at %p", hd->name,
-                hd->type->entryType == INT ? "int" :
-                hd->type->entryType == REAL ? "real" :
-                ((DerivedEntry*)hd->type->structure)->name,
-                hd->type->structure);
+                  hd->type->entryType == INT ? "int" : hd->type->entryType == REAL ? "real"
+                                                                                   : ((DerivedEntry *)hd->type->structure)->name,
+                  hd->type->structure);
 
             hd = hd->next;
         }
@@ -173,10 +175,9 @@ void iterationFunction(TrieEntry* entry)
         while (hd)
         {
             logIt("{ %s: %s } at %p", hd->name,
-                hd->type->entryType == INT ? "int" :
-                hd->type->entryType == REAL ? "real" :
-                ((DerivedEntry*)hd->type->structure)->name,
-                hd->type->structure);
+                  hd->type->entryType == INT ? "int" : hd->type->entryType == REAL ? "real"
+                                                                                   : ((DerivedEntry *)hd->type->structure)->name,
+                  hd->type->structure);
 
             hd = hd->next;
         }
@@ -188,21 +189,20 @@ void iterationFunction(TrieEntry* entry)
     }
     else if (typelog->entryType == DERIVED)
     {
-        DerivedEntry* entry = typelog->structure;
+        DerivedEntry *entry = typelog->structure;
 
         logIt("%s %s and is stored at address %p\n", entry->isUnion ? "union" : "record", entry->name, entry);
 
         if (!entry->list)
             return;
 
-        TypeInfoListNode* hd = entry->list->head;
+        TypeInfoListNode *hd = entry->list->head;
         while (hd)
         {
             logIt(" { %s: %s } at %p ", hd->name,
-                hd->type->entryType == INT ? "int" :
-                hd->type->entryType == REAL ? "real" :
-                ((DerivedEntry*)hd->type->structure)->name,
-                hd->type->structure);
+                  hd->type->entryType == INT ? "int" : hd->type->entryType == REAL ? "real"
+                                                                                   : ((DerivedEntry *)hd->type->structure)->name,
+                  hd->type->structure);
 
             hd = hd->next;
         }
@@ -212,17 +212,16 @@ void iterationFunction(TrieEntry* entry)
     }
     else if (typelog->entryType == VARIABLE)
     {
-        VariableEntry* var = typelog->structure;
+        VariableEntry *var = typelog->structure;
         logIt("variable %s is of type %s and is stored at address %p\n", var->name,
-            var->type->entryType == INT ? "int" :
-            var->type->entryType == REAL ? "real" :
-            ((DerivedEntry*)var->type->structure)->name,
-            var);
-        logIt("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, ((VariableEntry*)typelog->structure)->type->width);
+              var->type->entryType == INT ? "int" : var->type->entryType == REAL ? "real"
+                                                                                 : ((DerivedEntry *)var->type->structure)->name,
+              var);
+        logIt("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, ((VariableEntry *)typelog->structure)->type->width);
     }
 }
 
-void firstPass(ASTNode* node)
+void firstPass(ASTNode *node)
 {
     if (!node)
         return;
@@ -233,17 +232,17 @@ void firstPass(ASTNode* node)
         firstPass(node->children[0]);
         firstPass(node->children[1]);
     }
-    else if (node->sym_index == 60 || node->sym_index == 58) //Function names parsed
+    else if (node->sym_index == 60 || node->sym_index == 58) // Function names parsed
     {
         // <function> -> <inputList><outputList> <stmts>
 
-        TypeLog* mediator = getMediator(globalSymbolTable, node->token->lexeme);
+        TypeLog *mediator = getMediator(globalSymbolTable, node->token->lexeme);
         mediator->refCount = 1;
         mediator->entryType = FUNCTION;
         mediator->width = -1;
         mediator->index = identifierCount++;
 
-        FuncEntry* entry = calloc(1, sizeof(FuncEntry));
+        FuncEntry *entry = calloc(1, sizeof(FuncEntry));
         mediator->structure = entry;
         entry->name = calloc(node->token->length + 1, sizeof(char));
         strcpy(entry->name, node->token->lexeme);
@@ -258,35 +257,35 @@ void firstPass(ASTNode* node)
         // <stmts> -> <definitions> <declarations> <funcBody> <return>
         firstPass(node->children[0]);
     }
-    else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) //Type Definition Names Parsed
+    else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) // Type Definition Names Parsed
     {
         trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
             node->token->type;
 
-        TypeLog* mediator = getMediator(globalSymbolTable, node->children[0]->token->lexeme);
+        TypeLog *mediator = getMediator(globalSymbolTable, node->children[0]->token->lexeme);
         mediator->structure = calloc(1, sizeof(DerivedEntry));
         mediator->refCount = 1;
         mediator->entryType = DERIVED;
         mediator->width = -1;
         mediator->index = dataTypeCount++;
     }
-    else if (node->sym_index == 108 && firstPassErrorCheck(node) != -1) //Type Aliases Parsed
+    else if (node->sym_index == 108 && firstPassErrorCheck(node) != -1) // Type Aliases Parsed
     {
-        char* oldName = node->children[1]->token->lexeme;
-        char* newName = node->children[2]->token->lexeme;
+        char *oldName = node->children[1]->token->lexeme;
+        char *newName = node->children[2]->token->lexeme;
 
-        TypeLog* mediator = getMediator(globalSymbolTable, oldName);
+        TypeLog *mediator = getMediator(globalSymbolTable, oldName);
         mediator->refCount++;
         trie_getRef(globalSymbolTable, newName)->entry.ptr = mediator;
 
         trie_getRef(prefixTable, newName)->entry.value = node->token->type;
     }
-    
+
     firstPass(node->sibling);
 }
 
-FuncEntry* local_func;
-void secondPass(ASTNode* node, int** adj, Trie* symTable)
+FuncEntry *local_func;
+void secondPass(ASTNode *node, int **adj, Trie *symTable)
 {
     if (!node)
         return;
@@ -297,15 +296,15 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
         secondPass(node->children[0], adj, symTable);
         secondPass(node->children[1], adj, symTable);
     }
-    else if (node->sym_index == 60 || node->sym_index == 58) //Function Type Parsed
+    else if (node->sym_index == 60 || node->sym_index == 58) // Function Type Parsed
     {
         // <function> -> <inputList><outputList> <stmts>
-        // Fill input argument 
-        
-        TypeLog* mediator = getMediator(symTable, node->token->lexeme);
-        FuncEntry* entry = mediator->structure;
+        // Fill input argument
 
-        ASTNode* arg = node->children[0];
+        TypeLog *mediator = getMediator(symTable, node->token->lexeme);
+        FuncEntry *entry = mediator->structure;
+
+        ASTNode *arg = node->children[0];
         while (arg)
         {
             if (!entry->argTypes->head)
@@ -325,7 +324,7 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
             arg = arg->sibling;
         }
 
-        ASTNode* ret = node->children[1];
+        ASTNode *ret = node->children[1];
 
         while (ret)
         {
@@ -357,16 +356,16 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
 
         secondPass(node->children[0], adj, symTable);
 
-        ASTNode* declarationNode = node->children[1];
+        ASTNode *declarationNode = node->children[1];
         secondPass(declarationNode, adj, symTable);
     }
     else if (node->sym_index == 71 && secondPassErrorCheck(node) != -1) // Record/Union full type information parsed
     {
         // <typeDefinition> -> TK_RUID <fieldDefinitions>
-        ASTNode* field = node->children[1];
-        TypeLog* mediator = getMediator(globalSymbolTable, node->children[0]->token->lexeme);
-        
-        DerivedEntry* entry = mediator->structure;
+        ASTNode *field = node->children[1];
+        TypeLog *mediator = getMediator(globalSymbolTable, node->children[0]->token->lexeme);
+
+        DerivedEntry *entry = mediator->structure;
         entry->isUnion = node->token->type == TK_UNION;
         entry->name = calloc(node->children[0]->token->length + 1, sizeof(char));
         strcpy(entry->name, node->children[0]->token->lexeme);
@@ -385,7 +384,7 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
                 entry->list->tail = entry->list->tail->next;
             }
 
-            TypeInfoListNode* infoNode = entry->list->tail;
+            TypeInfoListNode *infoNode = entry->list->tail;
 
             // TODO: Check error
             infoNode->type = getMediator(globalSymbolTable, field->type->token->lexeme);
@@ -396,21 +395,21 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
             adj[infoNode->type->index][mediator->index]++;
             field = field->sibling;
         }
-    }  
+    }
     else if ((node->sym_index == 63 || node->sym_index == 77) && secondPassErrorCheck(node) != -1)
     {
         // <declaration> ===> { token: TK_ID, type: <dataType> }
         // <dataType> ==> { TK_INT, TK_REAL, { TK_RECORD/TK_UNION, TK_RUID } }
-        
-        Trie* table = node->isGlobal ? globalSymbolTable : symTable;
-        TypeLog* mediator = getMediator(table, node->token->lexeme);
+
+        Trie *table = node->isGlobal ? globalSymbolTable : symTable;
+        TypeLog *mediator = getMediator(table, node->token->lexeme);
         mediator->index = node->isGlobal ? identifierCount++ : local_func->identifierCount++;
         mediator->refCount++;
         mediator->entryType = VARIABLE;
         mediator->width = -1;
 
         mediator->structure = calloc(1, sizeof(VariableEntry));
-        VariableEntry* entry = mediator->structure;
+        VariableEntry *entry = mediator->structure;
 
         entry->name = calloc(node->token->length + 1, sizeof(char));
         strcpy(entry->name, node->token->lexeme);
@@ -420,13 +419,13 @@ void secondPass(ASTNode* node, int** adj, Trie* symTable)
     secondPass(node->sibling, adj, symTable);
 }
 
-void calculateWidth(int* sortedList, int index, int** adj)
+void calculateWidth(int *sortedList, int index, int **adj)
 {
     int width = 0;
     int actualIndex = sortedList[index];
     if (structList[actualIndex]->entryType == DERIVED)
     {
-        DerivedEntry* t = structList[actualIndex]->structure;
+        DerivedEntry *t = structList[actualIndex]->structure;
 
         for (int i = 0; i < dataTypeCount; i++)
             width += adj[i][actualIndex] * structList[i]->width;
@@ -434,9 +433,9 @@ void calculateWidth(int* sortedList, int index, int** adj)
     }
 }
 
-void populateWidth(int** adj, int size)
+void populateWidth(int **adj, int size)
 {
-    int* sortedList = calloc(size, sizeof(int));
+    int *sortedList = calloc(size, sizeof(int));
     int err = topologicalSort(adj, sortedList, size);
 
     if (err == -1)
@@ -461,14 +460,14 @@ void loadSymbolTable(ASTNode *root)
     iterateTrie(globalSymbolTable, iterationFunction);
     logIt("========== Printing result of first pass done ==========\n");
 
-    structList = calloc(dataTypeCount, sizeof(TypeLog*));
+    structList = calloc(dataTypeCount, sizeof(TypeLog *));
     structList[0] = trie_getRef(globalSymbolTable, "int")->entry.ptr;
     structList[1] = trie_getRef(globalSymbolTable, "real")->entry.ptr;
     structList[2] = trie_getRef(globalSymbolTable, "##bool")->entry.ptr;
     structList[3] = trie_getRef(globalSymbolTable, "##void")->entry.ptr;
-    int** adj = calloc(dataTypeCount, sizeof(int*));
+    int **adj = calloc(dataTypeCount, sizeof(int *));
     for (int i = 0; i < dataTypeCount; i++)
-        adj[i] = calloc(dataTypeCount, sizeof(int));    
+        adj[i] = calloc(dataTypeCount, sizeof(int));
 
     logIt("========== Performing second pass ==========\n");
     secondPass(root, adj, globalSymbolTable);

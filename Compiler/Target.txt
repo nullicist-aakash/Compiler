@@ -1,0 +1,63 @@
+During pass 1:
+Function overloading is not allowed.
+A record type name should not be redefined anywhere
+
+During pass 2:
+The type of an identifier of union data type is reported as an error.
+An identifier cannot be declared multiple times in the same scope.
+An identifier declared globally cannot be declared anywhere else in function definitions.
+The parameter passed of union data type is reported as error.
+A variant record passed as a parameter must have a discriminator named as tagvalue.
+The type of tagvalue field is integer. If it is of real type or record type then it is reported as error.
+A while statement must redefine the variable that participates in the iterations.
+The parameters being returned by a function must be assigned a value. If a parameter does not get a value assigned within the function definition, it should be reported as an error.
+The function cannot be invoked recursively.
+A function definition for a function being used (say F1) by another (say F2) must precede the definition of the function using it(i.e. F2).
+Number of actual parameters must be same as that of formal parameters.
+
+During Type check:
+The type of an identifier is the type appearing while declaring the variable.
+An identifier must be declared before its use.
+The types and the number of parameters returned by a function must be the same as that of the parameters used in invoking the function.
+The types of formal and actual parameters must be same.
+The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
+
+Runtime:
+The parameter of variant record type (for variant field only) is type checked at run type as described above.
+
+
+
+// Summary
+Till the end of phase 1:
+	No repeated record/union definitions.
+	No duplicate function names.
+	No duplicate global variables
+	Valid Typedef check
+	Check if typedef record exists
+	Alias exists
+
+Till the end of phase 2:
+
+For functions:
+	Input/Output parameter types are defined
+
+For variables:
+	variables have valid type
+	No datatype of union
+	No duplicate variables
+
+For structs:
+	Valid type entry
+	Variable name repeated
+	Support for variant record - Atmost one union per record. If union, search for "tagValue". If not found, error
+	
+For statements:
+	Variable declared before use
+	Function declared and defined before use 
+	while statement variable update *
+	Valid number of args in function call and return *
+	
+	
+Width calculation phase:
+	Topo sort					-- No circular will be given in test cases
+	Union width recalculation

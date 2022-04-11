@@ -13,14 +13,16 @@ int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
     TypeLog* right = rightNode->derived_type;
     while (leftNode && rightNode)
     {
+        left = leftNode->derived_type;
+        right = rightNode->derived_type;
+
         if (left != right || left == boolean || left == void_empty || !left || !right)
             return 0;
 
         leftNode = leftNode->sibling;
         rightNode = rightNode->sibling;
 
-        left = leftNode->derived_type;
-        right = rightNode->derived_type;
+        
     }
     return !leftNode && !rightNode;
 }
@@ -157,7 +159,7 @@ void assignTypes(ASTNode* node)
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
         // TODO The type of an identifier of union data type is reported as an error.
-        node->derived_type = finalType(node->children[0], node->children[1], TK_ASSIGNOP);
+        node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
     else if (node->sym_index == 86)
     {

@@ -577,8 +577,11 @@ double getVal(Token* token)
 			eLoc = i;
 	}
 
-	str[dotLoc] = '\0';
-	str[eLoc] = '\0';
+	if(dotLoc >=0)
+		str[dotLoc] = '\0';
+	
+	if (eLoc >= 0)
+		str[eLoc] = '\0';
 
 	double val = getIntVal(str);
 
