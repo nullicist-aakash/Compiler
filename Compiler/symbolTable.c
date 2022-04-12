@@ -8,29 +8,29 @@
 #include "toposort.h"
 #include "logger.h"
 
-typedef enum
-{
-    NAME_REDEFINED,
-    NON_EXISTENT_TYPE,
-    NAME_TYPE_MISMTACH,
-    REDEFINED_ALIAS,
-    UNDEFINED_TYPE,
-    INVALID_TYPE,
-    DUPLICATE_FIELD_NAME,
-} ErrorType;
-
-typedef struct ErrorListNode
-{
-    ErrorType etype;
-    ASTNode *errnode;
-    struct ErrorListNode *next;
-} ErrorListNode;
-
-typedef struct
-{
-    ErrorListNode *head;
-    ErrorListNode *tail;
-} ErrorList;
+// typedef enum
+// {
+//     NAME_REDEFINED,
+//     NON_EXISTENT_TYPE,
+//     NAME_TYPE_MISMTACH,
+//     REDEFINED_ALIAS,
+//     UNDEFINED_TYPE,
+//     INVALID_TYPE,
+//     DUPLICATE_FIELD_NAME,
+// } ErrorType;
+// 
+// typedef struct ErrorListNode
+// {
+//     ErrorType etype;
+//     ASTNode *errnode;
+//     struct ErrorListNode *next;
+// } ErrorListNode;
+// 
+// typedef struct
+// {
+//     ErrorListNode *head;
+//     ErrorListNode *tail;
+// } ErrorList;
 
 Trie *globalSymbolTable; // Stores information about records and unions
 Trie *prefixTable;       // Stores the type of defined structure (record/union/typedef)
@@ -135,6 +135,8 @@ int secondPassErrorCheck(ASTNode *node)
     */
     return 0;
 }
+
+
 
 void iterationFunction(TrieEntry *entry)
 {
@@ -450,6 +452,11 @@ void populateWidth(int **adj, int size)
 {
     int *sortedList = calloc(size, sizeof(int));
     int err = topologicalSort(adj, sortedList, size);
+    
+    for (int i = 0; i < dataTypeCount; i++)
+        free(structList[i]);
+    free(structList);
+
 
     if (err == -1)
     {
@@ -458,6 +465,13 @@ void populateWidth(int **adj, int size)
 
     for (int i = 0; i < size; i++)
         calculateWidth(sortedList, i, adj);
+
+    
+    free(sortedList);
+
+    for (int i = 0; i < dataTypeCount; i++)
+        free(adj[i]);
+    free(adj);
 }
 
 void loadSymbolTable(ASTNode *root)

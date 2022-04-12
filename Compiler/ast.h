@@ -34,3 +34,5 @@ typedef struct ASTNode
 } ASTNode;
 
 ASTNode *createAST(TreeNode *);
+void printAST(ASTNode*, int);
+void ASTDfs(ASTNode*, int*, int*);

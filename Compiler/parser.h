@@ -17,6 +17,7 @@ extern ParserData* parserData;
 extern TreeNode* parseTree;
 
 void loadParser();
-void printParseTree(TreeNode* node, FILE* outputFile);
+void printParseTree(TreeNode* node);
 TreeNode* parseInputSourceCode(char* fileLoc);
 void freeParseTree(TreeNode*);
+void ParseTreeDfs(TreeNode*, int*, int*);
