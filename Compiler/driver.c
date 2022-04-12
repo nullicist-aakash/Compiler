@@ -11,12 +11,14 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <assert.h>
 
 #include "lexer.h"
 #include "parser.h"
 #include "ast.h"
 #include "symbolTable.h"
 #include "typeChecker.h"
+#include "IRGenerator.h"
 #include "logger.h"
 
 #define MAX_OPTIONS 5
@@ -191,6 +193,62 @@ void main(int argc, char **argv)
 			typeChecker_init();
 			assignTypes(ast);
 			logIt("Type Checking Completed ==========\n");
+
+			logIt("Generating code for functions ==========\n");
+
+			ASTNode* func = ast->children[0] == NULL ? ast->children[1] : ast->children[0];
+
+			while (func)
+			{
+				IRInsNode* code = generateFuncCode(func)->head;
+
+				while (code)
+				{
+					if (code->ins->op == OP_JMP)
+						logIt("\tJMP Label#%d\n", code->ins->dst.int_val);
+					else if (code->ins->op == OP_LABEL)
+						logIt("Label#%d:\n", code->ins->dst.int_val);
+					else if (code->ins->op == OP_ASSIGN)
+						logIt("\t%s = %s\n", code->ins->dst.name, code->ins->src1.name);
+					else if (code->ins->op == OP_STORE_INT)
+						logIt("\t%s = %d\n", code->ins->dst.name, code->ins->src1.int_val);
+					else if (code->ins->op == OP_STORE_REAL)
+						logIt("\t%s = %f\n", code->ins->dst.name, code->ins->src1.real_val);
+					else if (code->ins->op == OP_ADD)
+						logIt("\t%s = %s + %s\n", code->ins->dst.name, code->ins->src1.name, code->ins->src2.name);
+					else if (code->ins->op == OP_SUB)
+						logIt("\t%s = %s - %s\n", code->ins->dst.name, code->ins->src1.name, code->ins->src2.name);
+					else if (code->ins->op == OP_MUL)
+						logIt("\t%s = %s * %s\n", code->ins->dst.name, code->ins->src1.name, code->ins->src2.name);
+					else if (code->ins->op == OP_DIV)
+						logIt("\t%s = %s / %s\n", code->ins->dst.name, code->ins->src1.name, code->ins->src2.name);
+					else if (code->ins->op == OP_LE)
+						logIt("\tif %s <= %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+					else if (code->ins->op == OP_LT)
+						logIt("\tif %s < %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+					else if (code->ins->op == OP_GE)
+						logIt("\tif %s >= %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+					else if (code->ins->op == OP_GT)
+						logIt("\tif %s > %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+					else if (code->ins->op == OP_EQ)
+						logIt("\tif %s == %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+					else if (code->ins->op == OP_NEQ)
+						logIt("\tif %s != %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+					else if (code->ins->op == OP_READ)
+						logIt("\tRead %s\n", code->ins->dst.name);
+					else if (code->ins->op == OP_WRITE)
+						logIt("\tWrite %s\n", code->ins->dst.name);
+					else
+						assert(0);
+
+					code = code->next;
+				}
+
+				if (func->sibling == NULL && func != ast->children[1])
+					func = ast->children[1];
+				else
+					func = func->sibling;
+			}
 		}
 
 	} while (option != 0);

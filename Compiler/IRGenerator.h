@@ -19,10 +19,7 @@ typedef enum
 	OP_MUL,
 	OP_DIV,
 	
-	// logical
-	OP_AND,
-	OP_OR,
-	OP_NOT,
+	// logical not required
 
 	// relational
 	OP_LE,
