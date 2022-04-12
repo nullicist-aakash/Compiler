@@ -38,6 +38,8 @@ typedef struct TypeInfoList
 
 typedef struct VariableEntry
 {
+    int offset;
+    int isGlobal;
     char* name;
     struct TypeLog* type;
 } VariableEntry;
