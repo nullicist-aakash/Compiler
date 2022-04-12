@@ -86,19 +86,19 @@ typedef union
 	char* name;
 	int int_val;
 	float real_val;
-} OperandType;
+} Operand;
 
-typedef struct IRInstruction
+typedef struct
 {
 	IROPType op;
-	OperandType src1;
-	OperandType src2;
-	OperandType dst;
-} IRInstruction;
+	Operand src1;
+	Operand src2;
+	Operand dst;
+} IRInstr;
 
 typedef struct IRInsNode
 {
-	IRInstruction* ins;
+	IRInstr* ins;
 	struct IRInsNode* next;
 } IRInsNode;
 
