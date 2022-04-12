@@ -37,7 +37,6 @@ Trie *prefixTable;       // Stores the type of defined structure (record/union/t
 
 int dataTypeCount = 0;
 int identifierCount = 0; // both function and variables
-ErrorList *errList;
 TypeLog **structList;
 
 // First pass : Collect struct , typedef and pass through typedef list
@@ -91,27 +90,13 @@ TypeLog *getMediator(Trie *t, char *key)
     return (TypeLog *)node->entry.ptr;
 }
 
-void addToErrorList(ASTNode *node, ErrorType type)
-{
-    if (!errList->head)
-        errList->head = errList->tail = calloc(1, sizeof(ErrorListNode));
-    else
-    {
-        errList->tail->next = calloc(1, sizeof(ErrorListNode));
-        errList->tail = errList->tail->next;
-    }
-
-    errList->tail->etype = type;
-    errList->tail->errnode = node;
-}
-
 int firstPassErrorCheck(ASTNode *node)
 {
     if (node->token->type != TK_DEFINETYPE)
     {
         if (trie_exists(prefixTable, node->children[0]->token->lexeme))
         {
-            addToErrorList(node, NAME_REDEFINED);
+            // TODO Name redefined error
             return -1;
         }
     }
@@ -476,8 +461,6 @@ void populateWidth(int **adj, int size)
 
 void loadSymbolTable(ASTNode *root)
 {
-    errList = calloc(1, sizeof(ErrorList));
-
     initTables();
 
     logIt("========== Performing first pass ==========\n");
@@ -507,9 +490,4 @@ void loadSymbolTable(ASTNode *root)
     logIt("========== Printing result of second pass done ==========\n");
     printf("secondPass done\n");
 
-}
-
-int printErrors()
-{
-    return errList->head == NULL ? -1 : 0;
 }

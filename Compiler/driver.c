@@ -187,7 +187,7 @@ void main(int argc, char** argv)
 			ASTNode* ast = createAST(node);
 			loadSymbolTable(ast);
 
-			printSymbolTable();
+			// printSymbolTable();
 
 		}
 		// else if (option == 5)
