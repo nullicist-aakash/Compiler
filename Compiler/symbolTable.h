@@ -51,12 +51,20 @@ typedef struct
     Trie* symbolTable;
 } FuncEntry;
 
+typedef struct AliasListNode
+{
+    char* RUName;
+    AliasListNode* next;
+}AliasListNode;
+
+
 typedef struct
 {
     //TODO : Check if necessary before code generation
     int isUnion;
     char *name; // Name of record/union
     TypeInfoList *list;
+    AliasListNode* aliases; //TODO : Remove , but Aakash chutiya
 } DerivedEntry;
 
 extern Trie *globalSymbolTable;        // Stores information about records and unions
@@ -66,5 +74,3 @@ extern int dataTypeCount;
 extern int identifierCount;        // both function and variables
 
 void loadSymbolTable(ASTNode *);
-
-int printErrors();

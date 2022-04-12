@@ -121,7 +121,26 @@ int secondPassErrorCheck(ASTNode *node)
     return 0;
 }
 
+void printGlobalSymbolTable(TrieEntry* entry, Trie** x)
+{
+    TypeLog* typelog = entry->ptr;
 
+    if (typelog->entryType == DERIVED)
+    {
+        DerivedEntry* entry = typelog->structure;
+        printf("name - %s\n", entry->name);
+    }
+    else if (typelog->entryType == VARIABLE)
+    {
+        VariableEntry* entry = typelog->structure;
+        printf("name - %s\n", entry->name);
+    }
+    else
+        return;
+    printf("scope - Global\n");
+    printf();
+
+}
 
 void iterationFunction(TrieEntry *entry)
 {
@@ -277,6 +296,12 @@ int firstPass(ASTNode *node)
         mediator->refCount++;
         trie_getRef(globalSymbolTable, newName)->entry.ptr = mediator;
 
+        DerivedEntry* temp = mediator->structure;
+        AliasListNode* newAlias = calloc(1, sizeof(AliasListNode));
+        strcpy(newAlias->RUName, newName);
+
+        newAlias->next = temp->aliases;
+        temp->aliases = newAlias;
         trie_getRef(prefixTable, newName)->entry.value = node->token->type;
     }
 

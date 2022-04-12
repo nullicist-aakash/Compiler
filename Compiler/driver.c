@@ -5,7 +5,7 @@
   Nihir Agarwal			-   2018B4A70701P
   Aakash				-   2018B4A70887P
 *****************************************/
-
+//TODO change all temp and bruh
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -187,8 +187,7 @@ void main(int argc, char** argv)
 			ASTNode* ast = createAST(node);
 			loadSymbolTable(ast);
 
-			// printSymbolTable();
-
+ 
 		}
 		// else if (option == 5)
 		// {
