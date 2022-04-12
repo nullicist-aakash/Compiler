@@ -1,15 +1,17 @@
 #pragma once
 #include "typeChecker.h"
 
-struct IRInsNode;
+typedef struct IRInsList IRInsList;
 
 typedef enum
 {
 	OP_LOAD,
 	OP_STORE,
 	OP_JMP,
-	OP_IF,
 	OP_LABEL,
+	OP_ASSIGN,
+	OP_STORE_INT,		// store integer to destination
+	OP_STORE_REAL,		// store real number to destination
 
 	// arithmetic
 	OP_ADD,
@@ -50,21 +52,21 @@ typedef struct
 
 typedef struct
 {
-	IRInsNode* code;
+	IRInsList* code;
 	LabelPayload _true;
 	LabelPayload _false;
 } BoolPayload;
 
 typedef struct
 {
-	IRInsNode* code;
+	IRInsList* code;
 	LabelPayload label_next;
 } StmtPayload;
 
 typedef struct
 {
 	char* name;
-	IRInsNode* code;
+	IRInsList* code;
 } ExpPayload;
 
 typedef union
@@ -102,10 +104,10 @@ typedef struct IRInsNode
 	struct IRInsNode* next;
 } IRInsNode;
 
-typedef struct
+struct IRInsList
 {
 	IRInsNode* head;
 	IRInsNode* tail;
-} IRInsList;
+};
 
 IRInsList* generateFuncCode(ASTNode*);
