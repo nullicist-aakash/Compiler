@@ -241,7 +241,7 @@ void assignTypes(ASTNode* node)
     {
         assignTypes(node->children[0]);
 
-        node->derived_type = finalType(node->children[0], NULL, node->token);
+        node->derived_type = finalType(node->children[0], node->children[0], node->token);
     }
     else if (node->token->type == TK_ID)
     {
@@ -257,7 +257,7 @@ void assignTypes(ASTNode* node)
         // <dot> ===> <left> TK_DOT <right>
         assignTypes(node->children[0]);
 
-        DerivedEntry* leftEntry = node->children[0]->derived_type->structure;
+        DerivedEntry* leftEntry = node->children[0]->derived_type->structure; //
         
         // search for token on right of DOT
 

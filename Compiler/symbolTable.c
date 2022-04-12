@@ -221,10 +221,10 @@ void iterationFunction(TrieEntry *entry)
     }
 }
 
-void firstPass(ASTNode *node)
+int firstPass(ASTNode *node)
 {
     if (!node)
-        return;
+        return -1;
 
     if (node->sym_index == 57)
     {
@@ -235,6 +235,11 @@ void firstPass(ASTNode *node)
     else if (node->sym_index == 60 || node->sym_index == 58) // Function names parsed
     {
         // <function> -> <inputList><outputList> <stmts>
+        if(trie_exists(globalSymbolTable,node->token->lexeme))
+        {
+            printf("Redeclaration of function\n");
+            return -1;   
+        }    
 
         TypeLog *mediator = getMediator(globalSymbolTable, node->token->lexeme);
         mediator->refCount = 1;
@@ -259,6 +264,13 @@ void firstPass(ASTNode *node)
     }
     else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) // Type Definition Names Parsed
     {
+        if(trie_exists(prefixTable, node->children[0]->token->lexeme))
+        {
+            printf("Redeclaration of defined type \n");
+            return -1;   
+
+        } 
+
         trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
             node->token->type;
 
@@ -301,6 +313,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         // <function> -> <inputList><outputList> <stmts>
         // Fill input argument
 
+        //TODO: don't pass second function if name repeated
         TypeLog *mediator = getMediator(symTable, node->token->lexeme);
         FuncEntry *entry = mediator->structure;
 
@@ -364,7 +377,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         // <typeDefinition> -> TK_RUID <fieldDefinitions>
         ASTNode *field = node->children[1];
         TypeLog *mediator = getMediator(globalSymbolTable, node->children[0]->token->lexeme);
-
+        mediator->structure = calloc(1, sizeof(DerivedEntry));
         DerivedEntry *entry = mediator->structure;
         entry->isUnion = node->token->type == TK_UNION;
         entry->name = calloc(node->children[0]->token->length + 1, sizeof(char));
@@ -459,7 +472,7 @@ void loadSymbolTable(ASTNode *root)
     logIt("========== Printing result of first pass ==========\n");
     iterateTrie(globalSymbolTable, iterationFunction);
     logIt("========== Printing result of first pass done ==========\n");
-
+    printf("firstPass done\n");
     structList = calloc(dataTypeCount, sizeof(TypeLog *));
     structList[0] = trie_getRef(globalSymbolTable, "int")->entry.ptr;
     structList[1] = trie_getRef(globalSymbolTable, "real")->entry.ptr;
@@ -478,6 +491,8 @@ void loadSymbolTable(ASTNode *root)
     logIt("========== Printing result of second pass ==========\n");
     iterateTrie(globalSymbolTable, iterationFunction);
     logIt("========== Printing result of second pass done ==========\n");
+    printf("secondPass done\n");
+
 }
 
 int printErrors()
