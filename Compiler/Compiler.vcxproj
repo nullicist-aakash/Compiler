@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="AST.c" />
     <ClCompile Include="Driver.c" />
+    <ClCompile Include="IRGenerator.c" />
     <ClCompile Include="Lexer.c" />
     <ClCompile Include="logger.c" />
     <ClCompile Include="Parser.c" />

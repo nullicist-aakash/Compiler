@@ -48,6 +48,9 @@
     <ClCompile Include="logger.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IRGenerator.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lexerDef.h">
