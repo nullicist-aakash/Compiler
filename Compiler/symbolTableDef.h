@@ -11,6 +11,14 @@ typedef enum
     VARIABLE
 } TypeTag;
 
+typedef enum
+{
+    LOCAL,
+    INPUT_PAR,
+    OUTPUT_PAR
+    //GLOBAL
+}VariableUsage;
+
 // Acts as an intermediate, which helps for type definitions
 typedef struct TypeLog
 {
@@ -25,6 +33,7 @@ typedef struct VariableEntry
 {
     int offset;
     int isGlobal;
+    VariableUsage usage;
     char *name;
     struct TypeLog *type;
 } VariableEntry;

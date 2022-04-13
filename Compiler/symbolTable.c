@@ -121,15 +121,125 @@ int secondPassErrorCheck(ASTNode *node)
     return 0;
 }
 
-void printGlobalSymbolTable(TrieEntry *entry, Trie **x)
+FuncEntry *local_func;
+
+void printTypeName(VariableEntry* entry)
+{
+    TypeTag type = entry->type->entryType;
+    if (type == INT ||  type==REAL)
+        printf("---");
+    else if (type == DERIVED)
+    {
+        DerivedEntry* de = entry->type->structure;
+        AliasListNode* cur = de->aliases;
+        printf("%s", de->name);
+        while (cur)
+        {
+            printf(", %s", cur->RUName);
+            cur = cur->next;
+        }
+    }
+    printf("\n");
+}
+
+void printTypeExpression(VariableEntry* entry)
+{
+    TypeTag type = entry->type->entryType;
+
+    if (type == INT)
+        printf("int");
+    else if (type == REAL)
+        printf("real");
+    else if (type == DERIVED)
+    {
+        printf("<");
+        DerivedEntry* de = entry->type->structure;
+        TypeInfoListNode* cur = de->list->head;
+
+        printTypeExpression((VariableEntry*)cur->type->structure);
+        cur = cur->next;
+        while (cur)
+        {
+            printf(", ");
+            printTypeExpression((VariableEntry*)cur->type->structure);
+        }
+        printf(">");
+    }
+    printf("\n");
+}
+
+void printVariableUsage(VariableEntry* entry)
+{
+    if (entry->usage == LOCAL)
+        printf("local");
+    else if (entry->usage == INPUT_PAR)
+        printf("input parameter");
+    else if (entry->usage == OUTPUT_PAR)
+        printf("output parameter");
+    printf("\n");
+}
+
+void printGlobalSymbolTable(TrieEntry *entry)
 {
     TypeLog *typelog = entry->ptr;
     if (typelog->entryType == VARIABLE)
     {
         VariableEntry *entry = typelog->structure;
-        printf("name - %s\n", entry->name);
-        printf("scope - Global\n");
-        printf("type name - ");
+        printf("Name - %s\n", entry->name);
+        printf("Scope - Global\n");
+
+        printf("Type Name - ");
+        printTypeName(entry);
+
+        printf("Type Expression - ");
+        printTypeExpression(entry);
+
+        printf("Width - %d", entry->type->width);
+        printf("%s", entry->isGlobal ? "Global\n" : "---\n");
+
+        //offset
+
+        printf("Variable Usage - ");
+        printVariableUsage(entry);
+    }
+    else
+        return;
+}
+
+void printLocalTable(TrieEntry* entry)
+{
+    TypeLog* typelog = entry->ptr;
+    if (typelog->entryType == VARIABLE)
+    {
+        VariableEntry* entry = typelog->structure;
+        printf("Name - %s\n", entry->name);
+        printf("Scope - %s\n", local_func->name);
+
+        printf("Type Name - ");
+        printTypeName(entry);
+
+        printf("Type Expression - ");
+        printTypeExpression(entry);
+
+        printf("Width - %d", entry->type->width);
+        printf("%s", entry->isGlobal ? "Global\n" : "---\n");
+
+        //offset
+
+        printf("Variable Usage - ");
+        printVariableUsage(entry);
+    }
+    else
+        return;
+}
+
+void printFunctionSymbolTables(TrieEntry* entry)
+{
+    TypeLog* typelog = entry->ptr;
+    if (typelog->entryType == FUNCTION)
+    {
+        local_func = (FuncEntry*)typelog->structure;
+        iterateTrie(((FuncEntry*)typelog->structure)->symbolTable, printLocalTable);
     }
     else
         return;
@@ -297,7 +407,6 @@ int firstPass(ASTNode *node)
     firstPass(node->sibling);
 }
 
-FuncEntry *local_func;
 void secondPass(ASTNode *node, int **adj, Trie *symTable)
 {
     if (!node)
@@ -315,7 +424,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         // Fill input argument
 
         // TODO: don't pass second function if name repeated
-        TypeLog *mediator = getMediator(symTable, node->token->lexeme);
+        TypeLog *mediator = getMediator(globalSymbolTable, node->token->lexeme);
         FuncEntry *entry = mediator->structure;
 
         ASTNode *arg = node->children[0];
@@ -328,11 +437,28 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
                 entry->argTypes->tail->next = calloc(1, sizeof(TypeInfoListNode));
                 entry->argTypes->tail = entry->argTypes->tail->next;
             }
-
             // TODO: Check error
+            //Adding to function parameters
             entry->argTypes->tail->type = (arg->type->sibling ? getMediator(globalSymbolTable, arg->type->sibling->token->lexeme) : getMediator(globalSymbolTable, arg->type->token->lexeme));
             entry->argTypes->tail->type->refCount++;
             entry->argTypes->tail->name = arg->token->lexeme;
+            
+            //Adding to function symbol table
+            //TODO make this a function
+            TypeLog *argMediator = getMediator(entry->symbolTable, arg->token->lexeme);
+            argMediator->index = entry->identifierCount++;
+            argMediator->refCount = 1;
+            argMediator->entryType = VARIABLE;
+            argMediator->width = -1;
+
+            argMediator->structure = calloc(1, sizeof(VariableEntry));
+            VariableEntry *entry = argMediator->structure;
+
+            entry->name = arg->token->lexeme;
+            entry->isGlobal = 0;
+            entry->usage = INPUT_PAR;
+            entry->type = (arg->type->sibling ? getMediator(globalSymbolTable, arg->type->sibling->token->lexeme) : getMediator(globalSymbolTable, arg->type->token->lexeme));
+    
 
             arg = arg->sibling;
         }
@@ -353,6 +479,21 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             entry->retTypes->tail->type = (ret->type->sibling ? getMediator(globalSymbolTable, ret->type->sibling->token->lexeme) : getMediator(globalSymbolTable, ret->type->token->lexeme));
             entry->retTypes->tail->type->refCount++;
             entry->retTypes->tail->name = ret->token->lexeme;
+
+            TypeLog *retMediator = getMediator(entry->symbolTable, ret->token->lexeme);
+            retMediator->index = entry->identifierCount++;
+            retMediator->refCount = 1;
+            retMediator->entryType = VARIABLE;
+            retMediator->width = -1;
+
+            retMediator->structure = calloc(1, sizeof(VariableEntry));
+            VariableEntry *entry = retMediator->structure;
+
+            entry->name = ret->token->lexeme;
+            entry->isGlobal = 0;
+            entry->usage = OUTPUT_PAR;
+            entry->type = (ret->type->sibling ? getMediator(globalSymbolTable, ret->type->sibling->token->lexeme) : getMediator(globalSymbolTable, ret->type->token->lexeme));
+    
 
             ret = ret->sibling;
         }
@@ -417,6 +558,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
 
         entry->name = node->token->lexeme;
         entry->isGlobal = node->isGlobal;
+        entry->usage = LOCAL;
         entry->type = getMediator(globalSymbolTable, node->type->sibling == NULL ? node->type->token->lexeme : node->type->sibling->token->lexeme);
     }
 

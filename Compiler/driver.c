@@ -19,7 +19,7 @@
 #include "typeChecker.h"
 #include "logger.h"
 
-#define MAX_OPTIONS 5
+#define MAX_OPTIONS 11
 
 void clear_screen()
 {
@@ -158,13 +158,25 @@ void main(int argc, char **argv)
 			TreeNode *node = parseInputSourceCode(argv[1]);
 			ASTNode *ast = createAST(node);
 			loadSymbolTable(ast);
+			// iterateTrie(globalSymbolTable, printGlobalSymbolTable);		// Iterating global symbol table to print all global variables
+			// iterateTrie(globalSymbolTable, printFunctionSymbolTables);	// Iterating global symbol table to print local symbol tables
+		}
+		else if (option == 6)
+		{
+			TreeNode* node = parseInputSourceCode(argv[1]);
+			ASTNode* ast = createAST(node);
+			loadSymbolTable(ast);
 			// iterateTrie(globalSymbolTable, printGlobalSymbolTable);
+		}
+		else if (option == 7)
+		{
+
 		}
 		else if (option == 11)
 		{
 			logIt("Parse Tree ==========\n");
 			TreeNode *node = parseInputSourceCode(argv[1]);
-			printParseTree(node, stderr);
+			printParseTree(node);
 			logIt("Parse Tree Completed ==========\n");
 
 			logIt("AST Started ==========\n");
