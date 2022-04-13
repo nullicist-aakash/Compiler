@@ -153,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AST.h" />
+    <ClInclude Include="astDef.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="lexerDef.h" />
     <ClInclude Include="logger.h" />

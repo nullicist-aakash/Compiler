@@ -74,9 +74,9 @@ void main(int argc, char** argv)
 	loadLexer();
 	loadParser();
 
-	if (argc != 3)
+	if (argc != 2)
 	{
-		fprintf(stderr, "usage: stage1exe <source_ode_file> <parser_output_file>\n");
+		fprintf(stderr, "usage: stage1exe <source_code_file>\n");
 		exit(-1);
 	}
 
@@ -186,8 +186,7 @@ void main(int argc, char** argv)
 			TreeNode* node = parseInputSourceCode(argv[1]);
 			ASTNode* ast = createAST(node);
 			loadSymbolTable(ast);
-
- 
+			iterateTrie(globalSymbolTable, printGlobalSymbolTable);
 		}
 		// else if (option == 5)
 		// {

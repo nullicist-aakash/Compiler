@@ -18,8 +18,8 @@ typedef struct TypeLog
     int refCount;
     int index;
     TypeTag entryType;
-    int width; // Memory to allocate to variable of this type
-    void* structure; // Pointer to type information
+    int width;       // Memory to allocate to variable of this type
+    void *structure; // Pointer to type information
 } TypeLog;
 
 // List of types in Rec or Union
@@ -32,45 +32,46 @@ typedef struct TypeInfoListNode
 
 typedef struct TypeInfoList
 {
-    struct TypeInfoListNode* head;
-    struct TypeInfoListNode* tail;
-}TypeInfoList;
+    struct TypeInfoListNode *head;
+    struct TypeInfoListNode *tail;
+} TypeInfoList;
 
 typedef struct VariableEntry
 {
-    char* name;
-    struct TypeLog* type;
+    int offset;
+    char *name;
+    struct TypeLog *type;
 } VariableEntry;
 
 typedef struct
 {
-    char* name;
+    char *name;
     int identifierCount;
     struct TypeInfoList *argTypes;
     struct TypeInfoList *retTypes;
-    Trie* symbolTable;
+    Trie *symbolTable;
 } FuncEntry;
 
 typedef struct AliasListNode
 {
-    char* RUName;
-    AliasListNode* next;
-}AliasListNode;
-
+    char *RUName;
+    struct AliasListNode *next;
+} AliasListNode;
 
 typedef struct
 {
-    //TODO : Check if necessary before code generation
+    // TODO : Check if necessary before code generation
     int isUnion;
     char *name; // Name of record/union
     TypeInfoList *list;
-    AliasListNode* aliases; //TODO : Remove , but Aakash chutiya
+    AliasListNode *aliases; // TODO : Remove the comment , but Aakash chutiya
 } DerivedEntry;
 
-extern Trie *globalSymbolTable;        // Stores information about records and unions
-extern Trie* prefixTable;      // Stores the type of defined structure (record/union/typedef)
+extern Trie *globalSymbolTable; // Stores information about records and unions
+extern Trie *prefixTable;       // Stores the type of defined structure (record/union/typedef)
 
 extern int dataTypeCount;
-extern int identifierCount;        // both function and variables
+extern int identifierCount; // both function and variables
 
 void loadSymbolTable(ASTNode *);
+void printGlobalSymbolTable(TrieEntry *, Trie **);

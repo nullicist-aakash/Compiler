@@ -7,7 +7,8 @@
 *****************************************/
 #pragma once
 
-#include "parserDef.h"
+#include "astDef.h"																														
+
 struct TypeLog;
 
 ASTNode *createAST(TreeNode *);

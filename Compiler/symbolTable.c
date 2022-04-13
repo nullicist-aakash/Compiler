@@ -18,14 +18,14 @@
 //     INVALID_TYPE,
 //     DUPLICATE_FIELD_NAME,
 // } ErrorType;
-// 
+//
 // typedef struct ErrorListNode
 // {
 //     ErrorType etype;
 //     ASTNode *errnode;
 //     struct ErrorListNode *next;
 // } ErrorListNode;
-// 
+//
 // typedef struct
 // {
 //     ErrorListNode *head;
@@ -49,7 +49,7 @@ void initTables()
     TypeLog *intInfo = calloc(1, sizeof(TypeLog));
     intInfo->refCount = 1;
     intInfo->entryType = INT;
-    intInfo->width = 8;
+    intInfo->width = 2;
     intInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "int")->entry.ptr = intInfo;
@@ -57,7 +57,7 @@ void initTables()
     TypeLog *realInfo = calloc(1, sizeof(TypeLog *));
     realInfo->refCount = 1;
     realInfo->entryType = REAL;
-    realInfo->width = 8;
+    realInfo->width = 4;
     realInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "real")->entry.ptr = realInfo;
@@ -121,25 +121,26 @@ int secondPassErrorCheck(ASTNode *node)
     return 0;
 }
 
-void printGlobalSymbolTable(TrieEntry* entry, Trie** x)
+void printGlobalSymbolTable(TrieEntry *entry, Trie **x)
 {
-    TypeLog* typelog = entry->ptr;
+    TypeLog *typelog = entry->ptr;
 
     if (typelog->entryType == DERIVED)
     {
-        DerivedEntry* entry = typelog->structure;
+        DerivedEntry *entry = typelog->structure;
         printf("name - %s\n", entry->name);
+        printf("scope - Global\n");
+        // printf("type name - %s", entry->);
     }
     else if (typelog->entryType == VARIABLE)
     {
-        VariableEntry* entry = typelog->structure;
+        VariableEntry *entry = typelog->structure;
         printf("name - %s\n", entry->name);
+        printf("scope - Global\n");
+        printf("type name - ---");
     }
     else
         return;
-    printf("scope - Global\n");
-    printf();
-
 }
 
 void iterationFunction(TrieEntry *entry)
@@ -241,11 +242,11 @@ int firstPass(ASTNode *node)
     else if (node->sym_index == 60 || node->sym_index == 58) // Function names parsed
     {
         // <function> -> <inputList><outputList> <stmts>
-        if(trie_exists(globalSymbolTable,node->token->lexeme))
+        if (trie_exists(globalSymbolTable, node->token->lexeme))
         {
             printf("Redeclaration of function\n");
-            return -1;   
-        }    
+            return -1;
+        }
 
         TypeLog *mediator = getMediator(globalSymbolTable, node->token->lexeme);
         mediator->refCount = 1;
@@ -270,12 +271,11 @@ int firstPass(ASTNode *node)
     }
     else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) // Type Definition Names Parsed
     {
-        if(trie_exists(prefixTable, node->children[0]->token->lexeme))
+        if (trie_exists(prefixTable, node->children[0]->token->lexeme))
         {
             printf("Redeclaration of defined type \n");
-            return -1;   
-
-        } 
+            return -1;
+        }
 
         trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
             node->token->type;
@@ -296,8 +296,8 @@ int firstPass(ASTNode *node)
         mediator->refCount++;
         trie_getRef(globalSymbolTable, newName)->entry.ptr = mediator;
 
-        DerivedEntry* temp = mediator->structure;
-        AliasListNode* newAlias = calloc(1, sizeof(AliasListNode));
+        DerivedEntry *temp = mediator->structure;
+        AliasListNode *newAlias = calloc(1, sizeof(AliasListNode));
         strcpy(newAlias->RUName, newName);
 
         newAlias->next = temp->aliases;
@@ -325,7 +325,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         // <function> -> <inputList><outputList> <stmts>
         // Fill input argument
 
-        //TODO: don't pass second function if name repeated
+        // TODO: don't pass second function if name repeated
         TypeLog *mediator = getMediator(symTable, node->token->lexeme);
         FuncEntry *entry = mediator->structure;
 
@@ -462,11 +462,10 @@ void populateWidth(int **adj, int size)
 {
     int *sortedList = calloc(size, sizeof(int));
     int err = topologicalSort(adj, sortedList, size);
-    
+
     for (int i = 0; i < dataTypeCount; i++)
         free(structList[i]);
     free(structList);
-
 
     if (err == -1)
     {
@@ -476,7 +475,6 @@ void populateWidth(int **adj, int size)
     for (int i = 0; i < size; i++)
         calculateWidth(sortedList, i, adj);
 
-    
     free(sortedList);
 
     for (int i = 0; i < dataTypeCount; i++)
@@ -514,5 +512,4 @@ void loadSymbolTable(ASTNode *root)
     iterateTrie(globalSymbolTable, iterationFunction);
     logIt("========== Printing result of second pass done ==========\n");
     printf("secondPass done\n");
-
 }

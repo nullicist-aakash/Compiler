@@ -7,6 +7,9 @@
  children stores children
  sibling pointed to right element in a list
 */
+
+#include "parserDef.h"
+
 typedef struct ASTNode
 {
 	int isLeaf;
