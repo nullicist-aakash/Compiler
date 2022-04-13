@@ -5,7 +5,7 @@
   Nihir Agarwal			-   2018B4A70701P
   Aakash				-   2018B4A70887P
 *****************************************/
-//TODO change all temp and bruh
+// TODO change all temp and bruh
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,38 +37,7 @@ void clear_screen()
 #endif
 }
 
-void printLexerOutput(char* path)
-{
-	FILE* fp = fopen(path, "r");
-
-	if (!fp)
-	{
-		fprintf(stderr, "Error opening file %s: %s\n", path, strerror(errno));
-		return;
-	}
-
-	loadFile(fp);
-
-	Token* tk;
-	while ((tk = getNextToken()) != NULL)
-	{
-		if (tk->type == TK_ERROR_LENGTH)
-			printf("Line no. %d: Error: Identifier length is greater than the prescribed length.\n", tk->line_number);
-		else if (tk->type == TK_ERROR_SYMBOL)
-			printf("Line no. %d: Error: Unknwon Symbol <%s>\n", tk->line_number, tk->lexeme);
-		else if (tk->type == TK_ERROR_PATTERN)
-			printf("Line no. %d: Error: Unknown Pattern <%s>\n", tk->line_number, tk->lexeme);
-		else
-			printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);
-
-		if (tk->lexeme != NULL)
-			free(tk->lexeme);
-
-		free(tk);
-	}
-}
-
-void main(int argc, char** argv)
+void main(int argc, char **argv)
 {
 	clear_screen();
 	loadLexer();
@@ -105,7 +74,10 @@ void main(int argc, char** argv)
 		printf("2: Parse the source code and print Parse Tree to console\n");
 		printf("3: Print Abstract Syntax Tree to console using DFS\n");
 		printf("4: Display Compression\n");
-		printf("5: Compile\n");
+		printf("5: Print Symbol Table\n");
+		printf("6: Global Variables\n");
+		printf("7. ");
+		printf("11: Compile\n");
 
 		printf("Select an option: ");
 		scanf("%d", &option);
@@ -141,17 +113,17 @@ void main(int argc, char** argv)
 			printLexerOutput(argv[1]);
 		else if (option == 2)
 		{
-			TreeNode* node = parseInputSourceCode(argv[1]);
+			TreeNode *node = parseInputSourceCode(argv[1]);
 
 			// FILE* fptr = fopen(argv[2], "w");
 			printf("Group 8 Output File.\n%25s %14s %11s %18s %24s %12s %29s\n",
-				"Lexeme",
-				"LineNumber",
-				"TokenName",
-				"Value (if Num)",
-				"ParentSymbol",
-				"Is Leaf",
-				"NodeSymbol");
+				   "Lexeme",
+				   "LineNumber",
+				   "TokenName",
+				   "Value (if Num)",
+				   "ParentSymbol",
+				   "Is Leaf",
+				   "NodeSymbol");
 
 			printParseTree(node);
 
@@ -159,14 +131,14 @@ void main(int argc, char** argv)
 		}
 		else if (option == 3)
 		{
-			TreeNode* node = parseInputSourceCode(argv[1]);
-			ASTNode* ast = createAST(node);
+			TreeNode *node = parseInputSourceCode(argv[1]);
+			ASTNode *ast = createAST(node);
 			printAST(ast, 0);
 		}
 		else if (option == 4)
 		{
-			TreeNode* node = parseInputSourceCode(argv[1]);
-			ASTNode* ast = createAST(node);
+			TreeNode *node = parseInputSourceCode(argv[1]);
+			ASTNode *ast = createAST(node);
 
 			int numParseTreeNodes = 0;
 			int parseTreeSize = 0;
@@ -183,31 +155,31 @@ void main(int argc, char** argv)
 		}
 		else if (option == 5)
 		{
-			TreeNode* node = parseInputSourceCode(argv[1]);
-			ASTNode* ast = createAST(node);
+			TreeNode *node = parseInputSourceCode(argv[1]);
+			ASTNode *ast = createAST(node);
 			loadSymbolTable(ast);
-			iterateTrie(globalSymbolTable, printGlobalSymbolTable);
+			// iterateTrie(globalSymbolTable, printGlobalSymbolTable);
 		}
-		// else if (option == 5)
-		// {
-		// 	logIt("Parse Tree ==========\n");
-		// 	TreeNode* node = parseInputSourceCode(argv[1]);
-		// 	printParseTree(node, stderr);
-		// 	logIt("Parse Tree Completed ==========\n");
+		else if (option == 11)
+		{
+			logIt("Parse Tree ==========\n");
+			TreeNode *node = parseInputSourceCode(argv[1]);
+			printParseTree(node, stderr);
+			logIt("Parse Tree Completed ==========\n");
 
-		// 	logIt("AST Started ==========\n");
-		// 	ASTNode* ast = createAST(node);
-		// 	logIt("AST Completed ==========\n");
+			logIt("AST Started ==========\n");
+			ASTNode *ast = createAST(node);
+			logIt("AST Completed ==========\n");
 
-		// 	logIt("Symbol Table Started ==========\n");
-		// 	loadSymbolTable(ast);
-		// 	logIt("Symbol Table Completed ==========\n");
+			logIt("Symbol Table Started ==========\n");
+			loadSymbolTable(ast);
+			logIt("Symbol Table Completed ==========\n");
 
-		// 	logIt("Type Checking Started ==========\n");
-		// 	typeChecker_init();
-		// 	assignTypes(ast);
-		// 	logIt("Type Checking Completed ==========\n");
-		// }
+			logIt("Type Checking Started ==========\n");
+			typeChecker_init();
+			assignTypes(ast);
+			logIt("Type Checking Completed ==========\n");
+		}
 
 	} while (option != 0);
 }

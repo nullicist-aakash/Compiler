@@ -44,7 +44,7 @@ TypeLog *finalType(ASTNode *leftNode, ASTNode *rightNode, Token *opToken)
     if (op == TK_PLUS || op == TK_MINUS)
     {
         if (left == right && left != boolean && left != void_empty && left && right)
-            return void_empty;
+            return right;
 
         isTypeError = 1;
         logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
@@ -127,12 +127,7 @@ void assignTypes(ASTNode *node)
     if (node->sym_index == 57)
     {
         // program -> functions, main
-        ASTNode *func = node->children[0];
-        while (func)
-        {
-            assignTypes(func);
-            func = func->sibling;
-        }
+        assignTypes(node->children[0]);
 
         assignTypes(node->children[1]);
     }
@@ -140,17 +135,17 @@ void assignTypes(ASTNode *node)
     {
         // function/main-function
         localSymbolTable = ((FuncEntry *)((TypeLog *)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->symbolTable;
+        assignTypes(node->children[0]);
+        assignTypes(node->children[1]);
         assignTypes(node->children[2]);
     }
     else if (node->sym_index == 68)
     {
         // stmts -> .. .. stmt ..
+        assignTypes(node->children[1]);
         ASTNode *stmt = node->children[2];
-        while (stmt)
-        {
-            assignTypes(stmt);
-            stmt = stmt->sibling;
-        }
+
+        assignTypes(stmt);
     }
     else if (node->sym_index == 81)
     {
@@ -193,17 +188,19 @@ void assignTypes(ASTNode *node)
 
         node->derived_type = void_empty;
     }
-    else if (node->sym_index == 106)
+    else if (node->sym_index == 63 || node->sym_index == 77)
     {
         // idList
         ASTNode *temp = node;
 
         while (temp)
         {
-            VariableEntry *entry = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
+            TypeLog *mediator = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
 
-            if (entry == NULL)
-                entry = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
+            if (mediator == NULL)
+                mediator = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
+
+            VariableEntry *entry = mediator->structure;
 
             temp->derived_type = entry->type;
             temp = temp->sibling;
@@ -276,4 +273,9 @@ void assignTypes(ASTNode *node)
         assert(node->children[1]->derived_type != NULL);
         node->derived_type = node->children[1]->derived_type;
     }
+    else if (node->token->type == TK_NUM)
+        node->derived_type = trie_getRef(globalSymbolTable, "int")->entry.ptr;
+    else if (node->token->type == TK_RNUM)
+        node->derived_type = trie_getRef(globalSymbolTable, "real")->entry.ptr;
+    assignTypes(node->sibling);
 }

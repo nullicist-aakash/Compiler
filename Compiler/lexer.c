@@ -6,7 +6,6 @@
   Aakash				-   2018B4A70887P
 *****************************************/
 
-
 #include "lexerDef.h"
 #include "trie.h"
 #include <errno.h>
@@ -14,10 +13,10 @@
 #include <string.h>
 #include <assert.h>
 
-LexerData* lexerData;
-Buffer* b;
+LexerData *lexerData;
+Buffer *b;
 
-void loadFile(FILE* fp)
+void loadFile(FILE *fp)
 {
 	if (b != NULL)
 	{
@@ -33,9 +32,9 @@ void loadFile(FILE* fp)
 	b->line_number = 1;
 }
 
-void loadTokens(FILE* fp)
+void loadTokens(FILE *fp)
 {
-	lexerData->tokenType2tokenStr = calloc(lexerData->num_tokens, sizeof(char*));
+	lexerData->tokenType2tokenStr = calloc(lexerData->num_tokens, sizeof(char *));
 	lexerData->tokenStr2tokenType = calloc(1, sizeof(Trie));
 
 	for (int i = 0; i < lexerData->num_tokens; ++i)
@@ -45,18 +44,18 @@ void loadTokens(FILE* fp)
 		lexerData->tokenType2tokenStr[i] = calloc(strlen(BUFF) + 1, sizeof(char));
 		strcpy(lexerData->tokenType2tokenStr[i], BUFF);
 
-		TrieNode* ref = trie_getRef(lexerData->tokenStr2tokenType, lexerData->tokenType2tokenStr[i]);
+		TrieNode *ref = trie_getRef(lexerData->tokenStr2tokenType, lexerData->tokenType2tokenStr[i]);
 		ref->entry.value = i;
 	}
 }
 
-void loadTransitions(FILE* fp)
+void loadTransitions(FILE *fp)
 {
-	lexerData->productions = calloc(lexerData->num_states, sizeof(int**));
+	lexerData->productions = calloc(lexerData->num_states, sizeof(int **));
 
 	for (int i = 0; i < lexerData->num_states; ++i)
 	{
-		lexerData->productions[i] = calloc(128, sizeof(int*));
+		lexerData->productions[i] = calloc(128, sizeof(int *));
 
 		for (int j = 0; j < 128; ++j)
 			lexerData->productions[i][j] = -1;
@@ -87,14 +86,14 @@ void loadTransitions(FILE* fp)
 	// White spaces
 	lexerData->productions[0][' '] =
 		lexerData->productions[0]['\t'] =
-		lexerData->productions[0]['\r'] = 50;
+			lexerData->productions[0]['\r'] = 50;
 
 	lexerData->productions[50][' '] =
 		lexerData->productions[50]['\t'] =
-		lexerData->productions[50]['\r'] = 50;
+			lexerData->productions[50]['\r'] = 50;
 }
 
-void loadFinalStates(FILE* fp)
+void loadFinalStates(FILE *fp)
 {
 	lexerData->finalStates = calloc(lexerData->num_states, sizeof(TokenType));
 	for (int i = 0; i < lexerData->num_states; ++i)
@@ -110,11 +109,11 @@ void loadFinalStates(FILE* fp)
 	}
 }
 
-void loadKeywords(FILE* fp)
+void loadKeywords(FILE *fp)
 {
-	lexerData->keyword2Str = calloc(lexerData->num_keywords, sizeof(char*));
+	lexerData->keyword2Str = calloc(lexerData->num_keywords, sizeof(char *));
 	if (lexerData->symbolTable == NULL)
-		lexerData->symbolTable = calloc(lexerData->num_tokens, sizeof(char*));
+		lexerData->symbolTable = calloc(lexerData->num_tokens, sizeof(char *));
 
 	for (int i = 0; i < lexerData->num_keywords; ++i)
 	{
@@ -124,7 +123,7 @@ void loadKeywords(FILE* fp)
 		lexerData->keyword2Str[i] = calloc(strlen(BUFF2) + 1, sizeof(char));
 		strcpy(lexerData->keyword2Str[i], BUFF2);
 
-		TrieNode* ref = trie_getRef(lexerData->symbolTable, BUFF1);
+		TrieNode *ref = trie_getRef(lexerData->symbolTable, BUFF1);
 		ref->entry.value = trie_getVal(lexerData->tokenStr2tokenType, BUFF2).value;
 	}
 }
@@ -132,7 +131,7 @@ void loadKeywords(FILE* fp)
 void loadLexer()
 {
 	assert(lexerData == NULL);
-	FILE* fp = fopen(DEFINITION_LOC, "r");
+	FILE *fp = fopen(DEFINITION_LOC, "r");
 	lexerData = calloc(1, sizeof(LexerData));
 
 	assert(fp != NULL);
@@ -150,7 +149,7 @@ char getChar(int i)
 {
 	if (b->charTaken == i)
 	{
-		char* temp = b->archived;
+		char *temp = b->archived;
 		b->archived = b->working;
 		b->working = temp;
 
@@ -175,11 +174,7 @@ char getChar(int i)
 	return b->archived[i];
 }
 
-
-
-
-
-Token* DFA(int start_index)
+Token *DFA(int start_index)
 {
 	TokenType ttype;
 	int last_final = -1;
@@ -194,35 +189,33 @@ Token* DFA(int start_index)
 	{
 		char input = getChar(start_index);
 
-
 		last_final = cur_state;
 		ttype = lexerData->finalStates[cur_state];
 		input_final_pos = start_index - 1;
 
-
 		cur_state = lexerData->productions[cur_state][input];
 
-		//if (cur_state == 49)
+		// if (cur_state == 49)
 		//	b->line_number++;
 
-		if (cur_state == -1)    // return
+		if (cur_state == -1) // return
 		{
 			if (input_final_pos == start_index - len - 1)
 			{
-				Token* token = calloc(1, sizeof(Token));
+				Token *token = calloc(1, sizeof(Token));
 				token->type = TK_ERROR_SYMBOL;
 				token->length = 1;
 				return token;
 			}
 			if (lexerData->finalStates[last_final] == -1 && last_final != 0)
 			{
-				Token* token = calloc(1, sizeof(Token));
+				Token *token = calloc(1, sizeof(Token));
 				token->type = TK_ERROR_PATTERN;
 				token->length = len;
 				return token;
 			}
 
-			Token* token = calloc(1, sizeof(Token));
+			Token *token = calloc(1, sizeof(Token));
 			token->type = ttype;
 			token->length = input_final_pos - (start_index - len) + 1;
 			return token;
@@ -236,7 +229,7 @@ Token* DFA(int start_index)
 	assert(0);
 }
 
-Token* getNextToken()
+Token *getNextToken()
 {
 	while (getChar(b->start_index) != '\0')
 	{
@@ -247,7 +240,7 @@ Token* getNextToken()
 			continue;
 		}
 
-		Token* token = DFA(b->start_index);
+		Token *token = DFA(b->start_index);
 
 		assert(token != NULL);
 
@@ -269,7 +262,7 @@ Token* getNextToken()
 
 		if (token->type == TK_ID || token->type == TK_FUNID || token->type == TK_FIELDID)
 		{
-			TrieNode* temp = trie_getRef(lexerData->symbolTable, token->lexeme);
+			TrieNode *temp = trie_getRef(lexerData->symbolTable, token->lexeme);
 
 			if (temp->entry.value)
 				token->type = temp->entry.value;
@@ -289,7 +282,7 @@ Token* getNextToken()
 	return NULL;
 }
 
-void removeComments(FILE* source, FILE* destination)
+void removeComments(FILE *source, FILE *destination)
 {
 	char c;
 	int is_comment = 0;
@@ -303,6 +296,37 @@ void removeComments(FILE* source, FILE* destination)
 
 		if (!is_comment)
 			fprintf(destination, "%c", c);
+	}
+}
+
+void printLexerOutput(char *path)
+{
+	FILE *fp = fopen(path, "r");
+
+	if (!fp)
+	{
+		fprintf(stderr, "Error opening file %s: %s\n", path, strerror(errno));
+		return;
+	}
+
+	loadFile(fp);
+
+	Token *tk;
+	while ((tk = getNextToken()) != NULL)
+	{
+		if (tk->type == TK_ERROR_LENGTH)
+			printf("Line no. %d: Error: Identifier length is greater than the prescribed length.\n", tk->line_number);
+		else if (tk->type == TK_ERROR_SYMBOL)
+			printf("Line no. %d: Error: Unknwon Symbol <%s>\n", tk->line_number, tk->lexeme);
+		else if (tk->type == TK_ERROR_PATTERN)
+			printf("Line no. %d: Error: Unknown Pattern <%s>\n", tk->line_number, tk->lexeme);
+		else
+			printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);
+
+		if (tk->lexeme != NULL)
+			free(tk->lexeme);
+
+		free(tk);
 	}
 }
 
@@ -328,6 +352,6 @@ void freeLexerData()
 		free(b->archived);
 		free(b);
 	}
-	
+
 	free(lexerData);
 }

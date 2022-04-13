@@ -39,7 +39,7 @@ Till the end of phase 1:
 Till the end of phase 2:
 
 For functions:
-	Input/Output parameter types are defined
+	1. Input/Output parameter types are defined
 
 For variables:
 	variables have valid type

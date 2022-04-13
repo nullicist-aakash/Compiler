@@ -124,20 +124,12 @@ int secondPassErrorCheck(ASTNode *node)
 void printGlobalSymbolTable(TrieEntry *entry, Trie **x)
 {
     TypeLog *typelog = entry->ptr;
-
-    if (typelog->entryType == DERIVED)
-    {
-        DerivedEntry *entry = typelog->structure;
-        printf("name - %s\n", entry->name);
-        printf("scope - Global\n");
-        // printf("type name - %s", entry->);
-    }
-    else if (typelog->entryType == VARIABLE)
+    if (typelog->entryType == VARIABLE)
     {
         VariableEntry *entry = typelog->structure;
         printf("name - %s\n", entry->name);
         printf("scope - Global\n");
-        printf("type name - ---");
+        printf("type name - ");
     }
     else
         return;
@@ -256,8 +248,7 @@ int firstPass(ASTNode *node)
 
         FuncEntry *entry = calloc(1, sizeof(FuncEntry));
         mediator->structure = entry;
-        entry->name = calloc(node->token->length + 1, sizeof(char));
-        strcpy(entry->name, node->token->lexeme);
+        entry->name = node->token->lexeme;
         entry->identifierCount = 0;
         entry->argTypes = calloc(1, sizeof(TypeInfoList));
         entry->retTypes = calloc(1, sizeof(TypeInfoList));
@@ -281,11 +272,15 @@ int firstPass(ASTNode *node)
             node->token->type;
 
         TypeLog *mediator = getMediator(globalSymbolTable, node->children[0]->token->lexeme);
-        mediator->structure = calloc(1, sizeof(DerivedEntry));
         mediator->refCount = 1;
         mediator->entryType = DERIVED;
         mediator->width = -1;
         mediator->index = dataTypeCount++;
+        mediator->structure = calloc(1, sizeof(DerivedEntry));
+        DerivedEntry *entry = mediator->structure;
+        entry->isUnion = node->token->type == TK_UNION;
+        entry->name = node->children[0]->token->lexeme;
+        entry->list = calloc(1, sizeof(TypeInfoList));
     }
     else if (node->sym_index == 108 && firstPassErrorCheck(node) != -1) // Type Aliases Parsed
     {
@@ -296,12 +291,6 @@ int firstPass(ASTNode *node)
         mediator->refCount++;
         trie_getRef(globalSymbolTable, newName)->entry.ptr = mediator;
 
-        DerivedEntry *temp = mediator->structure;
-        AliasListNode *newAlias = calloc(1, sizeof(AliasListNode));
-        strcpy(newAlias->RUName, newName);
-
-        newAlias->next = temp->aliases;
-        temp->aliases = newAlias;
         trie_getRef(prefixTable, newName)->entry.value = node->token->type;
     }
 
@@ -343,8 +332,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             // TODO: Check error
             entry->argTypes->tail->type = (arg->type->sibling ? getMediator(globalSymbolTable, arg->type->sibling->token->lexeme) : getMediator(globalSymbolTable, arg->type->token->lexeme));
             entry->argTypes->tail->type->refCount++;
-            entry->argTypes->tail->name = calloc(arg->token->length + 1, sizeof(char));
-            strcpy(entry->argTypes->tail->name, arg->token->lexeme);
+            entry->argTypes->tail->name = arg->token->lexeme;
 
             arg = arg->sibling;
         }
@@ -364,8 +352,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             // TODO: Check error
             entry->retTypes->tail->type = (ret->type->sibling ? getMediator(globalSymbolTable, ret->type->sibling->token->lexeme) : getMediator(globalSymbolTable, ret->type->token->lexeme));
             entry->retTypes->tail->type->refCount++;
-            entry->retTypes->tail->name = calloc(ret->token->length + 1, sizeof(char));
-            strcpy(entry->retTypes->tail->name, ret->token->lexeme);
+            entry->retTypes->tail->name = ret->token->lexeme;
 
             ret = ret->sibling;
         }
@@ -380,22 +367,15 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         // <stmts> -> <definitions> <declarations> <funcBody> <return>
 
         secondPass(node->children[0], adj, symTable);
-
-        ASTNode *declarationNode = node->children[1];
-        secondPass(declarationNode, adj, symTable);
+        secondPass(node->children[1], adj, symTable);
     }
     else if (node->sym_index == 71 && secondPassErrorCheck(node) != -1) // Record/Union full type information parsed
     {
         // <typeDefinition> -> TK_RUID <fieldDefinitions>
         ASTNode *field = node->children[1];
         TypeLog *mediator = getMediator(globalSymbolTable, node->children[0]->token->lexeme);
-        mediator->structure = calloc(1, sizeof(DerivedEntry));
-        DerivedEntry *entry = mediator->structure;
-        entry->isUnion = node->token->type == TK_UNION;
-        entry->name = calloc(node->children[0]->token->length + 1, sizeof(char));
-        strcpy(entry->name, node->children[0]->token->lexeme);
 
-        entry->list = calloc(1, sizeof(TypeInfoList));
+        DerivedEntry *entry = mediator->structure;
 
         structList[mediator->index] = mediator;
 
@@ -414,8 +394,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             // TODO: Check error
             infoNode->type = getMediator(globalSymbolTable, field->type->token->lexeme);
             infoNode->type->refCount++;
-            infoNode->name = calloc(field->token->length + 1, sizeof(char));
-            strcpy(infoNode->name, field->token->lexeme);
+            infoNode->name = field->token->lexeme;
 
             adj[infoNode->type->index][mediator->index]++;
             field = field->sibling;
@@ -429,15 +408,15 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         Trie *table = node->isGlobal ? globalSymbolTable : symTable;
         TypeLog *mediator = getMediator(table, node->token->lexeme);
         mediator->index = node->isGlobal ? identifierCount++ : local_func->identifierCount++;
-        mediator->refCount++;
+        mediator->refCount = 1;
         mediator->entryType = VARIABLE;
         mediator->width = -1;
 
         mediator->structure = calloc(1, sizeof(VariableEntry));
         VariableEntry *entry = mediator->structure;
 
-        entry->name = calloc(node->token->length + 1, sizeof(char));
-        strcpy(entry->name, node->token->lexeme);
+        entry->name = node->token->lexeme;
+        entry->isGlobal = node->isGlobal;
         entry->type = getMediator(globalSymbolTable, node->type->sibling == NULL ? node->type->token->lexeme : node->type->sibling->token->lexeme);
     }
 
@@ -450,10 +429,10 @@ void calculateWidth(int *sortedList, int index, int **adj)
     int actualIndex = sortedList[index];
     if (structList[actualIndex]->entryType == DERIVED)
     {
+        int isUnion = ((DerivedEntry *)(structList[actualIndex]->structure))->isUnion;
         DerivedEntry *t = structList[actualIndex]->structure;
-
         for (int i = 0; i < dataTypeCount; i++)
-            width += adj[i][actualIndex] * structList[i]->width;
+            width = isUnion ? (width > adj[i][actualIndex] * structList[i]->width ? width : adj[i][actualIndex] * structList[i]->width) : (width + adj[i][actualIndex] * structList[i]->width);
         structList[actualIndex]->width = width;
     }
 }
