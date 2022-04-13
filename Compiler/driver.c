@@ -76,7 +76,7 @@ void main(int argc, char **argv)
 		printf("4: Display Compression\n");
 		printf("5: Print Symbol Table\n");
 		printf("6: Global Variables\n");
-		printf("7. ");
+		printf("7. \n");
 		printf("11: Compile\n");
 
 		printf("Select an option: ");
@@ -87,8 +87,6 @@ void main(int argc, char **argv)
 
 		if (option < 0 || option > MAX_OPTIONS)
 		{
-			printf("Invalid option selected: %d\n", option);
-			continue;
 		}
 
 		if (option == 0)
@@ -109,7 +107,7 @@ void main(int argc, char **argv)
 			continue;
 		}
 		*/
-		if (option == 1)
+		else if (option == 1)
 			printLexerOutput(argv[1]);
 		else if (option == 2)
 		{
@@ -174,23 +172,25 @@ void main(int argc, char **argv)
 		}
 		else if (option == 11)
 		{
-			logIt("Parse Tree ==========\n");
 			TreeNode *node = parseInputSourceCode(argv[1]);
+<<<<<<< HEAD
 			printParseTree(node);
 			logIt("Parse Tree Completed ==========\n");
+=======
+			// printParseTree(node);
+>>>>>>> 45d962c30c0cb0b6f8b1bbe8fe4d6de8da733d0b
 
-			logIt("AST Started ==========\n");
 			ASTNode *ast = createAST(node);
-			logIt("AST Completed ==========\n");
 
-			logIt("Symbol Table Started ==========\n");
 			loadSymbolTable(ast);
-			logIt("Symbol Table Completed ==========\n");
 
-			logIt("Type Checking Started ==========\n");
 			typeChecker_init();
 			assignTypes(ast);
-			logIt("Type Checking Completed ==========\n");
+		}
+		else
+		{
+			printf("Invalid option selected: %d\n", option);
+			continue;
 		}
 
 	} while (option != 0);
