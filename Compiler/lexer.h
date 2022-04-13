@@ -11,12 +11,14 @@
 
 extern LexerData* lexerData;
 
-void loadLexer();
 
-void loadFile(FILE*);
 
 Token* getNextToken();
 
+void loadLexer();
+void loadFile(FILE*);
 void removeComments(FILE* source, FILE* destination);
-
+void printLexerOutput(char*);
 void freeLexerData();
+
+

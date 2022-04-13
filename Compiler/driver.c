@@ -37,37 +37,6 @@ void clear_screen()
 #endif
 }
 
-void printLexerOutput(char* path)
-{
-	FILE* fp = fopen(path, "r");
-
-	if (!fp)
-	{
-		fprintf(stderr, "Error opening file %s: %s\n", path, strerror(errno));
-		return;
-	}
-
-	loadFile(fp);
-
-	Token* tk;
-	while ((tk = getNextToken()) != NULL)
-	{
-		if (tk->type == TK_ERROR_LENGTH)
-			printf("Line no. %d: Error: Identifier length is greater than the prescribed length.\n", tk->line_number);
-		else if (tk->type == TK_ERROR_SYMBOL)
-			printf("Line no. %d: Error: Unknwon Symbol <%s>\n", tk->line_number, tk->lexeme);
-		else if (tk->type == TK_ERROR_PATTERN)
-			printf("Line no. %d: Error: Unknown Pattern <%s>\n", tk->line_number, tk->lexeme);
-		else
-			printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);
-
-		if (tk->lexeme != NULL)
-			free(tk->lexeme);
-
-		free(tk);
-	}
-}
-
 void main(int argc, char** argv)
 {
 	clear_screen();
