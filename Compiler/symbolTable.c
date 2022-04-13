@@ -501,7 +501,7 @@ void loadSymbolTable(ASTNode *root)
 
     secondPass(root, adj, globalSymbolTable);
     populateWidth(adj, dataTypeCount);
-    iterateTrie(globalSymbolTable, iterationFunction);
+    //iterateTrie(globalSymbolTable, iterationFunction);
 }
 
 void printTypeName(VariableEntry *entry)
@@ -575,10 +575,10 @@ void printGlobalSymbolTable(TrieEntry *entry)
         printf("Type Expression - ");
         printTypeExpression(entry);
 
-        printf("Width - %d", entry->type->width);
+        printf("Width - %d\n", entry->type->width);
         printf("is Global - %s", entry->isGlobal ? "global\n" : "---\n");
 
-        // offset
+        printf("Offset - %d\n", entry->offset);
 
         printf("Variable Usage - ");
         printVariableUsage(entry);
@@ -603,10 +603,10 @@ void printLocalTable(TrieEntry *entry)
         printf("Type Expression - ");
         printTypeExpression(entry);
 
-        printf("Width - %d", entry->type->width);
-        printf("%s", entry->isGlobal ? "Global\n" : "---\n");
+        printf("Width - %d\n", entry->type->width);
+        printf("isGlobal - %s", entry->isGlobal ? "Global\n" : "---\n");
 
-        // offset
+        printf("Offset - %d\n", entry->offset);
 
         printf("Variable Usage - ");
         printVariableUsage(entry);

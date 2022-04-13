@@ -156,7 +156,11 @@ void main(int argc, char **argv)
 			TreeNode *node = parseInputSourceCode(argv[1]);
 			ASTNode *ast = createAST(node);
 			loadSymbolTable(ast);
-			// iterateTrie(globalSymbolTable, printGlobalSymbolTable);	   // Iterating global symbol table to print all global variables
+			typeChecker_init();
+			assignTypes(ast);
+			calculateOffsets(ast);
+
+			iterateTrie(globalSymbolTable, printGlobalSymbolTable);	   // Iterating global symbol table to print all global variables
 			iterateTrie(globalSymbolTable, printFunctionSymbolTables); // Iterating global symbol table to print local symbol tables
 		}
 		else if (option == 6)
@@ -164,10 +168,15 @@ void main(int argc, char **argv)
 			TreeNode *node = parseInputSourceCode(argv[1]);
 			ASTNode *ast = createAST(node);
 			loadSymbolTable(ast);
+			typeChecker_init();
+			assignTypes(ast);
+			calculateOffsets(ast);
+
 			iterateTrie(globalSymbolTable, printGlobalSymbolTable);
 		}
 		else if (option == 7)
 		{
+
 		}
 		else if (option == 11)
 		{
