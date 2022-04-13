@@ -223,9 +223,10 @@ void iterationFunction(TrieEntry *entry)
 int firstPass(ASTNode *node)
 {
     if (!node)
-        return -1;
-
-    if (node->sym_index == 57)
+        return 0;
+    if (node->sym_index == -1)
+        firstPass(node->sibling);
+    else if (node->sym_index == 57)
     {
         // <program> -> <funcList> <mainFunction>
         firstPass(node->children[0]);
@@ -234,9 +235,11 @@ int firstPass(ASTNode *node)
     else if (node->sym_index == 60 || node->sym_index == 58) // Function names parsed
     {
         // <function> -> <inputList><outputList> <stmts>
-        if (trie_exists(globalSymbolTable, node->token->lexeme))
+        if (trie_exists(globalSymbolTable, node->token->lexeme)) // ERROR Function name repeated
         {
             printf("Redeclaration of function\n");
+            node->sym_index = -1;
+            firstPass(node->sibling);
             return -1;
         }
 
@@ -264,7 +267,9 @@ int firstPass(ASTNode *node)
     {
         if (trie_exists(prefixTable, node->children[0]->token->lexeme))
         {
-            printf("Redeclaration of defined type \n");
+            printf("Redeclaration of defined type \n"); // ERROR Definted Type name repeated
+            node->sym_index = -1;
+            firstPass(node->sibling);
             return -1;
         }
 
@@ -442,10 +447,6 @@ void populateWidth(int **adj, int size)
     int *sortedList = calloc(size, sizeof(int));
     int err = topologicalSort(adj, sortedList, size);
 
-    for (int i = 0; i < dataTypeCount; i++)
-        free(structList[i]);
-    free(structList);
-
     if (err == -1)
     {
         // TODO : Throw error when cycle detected
@@ -458,6 +459,10 @@ void populateWidth(int **adj, int size)
 
     for (int i = 0; i < dataTypeCount; i++)
         free(adj[i]);
+
+    for (int i = 0; i < dataTypeCount; i++)
+        free(structList[i]);
+    free(structList);
     free(adj);
 }
 
@@ -465,12 +470,8 @@ void loadSymbolTable(ASTNode *root)
 {
     initTables();
 
-    logIt("========== Performing first pass ==========\n");
     firstPass(root);
-    logIt("========== First pass done ==========\n");
-    logIt("========== Printing result of first pass ==========\n");
     iterateTrie(globalSymbolTable, iterationFunction);
-    logIt("========== Printing result of first pass done ==========\n");
     printf("firstPass done\n");
     structList = calloc(dataTypeCount, sizeof(TypeLog *));
     structList[0] = trie_getRef(globalSymbolTable, "int")->entry.ptr;
@@ -481,14 +482,10 @@ void loadSymbolTable(ASTNode *root)
     for (int i = 0; i < dataTypeCount; i++)
         adj[i] = calloc(dataTypeCount, sizeof(int));
 
-    logIt("========== Performing second pass ==========\n");
     secondPass(root, adj, globalSymbolTable);
-    logIt("========== Second pass done ==========\n");
-
+    printf("secondPass done\n");
     populateWidth(adj, dataTypeCount);
-
-    logIt("========== Printing result of second pass ==========\n");
+    printf("width calc done\n");
     iterateTrie(globalSymbolTable, iterationFunction);
-    logIt("========== Printing result of second pass done ==========\n");
     printf("secondPass done\n");
 }
