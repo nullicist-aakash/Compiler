@@ -78,7 +78,8 @@ void main(int argc, char **argv)
 		printf("4: Display Compression\n");
 		printf("5: Print Symbol Table\n");
 		printf("6: Global Variables\n");
-		printf("7. \n");
+		printf("7. Activation Record Sizes\n");
+		printf("8. Record Types and Sizes\n");
 		printf("11: Compile\n");
 
 		printf("Select an option: ");
@@ -178,6 +179,25 @@ void main(int argc, char **argv)
 		}
 		else if (option == 7)
 		{
+			TreeNode* node = parseInputSourceCode(argv[1]);
+			ASTNode* ast = createAST(node);
+			loadSymbolTable(ast);
+			typeChecker_init();
+			assignTypes(ast);
+			calculateOffsets(ast);
+
+			iterateTrie(globalSymbolTable, printFunctionActivationRecordSize);
+		}
+		else if (option == 8)
+		{
+			TreeNode* node = parseInputSourceCode(argv[1]);
+			ASTNode* ast = createAST(node);
+			loadSymbolTable(ast);
+			typeChecker_init();
+			assignTypes(ast);
+			calculateOffsets(ast);
+
+			iterateTrie(globalSymbolTable, printRecordDetails);
 		}
 		else if (option == 11)
 		{

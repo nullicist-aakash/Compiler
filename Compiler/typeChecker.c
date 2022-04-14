@@ -26,7 +26,6 @@ void fillOffsets(ASTNode *vars)
         varEntry->offset = varEntry->isGlobal ? globalOffset : localOffset;
         localOffset += varEntry->isGlobal ? 0 : vars->derived_type->width;
         globalOffset += varEntry->isGlobal ? vars->derived_type->width : 0;
-
         vars = vars->sibling;
     }
 }
@@ -42,6 +41,8 @@ void generateFuncOffsets(ASTNode *funcNode)
     fillOffsets(funcNode->children[0]);
     fillOffsets(funcNode->children[1]);
     fillOffsets(funcNode->children[2]->children[1]);
+
+    funcEntry->activationRecordSize = localOffset;
 }
 
 void calculateOffsets(ASTNode *ast)

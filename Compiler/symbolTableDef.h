@@ -70,6 +70,7 @@ typedef struct
 {
     char *name;
     int identifierCount;
+    int activationRecordSize;
     struct TypeInfoList *argTypes;
     struct TypeInfoList *retTypes;
     Trie *symbolTable;

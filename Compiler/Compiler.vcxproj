@@ -162,6 +162,7 @@
     <ClInclude Include="parserDef.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="symbolTable.h" />
+    <ClInclude Include="symbolTableDef.h" />
     <ClInclude Include="toposort.h" />
     <ClInclude Include="Trie.h" />
     <ClInclude Include="typeChecker.h" />

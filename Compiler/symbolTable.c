@@ -476,6 +476,7 @@ void loadSymbolTable(ASTNode *root)
     secondPass(root, adj, globalSymbolTable);
     populateWidth(adj, dataTypeCount);
     // iterateTrie(globalSymbolTable, iterationFunction);
+    dataTypeCount = 0;
 }
 
 void printTypeName(VariableEntry *entry)
@@ -497,9 +498,9 @@ void printTypeName(VariableEntry *entry)
     printf("\n");
 }
 
-void printTypeExpression(VariableEntry *entry)
+void printTypeExpression(TypeLog* entrytype)
 {
-    TypeTag type = entry->type->entryType;
+    TypeTag type = entrytype->entryType;
 
     if (type == INT)
         printf("int");
@@ -508,19 +509,20 @@ void printTypeExpression(VariableEntry *entry)
     else if (type == DERIVED)
     {
         printf("<");
-        DerivedEntry *de = entry->type->structure;
+        DerivedEntry *de = entrytype->structure;
         TypeInfoListNode *cur = de->list->head;
 
-        printTypeExpression((VariableEntry *)cur->type->structure);
+        printTypeExpression(cur->type);
         cur = cur->next;
         while (cur)
         {
             printf(", ");
-            printTypeExpression((VariableEntry *)cur->type->structure);
+            printTypeExpression(cur->type);
+
+            cur = cur->next;
         }
         printf(">");
     }
-    printf("\n");
 }
 
 void printVariableUsage(VariableEntry *entry)
@@ -547,7 +549,8 @@ void printGlobalSymbolTable(TrieEntry *entry)
         printTypeName(entry);
 
         printf("Type Expression - ");
-        printTypeExpression(entry);
+        printTypeExpression(entry->type);
+        printf("\n");
 
         printf("Width - %d\n", entry->type->width);
         printf("is Global - %s", entry->isGlobal ? "global\n" : "---\n");
@@ -567,23 +570,24 @@ void printLocalTable(TrieEntry *entry)
     TypeLog *typelog = entry->ptr;
     if (typelog->entryType == VARIABLE)
     {
-        VariableEntry *entry = typelog->structure;
-        printf("Name - %s\n", entry->name);
+        VariableEntry *varentry = typelog->structure;
+        printf("Name - %s\n", varentry->name);
         printf("Scope - %s\n", local_func->name);
 
         printf("Type Name - ");
-        printTypeName(entry);
+        printTypeName(varentry);
 
         printf("Type Expression - ");
-        printTypeExpression(entry);
+        printTypeExpression(varentry->type);
+        printf("\n");
 
-        printf("Width - %d\n", entry->type->width);
-        printf("isGlobal - %s", entry->isGlobal ? "Global\n" : "---\n");
+        printf("Width - %d\n", varentry->type->width);
+        printf("isGlobal - %s", varentry->isGlobal ? "Global\n" : "---\n");
 
-        printf("Offset - %d\n", entry->offset);
+        printf("Offset - %d\n", varentry->offset);
 
         printf("Variable Usage - ");
-        printVariableUsage(entry);
+        printVariableUsage(varentry);
         printf("\n");
     }
     else
@@ -597,6 +601,42 @@ void printFunctionSymbolTables(TrieEntry *entry)
     {
         local_func = (FuncEntry *)typelog->structure;
         iterateTrie(((FuncEntry *)typelog->structure)->symbolTable, printLocalTable);
+    }
+    else
+        return;
+}
+
+void printFunctionActivationRecordSize(TrieEntry* entry)
+{
+    TypeLog* typelog = entry->ptr;
+    if (typelog->entryType == FUNCTION)
+    {
+        local_func = (FuncEntry*)typelog->structure;
+        printf("%s - %d\n", local_func->name, local_func->activationRecordSize);
+    }
+    else
+        return;
+}
+
+void printRecordDetails(TrieEntry* entry)
+{
+    TypeLog* typelog = entry->ptr;
+    if (typelog->entryType == DERIVED)
+    {
+        DerivedEntry* de = typelog->structure;
+        printf("%s - ", de->name); printf("<");
+        TypeInfoListNode* cur = de->list->head;
+
+        printTypeExpression(cur->type);
+        cur = cur->next;
+        while (cur)
+        {
+            printf(", ");
+            printTypeExpression(cur->type);
+
+            cur = cur->next;
+        }
+        printf(">\n");
     }
     else
         return;

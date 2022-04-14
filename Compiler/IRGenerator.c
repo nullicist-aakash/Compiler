@@ -6,8 +6,8 @@
 #include <stdio.h>
 
 Trie* localSymbolTable;
-int localOffset;
-int globalOffset = 0;
+//int localOffset;
+//int globalOffset = 0;
 
 // helpers
 int getNextLabel()
@@ -26,25 +26,25 @@ char* genNextVar()
 	return name;
 }
 
-void fillOffsets(ASTNode* vars)
-{
-	while (vars)
-	{
-		TypeLog* mediator = trie_getRef(localSymbolTable, vars->token->lexeme)->entry.ptr;
-
-		if (mediator == NULL)
-			mediator = trie_getRef(globalSymbolTable, vars->token->lexeme)->entry.ptr;
-
-		VariableEntry* varEntry = mediator->structure;
-
-		varEntry->offset = localOffset;
-		varEntry->isGlobal = vars->isGlobal;
-		localOffset += varEntry->isGlobal ? 0 : vars->derived_type->width;
-		globalOffset += varEntry->isGlobal ? vars->derived_type->width : 0;
-
-		vars = vars->sibling;
-	}
-}
+//void fillOffsets(ASTNode* vars)
+//{
+//	while (vars)
+//	{
+//		TypeLog* mediator = trie_getRef(localSymbolTable, vars->token->lexeme)->entry.ptr;
+//
+//		if (mediator == NULL)
+//			mediator = trie_getRef(globalSymbolTable, vars->token->lexeme)->entry.ptr;
+//
+//		VariableEntry* varEntry = mediator->structure;
+//
+//		varEntry->offset = localOffset;
+//		varEntry->isGlobal = vars->isGlobal;
+//		localOffset += varEntry->isGlobal ? 0 : vars->derived_type->width;
+//		globalOffset += varEntry->isGlobal ? vars->derived_type->width : 0;
+//
+//		vars = vars->sibling;
+//	}
+//}
 
 // List operations
 IRInsList* mergeLists(IRInsList* left, IRInsList* right)
@@ -507,14 +507,14 @@ IRInsList* generateFuncCode(ASTNode* funcNode)
 	TypeLog* mediator = trie_getRef(globalSymbolTable, funcNode->token->lexeme)->entry.ptr;
 	FuncEntry* funcEntry = mediator->structure;
 	localSymbolTable = funcEntry->symbolTable;
-	localOffset = 0;
+	/*localOffset = 0;*/
 
 	logIt("Generating code for function: %s and its symbol table is found at adress: %p\n", funcEntry->name, localSymbolTable);
 
 	// Iterate over statements
-	fillOffsets(funcNode->children[1]);
+	/*fillOffsets(funcNode->children[1]);
 	fillOffsets(funcNode->children[0]);
-	fillOffsets(funcNode->children[2]->children[1]);
+	fillOffsets(funcNode->children[2]->children[1]);*/
 
 	Payload p;
 	p.payload_type = PAYLOAD_STMT;
