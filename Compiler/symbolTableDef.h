@@ -18,7 +18,7 @@ typedef struct TypeLog
     int index;
     TypeTag entryType;
     int width;       // Memory to allocate to variable of this type
-    void* structure; // Pointer to type information
+    void *structure; // Pointer to type information
 } TypeLog;
 
 typedef enum
@@ -26,10 +26,8 @@ typedef enum
     LOCAL,
     INPUT_PAR,
     OUTPUT_PAR
-    //GLOBAL
-}VariableUsage;
-
-
+    // GLOBAL
+} VariableUsage;
 
 typedef struct VariableEntry
 {
@@ -61,11 +59,11 @@ typedef struct AliasListNode
 
 typedef struct
 {
-    // TODO : Check if necessary before code generation
+    // TODO: : Check if necessary before code generation
     int isUnion;
     char *name; // Name of record/union
     TypeInfoList *list;
-    AliasListNode *aliases; // TODO : Remove the comment , but Aakash chutiya
+    AliasListNode *aliases; // TODO: : Remove the comment , but Aakash chutiya
 } DerivedEntry;
 
 typedef struct

@@ -87,7 +87,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 		node->token = copy_token(input->children[0]->token);
 		allocateChildren(node, 3);
 		node->children[2] = performRecursion(input->children[1], input, NULL);
-		// TODO Check if this is necessary and correct
+		// TODO:: Check if this is necessary and correct
 	}
 	else if (input->productionNumber == 2)
 	{
@@ -140,7 +140,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 	{
 		//<parameter_list> ===> <dataType> TK_ID <remaining_list>
 		//<parameter_list>.treenode = createTreeNodeList(head = createTreeNode(<dataType>.data, TK_ID.value), tail = <remaining_list>.treenode);
-		node->token = copy_token(input->children[1]->token);	// Stores name of id
+		node->token = copy_token(input->children[1]->token); // Stores name of id
 		node->type = performRecursion(input->children[0], input, NULL);
 		node->sibling = performRecursion(input->children[2], input, NULL);
 	}
@@ -864,28 +864,27 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 void printTabs(int tabCount)
 {
 	while (tabCount--)
-		printf
-		("\t");
+		printf("\t");
 }
 
-void printAST(ASTNode* node, int tab)
+void printAST(ASTNode *node, int tab)
 {
 	if (node == NULL)
 		return;
 
 	printTabs(tab);
 	/*printf("{ symbol: '%s', lexeme: '%s', isGlobal: %d }\n",
-		parserData->symbolType2symbolStr[node->sym_index], 
+		parserData->symbolType2symbolStr[node->sym_index],
 		node->token ? node->token->lexeme : "",
 		node->isGlobal);
 	*/
 
 	char symbol_string[50], lexeme_string[50];
 	symbol_string[0] = lexeme_string[0] = '\0';
-	char* isGlobal = (node->isGlobal ? ", is Global" : "");
+	char *isGlobal = (node->isGlobal ? ", is Global" : "");
 	snprintf(symbol_string, 50, "symbol : %s", parserData->symbolType2symbolStr[node->sym_index]);
-	if(node->token)
-		snprintf(lexeme_string,50,  ", lexeme : %s", node->token->lexeme);
+	if (node->token)
+		snprintf(lexeme_string, 50, ", lexeme : %s", node->token->lexeme);
 	printf("{ %s%s%s }\n", symbol_string, lexeme_string, isGlobal);
 
 	for (int i = 0; i < node->childCount; ++i)
@@ -898,16 +897,16 @@ ASTNode *createAST(TreeNode *input)
 {
 	assert(input != NULL);
 
-	ASTNode* node = performRecursion(input, NULL, NULL);
+	ASTNode *node = performRecursion(input, NULL, NULL);
 
 	logIt("========== Printing AST Structure ==========\n");
-	//printAST(node, 0);
+	// printAST(node, 0);
 	logIt("========== Printing AST Structure Done ==========\n");
 
 	return node;
 }
 
-void ASTDfs(ASTNode* node, int* numASTNodes, int* ASTSize)
+void ASTDfs(ASTNode *node, int *numASTNodes, int *ASTSize)
 {
 	if (!node)
 		return;

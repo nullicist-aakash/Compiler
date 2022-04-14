@@ -8,30 +8,6 @@
 #include "toposort.h"
 #include "logger.h"
 
-// typedef enum
-// {
-//     NAME_REDEFINED,
-//     NON_EXISTENT_TYPE,
-//     NAME_TYPE_MISMTACH,
-//     REDEFINED_ALIAS,
-//     UNDEFINED_TYPE,
-//     INVALID_TYPE,
-//     DUPLICATE_FIELD_NAME,
-// } ErrorType;
-//
-// typedef struct ErrorListNode
-// {
-//     ErrorType etype;
-//     ASTNode *errnode;
-//     struct ErrorListNode *next;
-// } ErrorListNode;
-//
-// typedef struct
-// {
-//     ErrorListNode *head;
-//     ErrorListNode *tail;
-// } ErrorList;
-
 Trie *globalSymbolTable; // Stores information about records and unions
 Trie *prefixTable;       // Stores the type of defined structure (record/union/typedef)
 
@@ -96,12 +72,12 @@ int firstPassErrorCheck(ASTNode *node)
     {
         if (trie_exists(prefixTable, node->children[0]->token->lexeme))
         {
-            // TODO Name redefined error
+            // TODO: Name redefined error
             return -1;
         }
     }
 
-    // TODO : Errors
+    // TODO: : Errors
     // 1.1 Type Name Redefined
     // 1.2.1 Non Existent type for Alias
     // 1.2.2 Alias type mismatch
@@ -113,7 +89,7 @@ int firstPassErrorCheck(ASTNode *node)
 
 int secondPassErrorCheck(ASTNode *node)
 {
-    // TODO : Errors
+    // TODO: : Errors
     /* For Functions
         1. Invalid argument type
         2. Repeated variable name
@@ -304,11 +280,10 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
     }
     else if (node->sym_index == 60 || node->sym_index == 58) // Function Type Parsed
     {
-        // Fill input argument 
-        
-        TypeLog* mediator = getMediator(globalSymbolTable, node->token->lexeme);
-        FuncEntry* entry = mediator->structure;
-        FuncEntry* entry = mediator->structure;
+        // Fill input argument
+
+        TypeLog *mediator = getMediator(globalSymbolTable, node->token->lexeme);
+        FuncEntry *entry = mediator->structure;
 
         ASTNode *arg = node->children[0];
         while (arg)
@@ -320,14 +295,14 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
                 entry->argTypes->tail->next = calloc(1, sizeof(TypeInfoListNode));
                 entry->argTypes->tail = entry->argTypes->tail->next;
             }
-            // TODO: Check error
+            // TODO:: Check error
             // Adding to function parameters
             entry->argTypes->tail->type = (arg->type->sibling ? getMediator(globalSymbolTable, arg->type->sibling->token->lexeme) : getMediator(globalSymbolTable, arg->type->token->lexeme));
             entry->argTypes->tail->type->refCount++;
             entry->argTypes->tail->name = arg->token->lexeme;
 
             // Adding to function symbol table
-            // TODO make this a function
+            // TODO: make this a function
             TypeLog *argMediator = getMediator(entry->symbolTable, arg->token->lexeme);
             argMediator->index = entry->identifierCount++;
             argMediator->refCount = 1;
@@ -357,7 +332,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
                 entry->retTypes->tail = entry->retTypes->tail->next;
             }
 
-            // TODO: Check error
+            // TODO:: Check error
             entry->retTypes->tail->type = (ret->type->sibling ? getMediator(globalSymbolTable, ret->type->sibling->token->lexeme) : getMediator(globalSymbolTable, ret->type->token->lexeme));
             entry->retTypes->tail->name = ret->token->lexeme;
 
@@ -374,7 +349,6 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             entry->isGlobal = 0;
             entry->usage = OUTPUT_PAR;
             entry->type = (ret->type->sibling ? getMediator(globalSymbolTable, ret->type->sibling->token->lexeme) : getMediator(globalSymbolTable, ret->type->token->lexeme));
-            strcpy(entry->retTypes->tail->name, ret->token->lexeme);
 
             ret = ret->sibling;
         }
@@ -403,7 +377,6 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
 
         entry->list = calloc(1, sizeof(TypeInfoList));
 
-
         structList[mediator->index] = mediator;
 
         while (field)
@@ -418,7 +391,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
 
             TypeInfoListNode *infoNode = entry->list->tail;
 
-            // TODO: Check error
+            // TODO:: Check error
             infoNode->type = getMediator(globalSymbolTable, field->type->token->lexeme);
             infoNode->type->refCount++;
             infoNode->name = field->token->lexeme;
@@ -436,35 +409,34 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         TypeLog *mediator = getMediator(table, node->token->lexeme);
         mediator->index = node->isGlobal ? identifierCount++ : local_func->identifierCount++;
         mediator->refCount = 1;
-        entry->name = node->token->lexeme;
-        entry->isGlobal = node->isGlobal;
-        entry->usage = LOCAL;
+        mediator->entryType = VARIABLE;
+        mediator->width = -1;
 
         mediator->structure = calloc(1, sizeof(VariableEntry));
         VariableEntry *entry = mediator->structure;
 
-        entry->name = calloc(node->token->length + 1, sizeof(char));
-        strcpy(entry->name, node->token->lexeme);
+        entry->name = node->token->lexeme;
+        entry->isGlobal = node->isGlobal;
+        entry->usage = LOCAL;
         entry->type = getMediator(globalSymbolTable, node->type->sibling == NULL ? node->type->token->lexeme : node->type->sibling->token->lexeme);
     }
 
     secondPass(node->sibling, adj, symTable);
 }
 
-        int isUnion = ((DerivedEntry *)(structList[actualIndex]->structure))->isUnion;
-        DerivedEntry *t = structList[actualIndex]->structure;
+void calculateWidth(int *sortedList, int index, int **adj)
+{
     int width = 0;
-            width = isUnion ? (width > adj[i][actualIndex] * structList[i]->width ? width : adj[i][actualIndex] * structList[i]->width) : (width + adj[i][actualIndex] * structList[i]->width);
+    int actualIndex = sortedList[index];
     if (structList[actualIndex]->entryType == DERIVED)
     {
-        DerivedEntry* t = structList[actualIndex]->structure;
-
+        int isUnion = ((DerivedEntry *)(structList[actualIndex]->structure))->isUnion;
+        DerivedEntry *t = structList[actualIndex]->structure;
         for (int i = 0; i < dataTypeCount; i++)
-            width += adj[i][actualIndex] * structList[i]->width;
+            width = isUnion ? (width > adj[i][actualIndex] * structList[i]->width ? width : adj[i][actualIndex] * structList[i]->width) : (width + adj[i][actualIndex] * structList[i]->width);
         structList[actualIndex]->width = width;
     }
 }
-
 void populateWidth(int **adj, int size)
 {
     int *sortedList = calloc(size, sizeof(int));
@@ -503,7 +475,7 @@ void loadSymbolTable(ASTNode *root)
 
     secondPass(root, adj, globalSymbolTable);
     populateWidth(adj, dataTypeCount);
-    //iterateTrie(globalSymbolTable, iterationFunction);
+    // iterateTrie(globalSymbolTable, iterationFunction);
 }
 
 void printTypeName(VariableEntry *entry)

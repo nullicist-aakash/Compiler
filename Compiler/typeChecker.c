@@ -9,18 +9,18 @@ int isTypeError = 0;
 
 int localOffset;
 int globalOffset = 0;
-Trie* localSymbolTable;
+Trie *localSymbolTable;
 
-void fillOffsets(ASTNode* vars)
+void fillOffsets(ASTNode *vars)
 {
     while (vars)
     {
-        TypeLog* mediator = trie_getRef(localSymbolTable, vars->token->lexeme)->entry.ptr;
+        TypeLog *mediator = trie_getRef(localSymbolTable, vars->token->lexeme)->entry.ptr;
 
         if (mediator == NULL)
             mediator = trie_getRef(globalSymbolTable, vars->token->lexeme)->entry.ptr;
 
-        VariableEntry* varEntry = mediator->structure;
+        VariableEntry *varEntry = mediator->structure;
 
         varEntry->isGlobal = vars->isGlobal;
         varEntry->offset = varEntry->isGlobal ? globalOffset : localOffset;
@@ -31,10 +31,10 @@ void fillOffsets(ASTNode* vars)
     }
 }
 
-void generateFuncOffsets(ASTNode* funcNode)
+void generateFuncOffsets(ASTNode *funcNode)
 {
-    TypeLog* mediator = trie_getRef(globalSymbolTable, funcNode->token->lexeme)->entry.ptr;
-    FuncEntry* funcEntry = mediator->structure;
+    TypeLog *mediator = trie_getRef(globalSymbolTable, funcNode->token->lexeme)->entry.ptr;
+    FuncEntry *funcEntry = mediator->structure;
     localSymbolTable = funcEntry->symbolTable;
     localOffset = 0;
 
@@ -44,10 +44,10 @@ void generateFuncOffsets(ASTNode* funcNode)
     fillOffsets(funcNode->children[2]->children[1]);
 }
 
-void calculateOffsets(ASTNode* ast)
+void calculateOffsets(ASTNode *ast)
 {
-    // TODO Encorporate this in typechecking (3rd pass)
-    ASTNode* func = ast->children[0] == NULL ? ast->children[1] : ast->children[0];
+    // TODO: Encorporate this in typechecking (3rd pass)
+    ASTNode *func = ast->children[0] == NULL ? ast->children[1] : ast->children[0];
     while (func)
     {
         generateFuncOffsets(func);
@@ -107,7 +107,7 @@ TypeLog *finalType(ASTNode *leftNode, ASTNode *rightNode, Token *opToken)
         if (left == right && (left == real || left == integer) && left != boolean && left != void_empty)
             return left;
 
-        // TODO
+        // TODO:
 
         return NULL;
     }
@@ -203,13 +203,13 @@ void assignTypes(ASTNode *node)
         // assignment --> <identifier> = <expression>
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
-        // TODO The type of an identifier of union data type is reported as an error.
+        // TODO: The type of an identifier of union data type is reported as an error.
         node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
     else if (node->sym_index == 86)
     {
         // function call statement
-        // TODO
+        // TODO:
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
 
@@ -252,12 +252,10 @@ void assignTypes(ASTNode *node)
                 mediator = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
 
             VariableEntry *entry = mediator->structure;
-
-            VariableEntry* entry = mediator->structure;
             temp->derived_type = entry->type;
             temp = temp->sibling;
         }
-        // TODO
+        // TODO:
     }
     else if (node->sym_index == 108)
     {
