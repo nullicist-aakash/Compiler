@@ -39,9 +39,9 @@ void clear_screen()
 #endif
 }
 
-void printLexerOutput(char *path)
+void printLexerOutput(char* path)
 {
-	FILE *fp = fopen(path, "r");
+	FILE* fp = fopen(path, "r");
 
 	if (!fp)
 	{
@@ -51,7 +51,7 @@ void printLexerOutput(char *path)
 
 	loadFile(fp);
 
-	Token *tk;
+	Token* tk;
 	while ((tk = getNextToken()) != NULL)
 	{
 		if (tk->type == TK_ERROR_LENGTH)
@@ -70,7 +70,7 @@ void printLexerOutput(char *path)
 	}
 }
 
-void main(int argc, char **argv)
+void main(int argc, char** argv)
 {
 	clear_screen();
 	loadLexer();
@@ -130,7 +130,7 @@ void main(int argc, char **argv)
 		if (option == 4)
 		{
 			start_time = clock();
-			TreeNode *node = parseInputSourceCode(argv[1]);
+			TreeNode* node = parseInputSourceCode(argv[1]);
 			end_time = clock();
 			double total_CPU_time = (double)(end_time - start_time);
 			printf("Total CPU Time Taken: %f\n", total_CPU_time);
@@ -141,7 +141,7 @@ void main(int argc, char **argv)
 
 		if (option == 1)
 		{
-			FILE *source = fopen(argv[1], "r");
+			FILE* source = fopen(argv[1], "r");
 
 			if (source == NULL)
 			{
@@ -157,17 +157,17 @@ void main(int argc, char **argv)
 			printLexerOutput(argv[1]);
 		else if (option == 3)
 		{
-			TreeNode *node = parseInputSourceCode(argv[1]);
+			TreeNode* node = parseInputSourceCode(argv[1]);
 
-			FILE *fptr = fopen(argv[2], "w");
+			FILE* fptr = fopen(argv[2], "w");
 			fprintf(fptr, "Group 8 Output File.\n%30s %10s %30s %15s %30s %10s %30s\n",
-					"Lexeme",
-					"LineNumber",
-					"TokenName",
-					"Value (if Num)",
-					"ParentSymbol",
-					"Is Leaf",
-					"NodeSymbol");
+				"Lexeme",
+				"LineNumber",
+				"TokenName",
+				"Value (if Num)",
+				"ParentSymbol",
+				"Is Leaf",
+				"NodeSymbol");
 
 			printParseTree(node, fptr);
 			fclose(fptr);
@@ -238,6 +238,14 @@ void main(int argc, char **argv)
 						logIt("\tRead %s\n", code->ins->dst.name);
 					else if (code->ins->op == OP_WRITE)
 						logIt("\tWrite %s\n", code->ins->dst.name);
+					else if (code->ins->op == OP_PUSH)
+						logIt("\tpush %s\n", code->ins->dst.name);
+					else if (code->ins->op == OP_POP)
+						logIt("\tpop %s\n", code->ins->dst.name);
+					else if (code->ins->op == OP_CALL)
+						logIt("\tcall %s\n", code->ins->dst.name);
+					else if (code->ins->op == OP_RET)
+						logIt("\tret\n");
 					else
 						assert(0);
 

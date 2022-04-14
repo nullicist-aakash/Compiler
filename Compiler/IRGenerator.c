@@ -105,7 +105,9 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 	}
 	else if (stmt->token->type == TK_ID)
 	{
-		payload->payload._arith.name = stmt->token->lexeme;
+		// copied because dot is also copied
+		payload->payload._arith.name = calloc(stmt->token->length + 1, sizeof(char));
+		strcpy(payload->payload._arith.name, stmt->token->lexeme);
 		payload->payload._arith.code = calloc(1, sizeof(IRInsList));
 	}
 	else if (stmt->token->type == TK_DOT)
@@ -125,7 +127,33 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 	}
 	else if (stmt->sym_index == 86) // funcCall
 	{
+		// output args
 		payload->payload._stmt.code = calloc(1, sizeof(IRInsList));
+
+		for (
+			ASTNode* out = stmt->children[0], *in = stmt->children[1]; 
+			out || in; 
+			(out) ? (out = out->sibling) : (in = in->sibling))
+		{
+			Payload p;
+			memset(&p, 0, sizeof(Payload));
+
+			p.payload_type = PAYLOAD_ARITH;
+			recurseiveGenFuncCode(out ? out : in, &p);
+
+			IRInstr* instr = calloc(1, sizeof(IRInstr));
+			instr->op = OP_PUSH;
+			instr->dst.name = p.payload._arith.name;
+
+			insert(payload->payload._stmt.code, instr);
+
+			free(p.payload._arith.code);
+		}
+
+		IRInstr* call_stmt = calloc(1, sizeof(IRInstr));
+		call_stmt->op = OP_CALL;
+		call_stmt->dst.name = stmt->token->lexeme;
+		insert(payload->payload._stmt.code, call_stmt);
 	}
 	else if (stmt->sym_index == 89) // while -> B S
 	{
@@ -492,5 +520,11 @@ IRInsList* generateFuncCode(ASTNode* funcNode)
 	p.payload_type = PAYLOAD_STMT;
 	p.payload._stmt.label_next.label_no = getNextLabel();
 	recurseiveGenFuncCode(funcNode->children[2]->children[2], &p);
+
+	IRInstr* ret = calloc(1, sizeof(IRInstr));
+	ret->op = OP_RET;
+
+	insert(p.payload._stmt.code, ret);
+
 	return p.payload._stmt.code;
 }
