@@ -11,6 +11,16 @@ typedef enum
     VARIABLE
 } TypeTag;
 
+// Acts as an intermediate, which helps for type definitions
+typedef struct TypeLog
+{
+    int refCount;
+    int index;
+    TypeTag entryType;
+    int width;       // Memory to allocate to variable of this type
+    void* structure; // Pointer to type information
+} TypeLog;
+
 typedef enum
 {
     LOCAL,
@@ -19,15 +29,7 @@ typedef enum
     //GLOBAL
 }VariableUsage;
 
-// Acts as an intermediate, which helps for type definitions
-typedef struct TypeLog
-{
-    int refCount;
-    int index;
-    TypeTag entryType;
-    int width;       // Memory to allocate to variable of this type
-    void *structure; // Pointer to type information
-} TypeLog;
+
 
 typedef struct VariableEntry
 {
