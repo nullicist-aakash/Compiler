@@ -99,7 +99,7 @@ int secondPassErrorCheck(ASTNode *node)
 
 FuncEntry *local_func;
 
-void iterationFunction(TrieEntry *entry)
+void iterationFunction(char* key, TrieEntry *entry)
 {
     TypeLog *typelog = entry->ptr;
 
@@ -536,7 +536,7 @@ void printVariableUsage(VariableEntry *entry)
     printf("\n");
 }
 
-void printGlobalSymbolTable(TrieEntry *entry)
+void printGlobalSymbolTable(char* key, TrieEntry *entry)
 {
     TypeLog *typelog = entry->ptr;
     if (typelog->entryType == VARIABLE)
@@ -565,7 +565,7 @@ void printGlobalSymbolTable(TrieEntry *entry)
         return;
 }
 
-void printLocalTable(TrieEntry *entry)
+void printLocalTable(char* key, TrieEntry *entry)
 {
     TypeLog *typelog = entry->ptr;
     if (typelog->entryType == VARIABLE)
@@ -594,7 +594,7 @@ void printLocalTable(TrieEntry *entry)
         return;
 }
 
-void printFunctionSymbolTables(TrieEntry *entry)
+void printFunctionSymbolTables(char* key, TrieEntry *entry)
 {
     TypeLog *typelog = entry->ptr;
     if (typelog->entryType == FUNCTION)
@@ -606,7 +606,7 @@ void printFunctionSymbolTables(TrieEntry *entry)
         return;
 }
 
-void printFunctionActivationRecordSize(TrieEntry* entry)
+void printFunctionActivationRecordSize(char* key, TrieEntry* entry)
 {
     TypeLog* typelog = entry->ptr;
     if (typelog->entryType == FUNCTION)
@@ -618,13 +618,13 @@ void printFunctionActivationRecordSize(TrieEntry* entry)
         return;
 }
 
-void printRecordDetails(TrieEntry* entry)
+void printRecordDetails(char* key, TrieEntry* entry)
 {
     TypeLog* typelog = entry->ptr;
     if (typelog->entryType == DERIVED)
     {
         DerivedEntry* de = typelog->structure;
-        printf("%s - ", de->name);
+        printf("%s - ", key);
         printf("<");
         TypeInfoListNode* cur = de->list->head;
 

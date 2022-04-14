@@ -2,7 +2,7 @@
 #pragma once
 
 void loadSymbolTable(ASTNode *);
-void printGlobalSymbolTable(TrieEntry *);
-void printFunctionSymbolTables(TrieEntry*);
-void printFunctionActivationRecordSize(TrieEntry*);
-void printRecordDetails(TrieEntry*);
+void printGlobalSymbolTable(char*, TrieEntry *);
+void printFunctionSymbolTables(char*, TrieEntry*);
+void printFunctionActivationRecordSize(char*, TrieEntry*);
+void printRecordDetails(char*, TrieEntry*);
