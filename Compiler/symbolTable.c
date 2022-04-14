@@ -624,7 +624,8 @@ void printRecordDetails(TrieEntry* entry)
     if (typelog->entryType == DERIVED)
     {
         DerivedEntry* de = typelog->structure;
-        printf("%s - ", de->name); printf("<");
+        printf("%s - ", de->name);
+        printf("<");
         TypeInfoListNode* cur = de->list->head;
 
         printTypeExpression(cur->type);
@@ -636,7 +637,7 @@ void printRecordDetails(TrieEntry* entry)
 
             cur = cur->next;
         }
-        printf(">\n");
+        printf("> %d\n", typelog->width);
     }
     else
         return;
