@@ -253,6 +253,7 @@ void assignTypes(ASTNode *node)
 
             VariableEntry *entry = mediator->structure;
 
+            VariableEntry* entry = mediator->structure;
             temp->derived_type = entry->type;
             temp = temp->sibling;
         }

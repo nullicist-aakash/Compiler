@@ -1,0 +1,673 @@
+Parse Tree ==========
+File open success: testcase4.txt
+Input source code is syntactically correct.
+                          ----         -1                           ----            -nan                           ROOT         no                        program
+                          ----         -1                           ----       -nan(ind)                        program         no                 otherFunctions
+                          ----         -1                           ----       -nan(ind)                 otherFunctions         no                       function
+         _computeFunctionValue          6                       TK_FUNID       -nan(ind)                       function        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       function         no                      input_par
+                         input          6                       TK_INPUT       -nan(ind)                      input_par        yes                           ----
+                     parameter          6                   TK_PARAMETER       -nan(ind)                      input_par        yes                           ----
+                          list          6                        TK_LIST       -nan(ind)                      input_par        yes                           ----
+                             [          6                         TK_SQL       -nan(ind)                      input_par        yes                           ----
+                          ----         -1                           ----       -nan(ind)                      input_par         no                 parameter_list
+                          ----         -1                           ----       -nan(ind)                 parameter_list         no                       dataType
+                          ----         -1                           ----       -nan(ind)                       dataType         no              primitiveDatatype
+                           int          6                         TK_INT       -nan(ind)              primitiveDatatype        yes                           ----
+                            c3          6                          TK_ID       -nan(ind)                 parameter_list        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 parameter_list         no                 remaining_list
+                             ,          6                       TK_COMMA       -nan(ind)                 remaining_list        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 remaining_list         no                 parameter_list
+                          ----         -1                           ----       -nan(ind)                 parameter_list         no                       dataType
+                          ----         -1                           ----       -nan(ind)                       dataType         no              primitiveDatatype
+                           int          6                         TK_INT       -nan(ind)              primitiveDatatype        yes                           ----
+                            c4          6                          TK_ID       -nan(ind)                 parameter_list        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 parameter_list         no                 remaining_list
+                             ,          6                       TK_COMMA       -nan(ind)                 remaining_list        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 remaining_list         no                 parameter_list
+                          ----         -1                           ----       -nan(ind)                 parameter_list         no                       dataType
+                          ----         -1                           ----       -nan(ind)                       dataType         no              primitiveDatatype
+                           int          6                         TK_INT       -nan(ind)              primitiveDatatype        yes                           ----
+                            c5          6                          TK_ID       -nan(ind)                 parameter_list        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 parameter_list         no                 remaining_list
+                             ]          6                         TK_SQR       -nan(ind)                      input_par        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       function         no                     output_par
+                        output          7                      TK_OUTPUT       -nan(ind)                     output_par        yes                           ----
+                     parameter          7                   TK_PARAMETER       -nan(ind)                     output_par        yes                           ----
+                          list          7                        TK_LIST       -nan(ind)                     output_par        yes                           ----
+                             [          7                         TK_SQL       -nan(ind)                     output_par        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     output_par         no                 parameter_list
+                          ----         -1                           ----       -nan(ind)                 parameter_list         no                       dataType
+                          ----         -1                           ----       -nan(ind)                       dataType         no              primitiveDatatype
+                          real          7                        TK_REAL       -nan(ind)              primitiveDatatype        yes                           ----
+                            c6          7                          TK_ID       -nan(ind)                 parameter_list        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 parameter_list         no                 remaining_list
+                             ]          7                         TK_SQR       -nan(ind)                     output_par        yes                           ----
+                             ;          7                         TK_SEM       -nan(ind)                       function        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       function         no                          stmts
+                          ----         -1                           ----       -nan(ind)                          stmts         no                typeDefinitions
+                          ----         -1                           ----       -nan(ind)                          stmts         no                   declarations
+                          ----         -1                           ----       -nan(ind)                   declarations         no                    declaration
+                          type          8                        TK_TYPE       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                       dataType
+                          ----         -1                           ----       -nan(ind)                       dataType         no              primitiveDatatype
+                          real          8                        TK_REAL       -nan(ind)              primitiveDatatype        yes                           ----
+                             :          8                       TK_COLON       -nan(ind)                    declaration        yes                           ----
+                    d4cbcd5677          8                          TK_ID       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                  global_or_not
+                             ;          8                         TK_SEM       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                   declarations         no                   declarations
+                          ----         -1                           ----       -nan(ind)                   declarations         no                    declaration
+                          type          9                        TK_TYPE       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                       dataType
+                          ----         -1                           ----       -nan(ind)                       dataType         no              primitiveDatatype
+                          real          9                        TK_REAL       -nan(ind)              primitiveDatatype        yes                           ----
+                             :          9                       TK_COLON       -nan(ind)                    declaration        yes                           ----
+                         c4bbb          9                          TK_ID       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                  global_or_not
+                             ;          9                         TK_SEM       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                   declarations         no                   declarations
+                          ----         -1                           ----       -nan(ind)                          stmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                 assignmentStmt
+                          ----         -1                           ----       -nan(ind)                 assignmentStmt         no                  singleOrRecId
+                            c6         10                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          <---         10                    TK_ASSIGNOP       -nan(ind)                 assignmentStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 assignmentStmt         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                       5000.79         10                        TK_RNUM     5000.790000                            var        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                             ;         10                         TK_SEM       -nan(ind)                 assignmentStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                 assignmentStmt
+                          ----         -1                           ----       -nan(ind)                 assignmentStmt         no                  singleOrRecId
+                    d4cbcd5677         11                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          <---         11                    TK_ASSIGNOP       -nan(ind)                 assignmentStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 assignmentStmt         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                             (         11                          TK_OP       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         factor         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                             (         11                          TK_OP       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         factor         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                            c3         11                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no         lowPrecedenceOperators
+                             +         11                        TK_PLUS       -nan(ind)         lowPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                             2         11                         TK_NUM        2.000000                            var        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                      termPrime         no        highPrecedenceOperators
+                             *         11                         TK_MUL       -nan(ind)        highPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                            c4         11                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                       expPrime
+                             )         11                          TK_CL       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no         lowPrecedenceOperators
+                             -         11                       TK_MINUS       -nan(ind)         lowPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                             (         11                          TK_OP       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         factor         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                            c5         11                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no         lowPrecedenceOperators
+                             -         11                       TK_MINUS       -nan(ind)         lowPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                             5         11                         TK_NUM        5.000000                            var        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                       expPrime
+                             )         11                          TK_CL       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                       expPrime
+                             )         11                          TK_CL       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                      termPrime         no        highPrecedenceOperators
+                             /         11                         TK_DIV       -nan(ind)        highPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                             4         11                         TK_NUM        4.000000                            var        yes                           ----
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                             ;         11                         TK_SEM       -nan(ind)                 assignmentStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                 assignmentStmt
+                          ----         -1                           ----       -nan(ind)                 assignmentStmt         no                  singleOrRecId
+                         c4bbb         12                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          <---         12                    TK_ASSIGNOP       -nan(ind)                 assignmentStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 assignmentStmt         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                             (         12                          TK_OP       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         factor         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                             (         12                          TK_OP       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         factor         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                    d4cbcd5677         12                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no         lowPrecedenceOperators
+                             -         12                       TK_MINUS       -nan(ind)         lowPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                          2.35         12                        TK_RNUM        2.350000                            var        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                       expPrime
+                             )         12                          TK_CL       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                      termPrime         no        highPrecedenceOperators
+                             *         12                         TK_MUL       -nan(ind)        highPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                         factor
+                             (         12                          TK_OP       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         factor         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                          2345         12                         TK_NUM     2345.000000                            var        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no         lowPrecedenceOperators
+                             -         12                       TK_MINUS       -nan(ind)         lowPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                           234         12                         TK_NUM      234.000000                            var        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                      termPrime         no        highPrecedenceOperators
+                             *         12                         TK_MUL       -nan(ind)        highPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                             8         12                         TK_NUM        8.000000                            var        yes                           ----
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                       expPrime
+                             )         12                          TK_CL       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                             )         12                          TK_CL       -nan(ind)                         factor        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no         lowPrecedenceOperators
+                             +         12                        TK_PLUS       -nan(ind)         lowPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                             5         12                         TK_NUM        5.000000                            var        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                      termPrime         no        highPrecedenceOperators
+                             *         12                         TK_MUL       -nan(ind)        highPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                            c3         12                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                       expPrime         no                       expPrime
+                             ;         12                         TK_SEM       -nan(ind)                 assignmentStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                conditionalStmt
+                            if         13                          TK_IF       -nan(ind)                conditionalStmt        yes                           ----
+                             (         13                          TK_OP       -nan(ind)                conditionalStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                conditionalStmt         no              booleanExpression
+                             (         13                          TK_OP       -nan(ind)              booleanExpression        yes                           ----
+                          ----         -1                           ----       -nan(ind)              booleanExpression         no              booleanExpression
+                             ~         13                         TK_NOT       -nan(ind)              booleanExpression        yes                           ----
+                             (         13                          TK_OP       -nan(ind)              booleanExpression        yes                           ----
+                          ----         -1                           ----       -nan(ind)              booleanExpression         no              booleanExpression
+                          ----         -1                           ----       -nan(ind)              booleanExpression         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                         c4bbb         13                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan(ind)              booleanExpression         no                   relationalOp
+                            ==         13                          TK_EQ       -nan(ind)                   relationalOp        yes                           ----
+                          ----         -1                           ----       -nan(ind)              booleanExpression         no                            var
+                             0         13                         TK_NUM        0.000000                            var        yes                           ----
+                             )         13                          TK_CL       -nan(ind)              booleanExpression        yes                           ----
+                             )         13                          TK_CL       -nan(ind)              booleanExpression        yes                           ----
+                          ----         -1                           ----       -nan(ind)              booleanExpression         no                      logicalOp
+                           &&&         13                         TK_AND       -nan(ind)                      logicalOp        yes                           ----
+                             (         13                          TK_OP       -nan(ind)              booleanExpression        yes                           ----
+                          ----         -1                           ----       -nan(ind)              booleanExpression         no              booleanExpression
+                          ----         -1                           ----       -nan(ind)              booleanExpression         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                         c4bbb         13                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan(ind)              booleanExpression         no                   relationalOp
+                             >         13                          TK_GT       -nan(ind)                   relationalOp        yes                           ----
+                          ----         -1                           ----       -nan(ind)              booleanExpression         no                            var
+                         78.56         13                        TK_RNUM       78.560000                            var        yes                           ----
+                             )         13                          TK_CL       -nan(ind)              booleanExpression        yes                           ----
+                             )         13                          TK_CL       -nan(ind)                conditionalStmt        yes                           ----
+                          then         14                        TK_THEN       -nan(ind)                conditionalStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                conditionalStmt         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                 assignmentStmt
+                          ----         -1                           ----       -nan(ind)                 assignmentStmt         no                  singleOrRecId
+                            c6         15                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          <---         15                    TK_ASSIGNOP       -nan(ind)                 assignmentStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 assignmentStmt         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                    d4cbcd5677         15                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)                      termPrime         no        highPrecedenceOperators
+                             /         15                         TK_DIV       -nan(ind)        highPrecedenceOperators        yes                           ----
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                         c4bbb         15                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          ----         -1                           ----       -nan(ind)                      termPrime         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                             ;         15                         TK_SEM       -nan(ind)                 assignmentStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                conditionalStmt         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                conditionalStmt         no                       elsePart
+                          else         16                        TK_ELSE       -nan(ind)                       elsePart        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       elsePart         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                         ioStmt
+                         write         17                       TK_WRITE       -nan(ind)                         ioStmt        yes                           ----
+                             (         17                          TK_OP       -nan(ind)                         ioStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         ioStmt         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                         c4bbb         17                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                             )         17                          TK_CL       -nan(ind)                         ioStmt        yes                           ----
+                             ;         17                         TK_SEM       -nan(ind)                         ioStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       elsePart         no                     otherStmts
+                         endif         18                       TK_ENDIF       -nan(ind)                       elsePart        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                          stmts         no                     returnStmt
+                        return         20                      TK_RETURN       -nan(ind)                     returnStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     returnStmt         no                 optionalReturn
+                             [         20                         TK_SQL       -nan(ind)                 optionalReturn        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 optionalReturn         no                         idList
+                            c6         20                          TK_ID       -nan(ind)                         idList        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         idList         no                       more_ids
+                             ]         20                         TK_SQR       -nan(ind)                 optionalReturn        yes                           ----
+                             ;         20                         TK_SEM       -nan(ind)                     returnStmt        yes                           ----
+                           end         21                         TK_END       -nan(ind)                       function        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 otherFunctions         no                 otherFunctions
+                          ----         -1                           ----       -nan(ind)                        program         no                   mainFunction
+                         _main         25                        TK_MAIN       -nan(ind)                   mainFunction        yes                           ----
+                          ----         -1                           ----       -nan(ind)                   mainFunction         no                          stmts
+                          ----         -1                           ----       -nan(ind)                          stmts         no                typeDefinitions
+                          ----         -1                           ----       -nan(ind)                          stmts         no                   declarations
+                          ----         -1                           ----       -nan(ind)                   declarations         no                    declaration
+                          type         26                        TK_TYPE       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                       dataType
+                          ----         -1                           ----       -nan(ind)                       dataType         no              primitiveDatatype
+                           int         26                         TK_INT       -nan(ind)              primitiveDatatype        yes                           ----
+                             :         26                       TK_COLON       -nan(ind)                    declaration        yes                           ----
+                            b5         26                          TK_ID       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                  global_or_not
+                             ;         26                         TK_SEM       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                   declarations         no                   declarations
+                          ----         -1                           ----       -nan(ind)                   declarations         no                    declaration
+                          type         27                        TK_TYPE       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                       dataType
+                          ----         -1                           ----       -nan(ind)                       dataType         no              primitiveDatatype
+                           int         27                         TK_INT       -nan(ind)              primitiveDatatype        yes                           ----
+                             :         27                       TK_COLON       -nan(ind)                    declaration        yes                           ----
+                     d5cb34567         27                          TK_ID       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                  global_or_not
+                             ;         27                         TK_SEM       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                   declarations         no                   declarations
+                          ----         -1                           ----       -nan(ind)                   declarations         no                    declaration
+                          type         28                        TK_TYPE       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                       dataType
+                          ----         -1                           ----       -nan(ind)                       dataType         no              primitiveDatatype
+                           int         28                         TK_INT       -nan(ind)              primitiveDatatype        yes                           ----
+                             :         28                       TK_COLON       -nan(ind)                    declaration        yes                           ----
+                        b3b444         28                          TK_ID       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                  global_or_not
+                             :         28                       TK_COLON       -nan(ind)                  global_or_not        yes                           ----
+                        global         28                      TK_GLOBAL       -nan(ind)                  global_or_not        yes                           ----
+                             ;         28                         TK_SEM       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                   declarations         no                   declarations
+                          ----         -1                           ----       -nan(ind)                   declarations         no                    declaration
+                          type         29                        TK_TYPE       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                       dataType
+                          ----         -1                           ----       -nan(ind)                       dataType         no              primitiveDatatype
+                          real         29                        TK_REAL       -nan(ind)              primitiveDatatype        yes                           ----
+                             :         29                       TK_COLON       -nan(ind)                    declaration        yes                           ----
+                            c3         29                          TK_ID       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    declaration         no                  global_or_not
+                             ;         29                         TK_SEM       -nan(ind)                    declaration        yes                           ----
+                          ----         -1                           ----       -nan(ind)                   declarations         no                   declarations
+                          ----         -1                           ----       -nan(ind)                          stmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                 assignmentStmt
+                          ----         -1                           ----       -nan(ind)                 assignmentStmt         no                  singleOrRecId
+                            b5         30                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                          <---         30                    TK_ASSIGNOP       -nan(ind)                 assignmentStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                 assignmentStmt         no           arithmeticExpression
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                           term
+                          ----         -1                           ----       -nan(ind)                           term         no                         factor
+                          ----         -1                           ----       -nan(ind)                         factor         no                            var
+                             1         30                         TK_NUM        1.000000                            var        yes                           ----
+                          ----         -1                           ----       -nan(ind)                           term         no                      termPrime
+                          ----         -1                           ----       -nan(ind)           arithmeticExpression         no                       expPrime
+                             ;         30                         TK_SEM       -nan(ind)                 assignmentStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                         ioStmt
+                          read         31                        TK_READ       -nan(ind)                         ioStmt        yes                           ----
+                             (         31                          TK_OP       -nan(ind)                         ioStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         ioStmt         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                     d5cb34567         31                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                             )         31                          TK_CL       -nan(ind)                         ioStmt        yes                           ----
+                             ;         31                         TK_SEM       -nan(ind)                         ioStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                         ioStmt
+                          read         32                        TK_READ       -nan(ind)                         ioStmt        yes                           ----
+                             (         32                          TK_OP       -nan(ind)                         ioStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         ioStmt         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                        b3b444         32                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                             )         32                          TK_CL       -nan(ind)                         ioStmt        yes                           ----
+                             ;         32                         TK_SEM       -nan(ind)                         ioStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                    funCallStmt
+                          ----         -1                           ----       -nan(ind)                    funCallStmt         no               outputParameters
+                             [         34                         TK_SQL       -nan(ind)               outputParameters        yes                           ----
+                          ----         -1                           ----       -nan(ind)               outputParameters         no                         idList
+                            c3         34                          TK_ID       -nan(ind)                         idList        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         idList         no                       more_ids
+                             ]         34                         TK_SQR       -nan(ind)               outputParameters        yes                           ----
+                          <---         34                    TK_ASSIGNOP       -nan(ind)               outputParameters        yes                           ----
+                          call         34                        TK_CALL       -nan(ind)                    funCallStmt        yes                           ----
+         _computeFunctionValue         34                       TK_FUNID       -nan(ind)                    funCallStmt        yes                           ----
+                          with         34                        TK_WITH       -nan(ind)                    funCallStmt        yes                           ----
+                    parameters         34                  TK_PARAMETERS       -nan(ind)                    funCallStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                    funCallStmt         no                inputParameters
+                             [         34                         TK_SQL       -nan(ind)                inputParameters        yes                           ----
+                          ----         -1                           ----       -nan(ind)                inputParameters         no                         idList
+                            b5         34                          TK_ID       -nan(ind)                         idList        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         idList         no                       more_ids
+                             ,         34                       TK_COMMA       -nan(ind)                       more_ids        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       more_ids         no                         idList
+                     d5cb34567         34                          TK_ID       -nan(ind)                         idList        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         idList         no                       more_ids
+                             ,         34                       TK_COMMA       -nan(ind)                       more_ids        yes                           ----
+                          ----         -1                           ----       -nan(ind)                       more_ids         no                         idList
+                        b3b444         34                          TK_ID       -nan(ind)                         idList        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         idList         no                       more_ids
+                             ]         34                         TK_SQR       -nan(ind)                inputParameters        yes                           ----
+                             ;         34                         TK_SEM       -nan(ind)                    funCallStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                           stmt
+                          ----         -1                           ----       -nan(ind)                           stmt         no                         ioStmt
+                         write         35                       TK_WRITE       -nan(ind)                         ioStmt        yes                           ----
+                             (         35                          TK_OP       -nan(ind)                         ioStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                         ioStmt         no                            var
+                          ----         -1                           ----       -nan(ind)                            var         no                  singleOrRecId
+                            c3         35                          TK_ID       -nan(ind)                  singleOrRecId        yes                           ----
+                          ----         -1                           ----       -nan(ind)                  singleOrRecId         no      option_single_constructed
+                             )         35                          TK_CL       -nan(ind)                         ioStmt        yes                           ----
+                             ;         35                         TK_SEM       -nan(ind)                         ioStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     otherStmts         no                     otherStmts
+                          ----         -1                           ----       -nan(ind)                          stmts         no                     returnStmt
+                        return         36                      TK_RETURN       -nan(ind)                     returnStmt        yes                           ----
+                          ----         -1                           ----       -nan(ind)                     returnStmt         no                 optionalReturn
+                             ;         36                         TK_SEM       -nan(ind)                     returnStmt        yes                           ----
+                           end         37                         TK_END       -nan(ind)                   mainFunction        yes                           ----
+Parse Tree Completed ==========
+AST Started ==========
+========== Printing AST Structure ==========
+{ symbol: 'program', lexeme: '', isGlobal: 0 }
+	{ symbol: 'function', lexeme: '_computeFunctionValue', isGlobal: 0 }
+		{ symbol: 'parameter_list', lexeme: 'c3', isGlobal: 0 }
+		{ symbol: 'parameter_list', lexeme: 'c4', isGlobal: 0 }
+		{ symbol: 'parameter_list', lexeme: 'c5', isGlobal: 0 }
+		{ symbol: 'parameter_list', lexeme: 'c6', isGlobal: 0 }
+		{ symbol: 'stmts', lexeme: '', isGlobal: 0 }
+			{ symbol: 'declaration', lexeme: 'd4cbcd5677', isGlobal: 0 }
+			{ symbol: 'declaration', lexeme: 'c4bbb', isGlobal: 0 }
+			{ symbol: 'assignmentStmt', lexeme: '<---', isGlobal: 0 }
+				{ symbol: 'TK_ID', lexeme: 'c6', isGlobal: 0 }
+				{ symbol: 'TK_RNUM', lexeme: '5000.79', isGlobal: 0 }
+			{ symbol: 'assignmentStmt', lexeme: '<---', isGlobal: 0 }
+				{ symbol: 'TK_ID', lexeme: 'd4cbcd5677', isGlobal: 0 }
+				{ symbol: 'TK_DIV', lexeme: '/', isGlobal: 0 }
+					{ symbol: 'TK_MINUS', lexeme: '-', isGlobal: 0 }
+						{ symbol: 'TK_PLUS', lexeme: '+', isGlobal: 0 }
+							{ symbol: 'TK_ID', lexeme: 'c3', isGlobal: 0 }
+							{ symbol: 'TK_MUL', lexeme: '*', isGlobal: 0 }
+								{ symbol: 'TK_NUM', lexeme: '2', isGlobal: 0 }
+								{ symbol: 'TK_ID', lexeme: 'c4', isGlobal: 0 }
+						{ symbol: 'TK_MINUS', lexeme: '-', isGlobal: 0 }
+							{ symbol: 'TK_ID', lexeme: 'c5', isGlobal: 0 }
+							{ symbol: 'TK_NUM', lexeme: '5', isGlobal: 0 }
+					{ symbol: 'TK_NUM', lexeme: '4', isGlobal: 0 }
+			{ symbol: 'assignmentStmt', lexeme: '<---', isGlobal: 0 }
+				{ symbol: 'TK_ID', lexeme: 'c4bbb', isGlobal: 0 }
+				{ symbol: 'TK_PLUS', lexeme: '+', isGlobal: 0 }
+					{ symbol: 'TK_MUL', lexeme: '*', isGlobal: 0 }
+						{ symbol: 'TK_MINUS', lexeme: '-', isGlobal: 0 }
+							{ symbol: 'TK_ID', lexeme: 'd4cbcd5677', isGlobal: 0 }
+							{ symbol: 'TK_RNUM', lexeme: '2.35', isGlobal: 0 }
+						{ symbol: 'TK_MINUS', lexeme: '-', isGlobal: 0 }
+							{ symbol: 'TK_NUM', lexeme: '2345', isGlobal: 0 }
+							{ symbol: 'TK_MUL', lexeme: '*', isGlobal: 0 }
+								{ symbol: 'TK_NUM', lexeme: '234', isGlobal: 0 }
+								{ symbol: 'TK_NUM', lexeme: '8', isGlobal: 0 }
+					{ symbol: 'TK_MUL', lexeme: '*', isGlobal: 0 }
+						{ symbol: 'TK_NUM', lexeme: '5', isGlobal: 0 }
+						{ symbol: 'TK_ID', lexeme: 'c3', isGlobal: 0 }
+			{ symbol: 'conditionalStmt', lexeme: 'if', isGlobal: 0 }
+				{ symbol: 'TK_AND', lexeme: '&&&', isGlobal: 0 }
+					{ symbol: 'TK_NOT', lexeme: '~', isGlobal: 0 }
+						{ symbol: 'TK_EQ', lexeme: '==', isGlobal: 0 }
+							{ symbol: 'TK_ID', lexeme: 'c4bbb', isGlobal: 0 }
+							{ symbol: 'TK_NUM', lexeme: '0', isGlobal: 0 }
+					{ symbol: 'TK_GT', lexeme: '>', isGlobal: 0 }
+						{ symbol: 'TK_ID', lexeme: 'c4bbb', isGlobal: 0 }
+						{ symbol: 'TK_RNUM', lexeme: '78.56', isGlobal: 0 }
+				{ symbol: 'assignmentStmt', lexeme: '<---', isGlobal: 0 }
+					{ symbol: 'TK_ID', lexeme: 'c6', isGlobal: 0 }
+					{ symbol: 'TK_DIV', lexeme: '/', isGlobal: 0 }
+						{ symbol: 'TK_ID', lexeme: 'd4cbcd5677', isGlobal: 0 }
+						{ symbol: 'TK_ID', lexeme: 'c4bbb', isGlobal: 0 }
+				{ symbol: 'ioStmt', lexeme: 'write', isGlobal: 0 }
+					{ symbol: 'TK_ID', lexeme: 'c4bbb', isGlobal: 0 }
+			{ symbol: 'idList', lexeme: 'c6', isGlobal: 0 }
+	{ symbol: 'mainFunction', lexeme: '_main', isGlobal: 0 }
+		{ symbol: 'stmts', lexeme: '', isGlobal: 0 }
+			{ symbol: 'declaration', lexeme: 'b5', isGlobal: 0 }
+			{ symbol: 'declaration', lexeme: 'd5cb34567', isGlobal: 0 }
+			{ symbol: 'declaration', lexeme: 'b3b444', isGlobal: 1 }
+			{ symbol: 'declaration', lexeme: 'c3', isGlobal: 0 }
+			{ symbol: 'assignmentStmt', lexeme: '<---', isGlobal: 0 }
+				{ symbol: 'TK_ID', lexeme: 'b5', isGlobal: 0 }
+				{ symbol: 'TK_NUM', lexeme: '1', isGlobal: 0 }
+			{ symbol: 'ioStmt', lexeme: 'read', isGlobal: 0 }
+				{ symbol: 'TK_ID', lexeme: 'd5cb34567', isGlobal: 0 }
+			{ symbol: 'ioStmt', lexeme: 'read', isGlobal: 0 }
+				{ symbol: 'TK_ID', lexeme: 'b3b444', isGlobal: 0 }
+			{ symbol: 'funCallStmt', lexeme: '_computeFunctionValue', isGlobal: 0 }
+				{ symbol: 'idList', lexeme: 'c3', isGlobal: 0 }
+				{ symbol: 'idList', lexeme: 'b5', isGlobal: 0 }
+				{ symbol: 'idList', lexeme: 'd5cb34567', isGlobal: 0 }
+				{ symbol: 'idList', lexeme: 'b3b444', isGlobal: 0 }
+			{ symbol: 'ioStmt', lexeme: 'write', isGlobal: 0 }
+				{ symbol: 'TK_ID', lexeme: 'c3', isGlobal: 0 }
+========== Printing AST Structure Done ==========
+AST Completed ==========
+Symbol Table Started ==========
+========== Performing first pass ==========
+========== First pass done ==========
+========== Printing result of first pass ==========
+int
+real
+Function Name: _computeFunctionValue and is stored at address 00001299FAC27790
+	input: 
+	output: 
+	refCount = 1, index: 0, width: -1
+
+Done with function
+Function Name: _main and is stored at address 00001299FAC277D0
+	input: 
+	output: 
+	refCount = 1, index: 1, width: -1
+
+Done with function
+bool
+void
+========== Printing result of first pass done ==========
+========== Performing second pass ==========
+========== Second pass done ==========
+========== Printing result of second pass ==========
+variable b3b444 is of type int and is stored at address 00001297FAC25590
+	refCount = 1, index: 2, width: 8
+
+int
+real
+Function Name: _computeFunctionValue and is stored at address 00001299FAC27790
+	input:  { c3: int } at 0000000000000000 { c4: int } at 0000000000000000 { c5: int } at 0000000000000000
+	output: { c6: real } at 02FFFFFF00000002
+	refCount = 1, index: 0, width: -1
+
+variable c3 is of type int and is stored at address 00001297FAC25290
+	refCount = 1, index: 0, width: 8
+
+variable c4 is of type int and is stored at address 00001297FAC252F0
+	refCount = 1, index: 1, width: 8
+
+variable c4bbb is of type real and is stored at address 00001297FAC25470
+	refCount = 1, index: 5, width: 8
+
+variable c5 is of type int and is stored at address 00001297FAC25350
+	refCount = 1, index: 2, width: 8
+
+variable c6 is of type real and is stored at address 00001297FAC253B0
+	refCount = 1, index: 3, width: 8
+
+variable d4cbcd5677 is of type real and is stored at address 00001297FAC25410
+	refCount = 1, index: 4, width: 8
+
+Done with function
+Function Name: _main and is stored at address 00001299FAC277D0
+	input: 
+	output: 
+	refCount = 1, index: 1, width: -1
+
+variable b5 is of type int and is stored at address 00001297FAC254D0
+	refCount = 1, index: 0, width: 8
+
+variable c3 is of type real and is stored at address 00001297FAC255F0
+	refCount = 1, index: 2, width: 8
+
+variable d5cb34567 is of type int and is stored at address 00001297FAC25530
+	refCount = 1, index: 1, width: 8
+
+Done with function
+bool
+void
+========== Printing result of second pass done ==========
+Symbol Table Completed ==========
+Type Checking Started ==========
+Assignment with incompatible types at line no. 10 
+Operation c3 + * with incompatible types at line no. 11 
+Operation c5 - 5 with incompatible types at line no. 11 
+Operation + - - with incompatible types at line no. 11 
+Assignment with incompatible types at line no. 11 
+Operation d4cbcd5677 - 2.35 with incompatible types at line no. 12 
+Operation 2345 - * with incompatible types at line no. 12 
+Operation * + * with incompatible types at line no. 12 
+Assignment with incompatible types at line no. 12 
+Operation c4bbb == 0 with incompatible types at line no. 13 
+Operation == ~ with incompatible types at line no. 13 
+Operation c4bbb > 78.56 with incompatible types at line no. 13 
+Operation ~ &&& > with incompatible types at line no. 13 
+Assignment with incompatible types at line no. 30 
+Type Checking Completed ==========
+Generating code for functions ==========
+Generating code for function: _computeFunctionValue and its symbol table is found at adress: 00001295FAC303D0
+	##temp0 = 5000.790039
+	c6 = ##temp0
+	##temp5 = 2
+	##temp4 = ##temp5 * c4
+	##temp3 = c3 + ##temp4
+	##temp7 = 5
+	##temp6 = c5 - ##temp7
+	##temp2 = ##temp3 - ##temp6
+	##temp8 = 4
+	##temp1 = ##temp2 / ##temp8
+	d4cbcd5677 = ##temp1
+	##temp12 = 2.350000
+	##temp11 = d4cbcd5677 - ##temp12
+	##temp14 = 2345
+	##temp16 = 234
+	##temp17 = 8
+	##temp15 = ##temp16 * ##temp17
+	##temp13 = ##temp14 - ##temp15
+	##temp10 = ##temp11 * ##temp13
+	##temp19 = 5
+	##temp18 = ##temp19 * c3
+	##temp9 = ##temp10 + ##temp18
+	c4bbb = ##temp9
+	##temp20 = 0
+	if c4bbb == ##temp20, JMP Label#4
+	JMP Label#6
+Label#6:
+	##temp21 = 78.559998
+	if c4bbb > ##temp21, JMP Label#5
+	JMP Label#4
+Label#5:
+	##temp22 = d4cbcd5677 / c4bbb
+	c6 = ##temp22
+Label#4:
+Generating code for function: _main and its symbol table is found at adress: 00001295FAC30430
+	##temp23 = 1
+	b5 = ##temp23
+	Read d5cb34567
+	Read b3b444
+	Write c3
