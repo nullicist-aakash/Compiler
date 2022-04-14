@@ -100,7 +100,7 @@ void main(int argc, char **argv)
 		/*if (option == 4)
 		{
 			start_time = clock();
-			TreeNode *node = parseInputSourceCode(argv[1]);
+			TreeNode* node = parseInputSourceCode(argv[1]);
 			end_time = clock();
 			double total_CPU_time = (double)(end_time - start_time);
 			printf("Total CPU Time Taken: %f\n", total_CPU_time);
@@ -113,7 +113,7 @@ void main(int argc, char **argv)
 			printLexerOutput(argv[1]);
 		else if (option == 2)
 		{
-			TreeNode *node = parseInputSourceCode(argv[1]);
+			TreeNode* node = parseInputSourceCode(argv[1]);
 
 			// FILE* fptr = fopen(argv[2], "w");
 			printf("Group 8 Output File.\n%25s %14s %11s %18s %24s %12s %29s\n",

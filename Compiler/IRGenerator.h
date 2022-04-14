@@ -12,6 +12,8 @@ typedef enum
 	OP_ASSIGN,
 	OP_STORE_INT,		// store integer to destination
 	OP_STORE_REAL,		// store real number to destination
+	OP_CALL,
+	OP_RET,
 
 	// arithmetic
 	OP_ADD,
@@ -31,7 +33,11 @@ typedef enum
 
 	// IO
 	OP_READ,
-	OP_WRITE
+	OP_WRITE,
+
+	// Stack
+	OP_PUSH,
+	OP_POP,
 } IROPType;
 
 typedef enum
