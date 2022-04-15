@@ -80,7 +80,7 @@ void initTables()
     intInfo->entryType = INT;
     intInfo->width = 2;
     intInfo->index = dataTypeCount++;
-    intInfo->structure = calloc(1, sizeof(DerivedEntry* ));
+    intInfo->structure = calloc(1, sizeof(DerivedEntry *));
     ((DerivedEntry *)intInfo->structure)->name = "int";
     trie_getRef(globalSymbolTable, "int")->entry.ptr = intInfo;
 
@@ -89,7 +89,7 @@ void initTables()
     realInfo->entryType = REAL;
     realInfo->width = 4;
     realInfo->index = dataTypeCount++;
-    realInfo->structure = calloc(1, sizeof(DerivedEntry* ));
+    realInfo->structure = calloc(1, sizeof(DerivedEntry *));
     ((DerivedEntry *)realInfo->structure)->name = "real";
     trie_getRef(globalSymbolTable, "real")->entry.ptr = realInfo;
 
@@ -98,7 +98,8 @@ void initTables()
     boolInfo->entryType = BOOL;
     boolInfo->width = 8;
     boolInfo->index = dataTypeCount++;
-
+    boolInfo->structure = calloc(1, sizeof(DerivedEntry *));
+    ((DerivedEntry *)boolInfo->structure)->name = "bool";
     trie_getRef(globalSymbolTable, "##bool")->entry.ptr = boolInfo;
 
     TypeLog *voidInfo = calloc(1, sizeof(TypeLog *));
@@ -169,9 +170,9 @@ int firstPass(ASTNode *node)
     else if (node->sym_index == 60 || node->sym_index == 58) // Function names parsed
     {
         // <function> -> <inputList><outputList> <stmts>
-        if (trie_exists(globalSymbolTable, node->token->lexeme)) // ERROR Function name repeated
+        if (trie_exists(globalSymbolTable, node->token->lexeme)) // ERROR: Function name repeated
         {
-            printf("ERROR: Redeclaration of function in line number %d\n\n", node->token->line_number);
+            printf("ERROR : Redeclaration of function in line number %d\n\n", node->token->line_number);
             node->sym_index = -1;
             firstPass(node->sibling);
             return -1;
@@ -199,13 +200,13 @@ int firstPass(ASTNode *node)
     }
     else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) // Type Definition Names Parsed
     {
-        if (trie_exists(prefixTable, node->children[0]->token->lexeme))
-        {
-            printf("ERROR : Redeclaration of defined type \n"); // ERROR Definted Type name repeated
-            node->sym_index = -1;
-            firstPass(node->sibling);
-            return -1;
-        }
+        // if (trie_exists(globalSymbolTable, node->children[0]->token->lexeme)) // ERROR Defined Type name repeated
+        // {
+        //     printf("ERROR : Redeclaration of defined type in line number %d\n\n", node->children[0]->token->line_number);
+        //     node->sym_index = -1;
+        //     firstPass(node->sibling);
+        //     return -1;
+        // }
 
         trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
             node->token->type;

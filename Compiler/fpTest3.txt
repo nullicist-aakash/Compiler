@@ -7,12 +7,10 @@ output parameter list[real d3];
 		type #point: beginpoint;
 		type #point: endpoint;
 	endrecord
-    record #one 
-		type #line: base;
-		type #line: height;
+	record #one
+		type real:x;
+		type real:y;
 	endrecord
-
-
 	type record #two : b5b567;
 	type record #one : b3;
 	type #point: d5;
@@ -28,10 +26,7 @@ end
 % type checking will be required in stage 2. Despite some type errors, undeclared variables etc the code is syntactically correct
 %in this function.
 _main 
-	record #one
-		type real:x;
-		type real:y;
-	endrecord	
+		
 	definetype record #one as #point
 	definetype record #two as #line
 	union #four

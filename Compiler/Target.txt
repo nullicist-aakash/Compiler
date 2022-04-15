@@ -29,8 +29,8 @@ The parameter of variant record type (for variant field only) is type checked at
 
 // Summary
 Till the end of pass 1:
-	1. No repeated record/union definitions.
-	2. No duplicate function names. 
+	1. No repeated record/union definitions. 
+	2. No duplicate function names.  DONE
 	3. No duplicate global variables 
 	4. Valid Typedef check
 	5. Check if typedef record exists
