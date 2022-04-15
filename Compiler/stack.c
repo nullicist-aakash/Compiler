@@ -21,8 +21,13 @@ void push(Stack* stack, int data)
 
 int top(Stack* stack)
 {
-	assert(stack->top != NULL);
-	return stack->top->data;
+	if(stack->top)
+		return stack->top->data;
+	else
+	{
+		printf("ERROR : Stack is empty\n");
+		return -1;
+	}
 }
 
 void pop(Stack* stack)
