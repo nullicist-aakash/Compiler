@@ -175,6 +175,8 @@
     <Text Include="p3.txt" />
     <Text Include="p4.txt" />
     <Text Include="p5.txt" />
+    <Text Include="p6.txt" />
+    <Text Include="p7.txt" />
     <Text Include="s1.txt" />
     <Text Include="s2.txt" />
     <Text Include="s3.txt" />

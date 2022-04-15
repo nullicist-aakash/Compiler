@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 TypeLog* real, * integer, * boolean, * void_empty;
 int isTypeError = 0;
@@ -10,6 +11,7 @@ int localWhileCount = 0;    // Number of while loops in the function
 int localIdentifierCount = 0;
 int curSize = 4;
 int** localAssigned;        // Matrix representing if a variable has been assigned in a scope
+Trie* localSymbolTable;
 
 int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
 {
@@ -48,7 +50,15 @@ void reAllocate()
 void getTypes(ASTNode* node, int* arr)
 {
     if (node->childCount == 0)
-        arr[((TypeLog*)(trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr))->index] = 1;
+    {
+        TypeLog* mediator = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
+        if (!mediator)
+        {
+            assignTypes(node->sibling);
+            return;
+        }
+        arr[mediator->index] = 1;
+    }
     else if (node->childCount == 1)
         getTypes(node->children[0], arr);
     else if (node->childCount == 2)
@@ -272,7 +282,13 @@ void assignTypes(ASTNode* node)
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
 
-        recordAssignment(((TypeLog*)(trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr))->index);
+        TypeLog* mediator = trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
+        if (!mediator)
+        {
+            assignTypes(node->sibling);
+            return;
+        }
+        recordAssignment(mediator->index);
         // TODO: The type of an identifier of union data type is reported as an error.
         node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
@@ -297,7 +313,7 @@ void assignTypes(ASTNode* node)
         // iterative statement, while
 
         localWhileCount++;
-        reAlloc();
+        reAllocate();
 
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
@@ -332,8 +348,13 @@ void assignTypes(ASTNode* node)
         assignTypes(node->children[0]);
 
         ASTNode* cur = node->children[0];
-
-        recordAssignment(((TypeLog*)(trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr))->index);
+        TypeLog* mediator = trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr;
+        if (!mediator)
+        {
+            assignTypes(node->sibling);
+            return;
+        }
+        recordAssignment(mediator->index);
         node->derived_type = void_empty;
     }
     else if (node->sym_index == 63 || node->sym_index == 77 || node->sym_index==106)

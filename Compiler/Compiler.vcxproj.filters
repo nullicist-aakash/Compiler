@@ -131,6 +131,8 @@
     <Text Include="p2.txt" />
     <Text Include="p3.txt" />
     <Text Include="p4.txt" />
+    <Text Include="p7.txt" />
+    <Text Include="p6.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
