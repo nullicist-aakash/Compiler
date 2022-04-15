@@ -44,32 +44,39 @@ The parameter of variant record type (for variant field only) is type checked at
 Till the end of pass 1:
 	//1. No repeated record/union definitions. 
 	//2. No duplicate function names. 
-	3. Check if typedef record/union exists 
-	4. Correct struct type(record or union) used in definetype 
+	//3. Check if typedef record/union exists 
+	//4. Correct struct type(record or union) used in definetype 
 	//5. Alias exists
+
+CHECK ALL TOGETHER
 
 Till the end of pass 2:
 
 For functions:
-	1. Input/Output parameter types are defined
+	/1. Input/Output parameter types are defined
+	/2. Ordering of functions
+	Output parameters updated
 
 For variables:
-	variables have valid type (Should give error for FP 3,4 case)
-	No datatype of union
-	No duplicate variables
-	No duplicate global variables
+	/variables have valid type (Should give error for FP 3,4 case) //try declaring variable of invalid struct type
+	/No datatype of union
+	/No duplicate variables
+	/No duplicate global variables
 
 For structs:
-	Valid type entry
-	Variable name repeated
-	Support for variant record - Atmost one union per record. If union, search for "tagValue". If not found, error
-	
+	/Valid type entry
+	Variable name repeated //maybe no need to do
+	/Support for variant record - Atmost one union per record. If union, search for "tagValue". If not found, error
+	/Union cannot have union inside it
+
 For statements:
 	Variable declared before use
-	Function declared and defined before use 
+	/Function declared and defined before use 
 	while statement variable update *
-	Valid number of args in function call and return *
+	//Valid number of args in function call and return *
 	
+For return:
+	One-to-one matching with output parameter list
 	
 Width calculation phase:
 	Topo sort					-- No circular will be given in test cases

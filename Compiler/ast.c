@@ -192,7 +192,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 	}
 	else if (input->productionNumber == 15)
 	{
-		//<constructedDatatype> == = > TK_RUID
+		//<constructedDatatype> ===> TK_RUID
 		//<constructedDatatype>.data = TK_RUID.data;
 		free(node);
 		return performRecursion(input->children[0], input, NULL);
@@ -531,7 +531,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 	}
 	else if (input->productionNumber == 55)
 	{
-		//<conditionalStmt> == = > TK_IF TK_OP<booleanExpression> TK_CL TK_THEN<stmt><otherStmts><elsePart>
+		//<conditionalStmt> ===> TK_IF TK_OP<booleanExpression> TK_CL TK_THEN<stmt><otherStmts><elsePart>
 		//<conditionalStmt>.treenode = createTreeNode("if", <booleanExpression>.treenode, createTreeNodeList(head = <stmt>.treenode, tail = <otherStmts>.treenode), <elsePart>.treenode)
 		node->token = copy_token(input->children[0]->token);
 		allocateChildren(node, 3);
@@ -558,7 +558,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 	}
 	else if (input->productionNumber == 58)
 	{
-		//<ioStmt> == = > TK_READ TK_OP<var> TK_CL TK_SEM
+		//<ioStmt> ===> TK_READ TK_OP<var> TK_CL TK_SEM
 		//<ioStmt>.treenode = createTreeNode("read", <var>.treenode)
 		node->token = copy_token(input->children[0]->token);
 		allocateChildren(node, 1);
@@ -566,7 +566,7 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 	}
 	else if (input->productionNumber == 59)
 	{
-		//<ioStmt> == = > TK_WRITE TK_OP<var> TK_CL TK_SEM
+		//<ioStmt> ===> TK_WRITE TK_OP<var> TK_CL TK_SEM
 		//<ioStmt>.treenode = createTreeNode("write", <var>.treenode)
 		node->token = copy_token(input->children[0]->token);
 		allocateChildren(node, 1);
