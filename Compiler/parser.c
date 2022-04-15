@@ -523,6 +523,8 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 		if (production_number == -1)
 		{
 			lookahead = getNextToken();
+			ParseErr = 1;
+			printf("Line %d \t\tError: Invalid token %s encountered with value %s, stack top %s\n", line_number, la_token, lexeme, expected_token);
 			continue;
 		}
 
