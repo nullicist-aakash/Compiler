@@ -28,7 +28,7 @@ The parameter of variant record type (for variant field only) is type checked at
 
 
 // Summary
-Till the end of phase 1:
+Till the end of pass 1:
 	1. No repeated record/union definitions.
 	2. No duplicate function names. 
 	3. No duplicate global variables 
@@ -36,7 +36,7 @@ Till the end of phase 1:
 	5. Check if typedef record exists
 	6. Alias exists
 
-Till the end of phase 2:
+Till the end of pass 2:
 
 For functions:
 	1. Input/Output parameter types are defined
@@ -56,7 +56,6 @@ For statements:
 	Function declared and defined before use 
 	while statement variable update *
 	Valid number of args in function call and return *
-	
 	
 	
 Width calculation phase:

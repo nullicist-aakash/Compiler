@@ -18,6 +18,61 @@ TypeLog **structList;
 // First pass : Collect struct , typedef and pass through typedef list
 // Second pass : Add function, Fill TypeInfo, fill variable infos
 
+
+int localOffset;
+int globalOffset = 0;
+Trie* localSymbolTable;
+
+void fillOffsets(ASTNode* vars, Trie* table)
+{
+    while (vars)
+    {
+        TypeLog* mediator = trie_getRef(localSymbolTable, vars->token->lexeme)->entry.ptr;
+
+        if (mediator == NULL)
+            mediator = trie_getRef(globalSymbolTable, vars->token->lexeme)->entry.ptr;
+
+        VariableEntry* varEntry = mediator->structure;
+
+        varEntry->isGlobal = vars->isGlobal;
+        varEntry->offset = varEntry->isGlobal ? globalOffset : localOffset;
+        localOffset += varEntry->isGlobal ? 0 : varEntry->type->width;
+        globalOffset += varEntry->isGlobal ? varEntry->type->width : 0;
+        
+        vars = vars->sibling;
+    }
+}
+
+void generateFuncOffsets(ASTNode* funcNode)
+{
+    TypeLog* mediator = trie_getRef(globalSymbolTable, funcNode->token->lexeme)->entry.ptr;
+    FuncEntry* funcEntry = mediator->structure;
+    localSymbolTable = funcEntry->symbolTable;
+    localOffset = 0;
+    // Iterate over statements
+    fillOffsets(funcNode->children[0], localSymbolTable);
+    fillOffsets(funcNode->children[1], localSymbolTable);
+    fillOffsets(funcNode->children[2]->children[1], localSymbolTable);
+
+    funcEntry->activationRecordSize = localOffset;
+}
+
+void calculateOffsets(ASTNode* ast)
+{
+    // TODO: Encorporate this in typechecking (3rd pass)
+    globalOffset = 0;
+    ASTNode* func = ast->children[0] == NULL ? ast->children[1] : ast->children[0];
+    while (func)
+    {
+        generateFuncOffsets(func);
+        if (func->sibling == NULL && func != ast->children[1])
+            func = ast->children[1];
+        else
+            func = func->sibling;
+    }
+}
+
+
 void initTables()
 {
     globalSymbolTable = calloc(1, sizeof(Trie));
@@ -97,92 +152,92 @@ int secondPassErrorCheck(ASTNode *node)
     return 0;
 }
 
-FuncEntry *local_func;
+FuncEntry *local_func;  // TODO: Udao isko bc, use key
 
-void iterationFunction(char* key, TrieEntry *entry)
-{
-    TypeLog *typelog = entry->ptr;
+// void iterationFunction(char* key, TrieEntry *entry)
+// {
+//     TypeLog *typelog = entry->ptr;
 
-    if (typelog->entryType == INT)
-        logIt("%s\n", "int");
+//     if (typelog->entryType == INT)
+//         logIt("%s\n", "int");
 
-    else if (typelog->entryType == REAL)
-        logIt("%s\n", "real");
+//     else if (typelog->entryType == REAL)
+//         logIt("%s\n", "real");
 
-    else if (typelog->entryType == BOOL)
-        logIt("%s\n", "bool");
+//     else if (typelog->entryType == BOOL)
+//         logIt("%s\n", "bool");
 
-    else if (typelog->entryType == VOID)
-        logIt("%s\n", "void");
+//     else if (typelog->entryType == VOID)
+//         logIt("%s\n", "void");
 
-    else if (typelog->entryType == FUNCTION)
-    {
-        FuncEntry *func = typelog->structure;
-        logIt("Function Name: %s and is stored at address %p\n", func->name, func);
-        logIt("\tinput: ");
+//     else if (typelog->entryType == FUNCTION)
+//     {
+//         FuncEntry *func = typelog->structure;
+//         logIt("Function Name: %s and is stored at address %p\n", func->name, func);
+//         logIt("\tinput: ");
 
-        TypeInfoListNode *hd = func->argTypes->head;
-        while (hd)
-        {
-            logIt(" { %s: %s } at %p", hd->name,
-                  hd->type->entryType == INT ? "int" : hd->type->entryType == REAL ? "real"
-                                                                                   : ((DerivedEntry *)hd->type->structure)->name,
-                  hd->type->structure);
+//         TypeInfoListNode *hd = func->argTypes->head;
+//         while (hd)
+//         {
+//             logIt(" { %s: %s } at %p", hd->name,
+//                 hd->type->entryType == INT ? "int" : 
+//                 hd->type->entryType == REAL ? "real":
+//                 ((DerivedEntry *)hd->type->structure)->name, hd->type->structure);
 
-            hd = hd->next;
-        }
+//             hd = hd->next;
+//         }
 
-        logIt("\n\toutput: ");
+//         logIt("\n\toutput: ");
 
-        hd = func->retTypes->head;
-        while (hd)
-        {
-            logIt("{ %s: %s } at %p", hd->name,
-                  hd->type->entryType == INT ? "int" : hd->type->entryType == REAL ? "real"
-                                                                                   : ((DerivedEntry *)hd->type->structure)->name,
-                  hd->type->structure);
+//         hd = func->retTypes->head;
+//         while (hd)
+//         {
+//             logIt("{ %s: %s } at %p", hd->name,
+//                 hd->type->entryType == INT ? "int" : 
+//                 hd->type->entryType == REAL ? "real":
+//                 ((DerivedEntry *)hd->type->structure)->name, hd->type->structure);
 
-            hd = hd->next;
-        }
-        logIt("\n");
-        logIt("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, typelog->width);
-        iterateTrie(func->symbolTable, iterationFunction);
+//             hd = hd->next;
+//         }
+//         logIt("\n");
+//         logIt("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, typelog->width);
+//         iterateTrie(func->symbolTable, iterationFunction);
 
-        logIt("Done with function\n");
-    }
-    else if (typelog->entryType == DERIVED)
-    {
-        DerivedEntry *entry = typelog->structure;
+//         logIt("Done with function\n");
+//     }
+//     else if (typelog->entryType == DERIVED)
+//     {
+//         DerivedEntry *entry = typelog->structure;
 
-        logIt("%s %s and is stored at address %p\n", entry->isUnion ? "union" : "record", entry->name, entry);
+//         logIt("%s %s and is stored at address %p\n", entry->isUnion ? "union" : "record", entry->name, entry);
 
-        if (!entry->list)
-            return;
+//         if (!entry->list)
+//             return;
 
-        TypeInfoListNode *hd = entry->list->head;
-        while (hd)
-        {
-            logIt(" { %s: %s } at %p ", hd->name,
-                  hd->type->entryType == INT ? "int" : hd->type->entryType == REAL ? "real"
-                                                                                   : ((DerivedEntry *)hd->type->structure)->name,
-                  hd->type->structure);
+//         TypeInfoListNode *hd = entry->list->head;
+//         while (hd)
+//         {
+//             logIt(" { %s: %s } at %p ", hd->name,
+//                   hd->type->entryType == INT ? "int" : hd->type->entryType == REAL ? "real"
+//                                                                                    : ((DerivedEntry *)hd->type->structure)->name,
+//                   hd->type->structure);
 
-            hd = hd->next;
-        }
+//             hd = hd->next;
+//         }
 
-        logIt("\n");
-        logIt("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, typelog->width);
-    }
-    else if (typelog->entryType == VARIABLE)
-    {
-        VariableEntry *var = typelog->structure;
-        logIt("variable %s is of type %s and is stored at address %p\n", var->name,
-              var->type->entryType == INT ? "int" : var->type->entryType == REAL ? "real"
-                                                                                 : ((DerivedEntry *)var->type->structure)->name,
-              var);
-        logIt("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, ((VariableEntry *)typelog->structure)->type->width);
-    }
-}
+//         logIt("\n");
+//         logIt("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, typelog->width);
+//     }
+//     else if (typelog->entryType == VARIABLE)
+//     {
+//         VariableEntry *var = typelog->structure;
+//         logIt("variable %s is of type %s and is stored at address %p\n", var->name,
+//               var->type->entryType == INT ? "int" : var->type->entryType == REAL ? "real"
+//                                                                                  : ((DerivedEntry *)var->type->structure)->name,
+//               var);
+//         logIt("\trefCount = %d, index: %d, width: %d\n\n", typelog->refCount, typelog->index, ((VariableEntry *)typelog->structure)->type->width);
+//     }
+// }
 
 int firstPass(ASTNode *node)
 {
@@ -458,27 +513,6 @@ void populateWidth(int **adj, int size)
     free(adj);
 }
 
-void loadSymbolTable(ASTNode *root)
-{
-    initTables();
-
-    firstPass(root);
-    iterateTrie(globalSymbolTable, iterationFunction);
-    structList = calloc(dataTypeCount, sizeof(TypeLog *));
-    structList[0] = trie_getRef(globalSymbolTable, "int")->entry.ptr;
-    structList[1] = trie_getRef(globalSymbolTable, "real")->entry.ptr;
-    structList[2] = trie_getRef(globalSymbolTable, "##bool")->entry.ptr;
-    structList[3] = trie_getRef(globalSymbolTable, "##void")->entry.ptr;
-    int **adj = calloc(dataTypeCount, sizeof(int *));
-    for (int i = 0; i < dataTypeCount; i++)
-        adj[i] = calloc(dataTypeCount, sizeof(int));
-
-    secondPass(root, adj, globalSymbolTable);
-    populateWidth(adj, dataTypeCount);
-    // iterateTrie(globalSymbolTable, iterationFunction);
-    dataTypeCount = 0;
-}
-
 void printTypeName(VariableEntry *entry)
 {
     TypeTag type = entry->type->entryType;
@@ -641,4 +675,27 @@ void printRecordDetails(char* key, TrieEntry* entry)
     }
     else
         return;
+}
+
+void loadSymbolTable(ASTNode *root)
+{
+    initTables();
+
+    firstPass(root);
+    iterateTrie(globalSymbolTable, iterationFunction);
+    structList = calloc(dataTypeCount, sizeof(TypeLog *));
+    structList[0] = trie_getRef(globalSymbolTable, "int")->entry.ptr;
+    structList[1] = trie_getRef(globalSymbolTable, "real")->entry.ptr;
+    structList[2] = trie_getRef(globalSymbolTable, "##bool")->entry.ptr;
+    structList[3] = trie_getRef(globalSymbolTable, "##void")->entry.ptr;
+    int **adj = calloc(dataTypeCount, sizeof(int *));
+    for (int i = 0; i < dataTypeCount; i++)
+        adj[i] = calloc(dataTypeCount, sizeof(int));
+
+    secondPass(root, adj, globalSymbolTable);
+    populateWidth(adj, dataTypeCount);
+
+    calculateOffsets(root);
+    // iterateTrie(globalSymbolTable, iterationFunction);
+    dataTypeCount = 0;
 }

@@ -3,7 +3,7 @@
  symbol_index = current non terminal index
  parent stores parent node and is NULL if current node is root
  token stores the corresponding token
- type != NULL iff current node stores the identifier
+ type != NULL iff current node stores the identifier	
  children stores children
  sibling pointed to right element in a list
 */

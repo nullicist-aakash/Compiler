@@ -7,57 +7,6 @@
 TypeLog *real, *integer, *boolean, *void_empty;
 int isTypeError = 0;
 
-int localOffset;
-int globalOffset = 0;
-Trie *localSymbolTable;
-
-void fillOffsets(ASTNode *vars)
-{
-    while (vars)
-    {
-        TypeLog *mediator = trie_getRef(localSymbolTable, vars->token->lexeme)->entry.ptr;
-
-        if (mediator == NULL)
-            mediator = trie_getRef(globalSymbolTable, vars->token->lexeme)->entry.ptr;
-
-        VariableEntry *varEntry = mediator->structure;
-
-        varEntry->isGlobal = vars->isGlobal;
-        varEntry->offset = varEntry->isGlobal ? globalOffset : localOffset;
-        localOffset += varEntry->isGlobal ? 0 : vars->derived_type->width;
-        globalOffset += varEntry->isGlobal ? vars->derived_type->width : 0;
-        vars = vars->sibling;
-    }
-}
-
-void generateFuncOffsets(ASTNode *funcNode)
-{
-    TypeLog *mediator = trie_getRef(globalSymbolTable, funcNode->token->lexeme)->entry.ptr;
-    FuncEntry *funcEntry = mediator->structure;
-    localSymbolTable = funcEntry->symbolTable;
-    localOffset = 0;
-
-    // Iterate over statements
-    fillOffsets(funcNode->children[0]);
-    fillOffsets(funcNode->children[1]);
-    fillOffsets(funcNode->children[2]->children[1]);
-
-    funcEntry->activationRecordSize = localOffset;
-}
-
-void calculateOffsets(ASTNode *ast)
-{
-    // TODO: Encorporate this in typechecking (3rd pass)
-    ASTNode *func = ast->children[0] == NULL ? ast->children[1] : ast->children[0];
-    while (func)
-    {
-        generateFuncOffsets(func);
-        if (func->sibling == NULL && func != ast->children[1])
-            func = ast->children[1];
-        else
-            func = func->sibling;
-    }
-}
 
 int areCompatible(ASTNode *leftNode, ASTNode *rightNode)
 {
