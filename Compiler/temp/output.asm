@@ -6,66 +6,58 @@ section .text
 
 
 main:
+	finit
 	push rbp
 	mov rbp, rsp
 	sub rsp, 16
 
 	; Reading variable: b2
-	lea rsi, [rbp - 4d]
-	mov rdi, int_in
+	lea rsi, [rbp - 8d]
+	mov rdi, real_in
 	xor rax, rax
 	call scanf
 
-	; Push 35
-	mov ax, 35d
-	push ax
+	; Push 35.450001
+	mov eax, __?float32?__(35.450001)
+	mov dword [real_val], eax
+	fld dword [real_val]
 
 	; Assign to c2
-	pop ax
-	mov word [rbp - 6d], ax
+	fstp dword [rbp - 12d]
 
 	; Reading variable: d2
-	lea rsi, [rbp - 8d]
-	mov rdi, int_in
+	lea rsi, [rbp - 16d]
+	mov rdi, real_in
 	xor rax, rax
 	call scanf
 
 	; Push b2
-	mov ax, word [rbp - 4d]
-	push ax
+	fld dword [rbp - 8d]
 
 	; Push c2
-	mov ax, word [rbp - 6d]
-	push ax
+	fld dword [rbp - 12d]
 
 	; add
-	pop bx
-	pop ax
-	add ax, bx
-	push ax
+	fadd
 
 	; Push d2
-	mov ax, word [rbp - 8d]
-	push ax
+	fld dword [rbp - 16d]
 
 	; add
-	pop bx
-	pop ax
-	add ax, bx
-	push ax
+	fadd
 
 	; Assign to b3
-	pop ax
-	mov word [rbp - 2d], ax
+	fstp dword [rbp - 4d]
 
 	; Writing variable: b3
-	mov ax, word [rbp - 2d]
-	movsx rsi, ax
-	mov rdi, int_out
-	xor rax, rax
-	call printf
-	add rsp, 16
+	cvtss2sd xmm0, [real_val]
+	mov      rdi, real_out            ; 1st arg to printf
+	mov      rax, 1                 ; printf is varargs, there is 1 non-int argument
 
+	call printf
+
+.exit:
+	add rsp, 16
 	pop rbp
 	mov rax, 0
 	ret
@@ -75,3 +67,6 @@ section .data
 	int_in:  db  "%hd", 0
 	real_out:  db  "%f", 10, 0
 	real_in:  db  "%f", 0
+	real_val:  db  0cdh,0cch,019h,042h
+	count:  dq       30
+	sum:    dq       3
