@@ -148,6 +148,10 @@ mov rax, rsp
 	mov word [rbp + 4d], ax
 	pop ax
 
+	; Push 35
+	mov ax, 35d
+	push ax
+
 	; Assign to c2
 	pop ax
 	mov word [rbp + 6d], ax
@@ -165,11 +169,11 @@ mov rax, rsp
 	pop ax
 
 	; Push b2
-	mov ax, word [rbp + 4d], ax
+	mov ax, word [rbp + 4d]
 	push ax
 
 	; Push c2
-	mov ax, word [rbp + 6d], ax
+	mov ax, word [rbp + 6d]
 	push ax
 
 	; add
@@ -179,7 +183,7 @@ mov rax, rsp
 	push ax
 
 	; Push d2
-	mov ax, word [rbp + 8d], ax
+	mov ax, word [rbp + 8d]
 	push ax
 
 	; add
@@ -192,9 +196,9 @@ mov rax, rsp
 	pop ax
 	mov word [rbp + 2d], ax
 
-	; Writing variable: b2
+	; Writing variable: b3
 	push ax
-	mov ax, word [rbp + 4d]
+	mov ax, word [rbp + 2d]
 	mov [integer], ax
 	pop ax
 	call __int_to_str
@@ -203,7 +207,6 @@ mov rax, rsp
 	mov rsi, buff
 	mov rdx, buff_size
 	syscall
-	ret
 
 exit:
     mov     rax, 60

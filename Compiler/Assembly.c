@@ -129,8 +129,6 @@ void handleFunction(IRInsNode* funcCode)
 		}
 		else if (instr->op == OP_CALL)
 			fprintf(fp_output, "\tcall exit\n");
-		else if (instr->op == OP_RET)
-			fprintf(fp_output, "\tret\n");
 		else if (instr->op == OP_ADD || instr->op == OP_SUB)
 		{
 			char* ins = instr->op == OP_ADD ? "add" : "sub";
@@ -284,7 +282,7 @@ void handleFunction(IRInsNode* funcCode)
 			if (width > 2)
 				fprintf(fp_output, "\tcall exit\n");
 
-			fprintf(fp_output, "\tmov ax, word [rbp + %dd\n", address);
+			fprintf(fp_output, "\tmov ax, word [rbp + %dd]\n", address);
 			fprintf(fp_output, "\tpush ax\n");
 		}
 		else if (instr->op == OP_PUSHI)
@@ -292,6 +290,19 @@ void handleFunction(IRInsNode* funcCode)
 			fprintf(fp_output, "\n\t; Push %d\n", instr->src1.int_val);
 			fprintf(fp_output, "\tmov ax, %dd\n", instr->src1.int_val);
 			fprintf(fp_output, "\tpush ax\n");
+		}
+		else if (instr->op == OP_PUSHR)
+		{
+			fprintf(fp_output, "\tcall exit\n");
+		}
+		else if (instr->op == OP_POP)
+		{
+			fprintf(fp_output, "\n\t; Pop\n");
+			int width = instr->src1.type->width;
+
+			width /= 2;
+			while (width--)
+				fprintf(fp_output, "\tpop ax\n");
 		}
 	}
 }
@@ -314,6 +325,7 @@ void generateAssembly(FILE* fp, ASTNode* rt, IRInsNode** functions)
 
 		fprintf(fp, "%s:\n", func->token->lexeme);
 		handleFunction(functions[i++]);
+		fprintf(fp_output, "\tret\n");
 		func = func->sibling;
 	}
 
