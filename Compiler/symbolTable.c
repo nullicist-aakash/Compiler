@@ -122,36 +122,38 @@ TypeLog *getMediator(Trie *t, char *key)
     return (TypeLog *)node->entry.ptr;
 }
 
-int firstPassErrorCheck(ASTNode *node)
-{
-    if (node->token->type != TK_DEFINETYPE)
-    {
-        if (trie_exists(prefixTable, node->children[0]->token->lexeme))
-        {
-            // TODO: Name redefined error
-            return -1;
-        }
-    }
-
-    // TODO: : Errors
-    // 1.1 Type Name Redefined
-    // 1.2.1 Non Existent type for Alias
-    // 1.2.2 Alias type mismatch
-    // 1.2.3 Redefined alias name
-    // 1.3.1 Func Name Redefined
-
-    return 0;
-}
-
-int secondPassErrorCheck(ASTNode *node)
-{
-    // TODO: : Errors
-    /* For Functions
-        1. Invalid argument type
-        2. Repeated variable name
-    */
-    return 0;
-}
+//int firstPassErrorCheck(ASTNode *node)
+//{
+//    return 1;
+//    if (node->token->type != TK_DEFINETYPE)
+//    {
+//        if (trie_exists(prefixTable, node->children[0]->token->lexeme))
+//        {
+//            // TODO: Name redefined error
+//            return -1;
+//        }
+//    }
+//
+//    // TODO: : Errors
+//    // 1.1 Type Name Redefined
+//    // 1.2.1 Non Existent type for Alias
+//    // 1.2.2 Alias type mismatch
+//    // 1.2.3 Redefined alias name
+//    // 1.3.1 Func Name Redefined
+//
+//    return 0;
+//}
+//
+//int secondPassErrorCheck(ASTNode *node)
+//{
+//    return 1;
+//    // TODO: : Errors
+//    /* For Functions
+//        1. Invalid argument type
+//        2. Repeated variable name
+//    */
+//    return 0;
+//}
 
 FuncEntry *local_func; // TODO: Udao isko bc, use key
 
@@ -198,16 +200,16 @@ int firstPass(ASTNode *node)
         // <stmts> -> <definitions> <declarations> <funcBody> <return>
         firstPass(node->children[0]);
     }
-    else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) // Type Definition Names Parsed
+    //else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) // Type Definition Names Parsed
+    else if (node->sym_index == 71)
     {
-        // if (trie_exists(globalSymbolTable, node->children[0]->token->lexeme)) // ERROR Defined Type name repeated
-        // {
-        //     printf("ERROR : Redeclaration of defined type in line number %d\n\n", node->children[0]->token->line_number);
-        //     node->sym_index = -1;
-        //     firstPass(node->sibling);
-        //     return -1;
-        // }
-
+        if (getMediator(globalSymbolTable, node->children[0]->token->lexeme)->refCount==1) // ERROR Defined Type name repeated
+         {
+             printf("ERROR : Redeclaration of defined type %s in line number %d\n\n", node->children[0]->token->lexeme, node->children[0]->token->line_number);
+             node->sym_index = -1;
+             firstPass(node->sibling);
+             return -1;
+         }
         trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
             node->token->type;
 
@@ -223,13 +225,14 @@ int firstPass(ASTNode *node)
         entry->list = calloc(1, sizeof(TypeInfoList));
         mediator->index = dataTypeCount++;
     }
-    else if (node->sym_index == 108 && firstPassErrorCheck(node) != -1) // Type Aliases Parsed
+    //else if (node->sym_index == 108 && firstPassErrorCheck(node) != -1)
+    else if (node->sym_index == 108) // Type Aliases Parsed
     {
         char *oldName = node->children[1]->token->lexeme;
         char *newName = node->children[2]->token->lexeme;
 
         TypeLog *mediator = getMediator(globalSymbolTable, oldName);
-        mediator->refCount++;
+        //mediator->refCount++;
         trie_getRef(globalSymbolTable, newName)->entry.ptr = mediator;
 
         trie_getRef(prefixTable, newName)->entry.value = node->token->type;
@@ -339,7 +342,8 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         secondPass(node->children[0], adj, symTable);
         secondPass(node->children[1], adj, symTable);
     }
-    else if (node->sym_index == 71 && secondPassErrorCheck(node) != -1) // Record/Union full type information parsed
+    //else if (node->sym_index == 71 && secondPassErrorCheck(node) != -1) 
+    else if (node->sym_index == 71) // Record/Union full type information parsed
     {
         ASTNode *field = node->children[1];
         TypeLog *mediator = getMediator(globalSymbolTable, node->children[0]->token->lexeme);
@@ -374,7 +378,8 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             field = field->sibling;
         }
     }
-    else if ((node->sym_index == 63 || node->sym_index == 77) && secondPassErrorCheck(node) != -1)
+    //else if ((node->sym_index == 63 || node->sym_index == 77) && secondPassErrorCheck(node) != -1)
+    else if ((node->sym_index == 63 || node->sym_index == 77))
     {
         // <declaration> ===> { token: TK_ID, type: <dataType> }
         // <dataType> ==> { TK_INT, TK_REAL, { TK_RECORD/TK_UNION, TK_RUID } }

@@ -17,10 +17,11 @@ Number of actual parameters must be same as that of formal parameters.
 
 During Type check:
 The type of an identifier is the type appearing while declaring the variable.
-An identifier must be declared before its use.
-The types and the number of parameters returned by a function must be the same as that of the parameters used in invoking the function.
-The types of formal and actual parameters must be same.
-The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
+// An identifier must be declared before its use.
+// Number of actual parameters must be same as that of formal parameters.
+// The types of formal and actual parameters must be same.
+//WTF IS THIS IDK// The types and the number of parameters returned by a function must be the same as that of the parameters used in invoking the function.
+// The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
 
 Runtime:
 The parameter of variant record type (for variant field only) is type checked at run type as described above.
