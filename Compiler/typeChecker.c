@@ -4,13 +4,65 @@
 #include <assert.h>
 #include <string.h>
 
-TypeLog* real, *integer, *boolean, *void_empty;
+TypeLog *real, *integer, *boolean, *void_empty;
 int isTypeError = 0;
 
-int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
+int localOffset;
+int globalOffset = 0;
+Trie *localSymbolTable;
+
+void fillOffsets(ASTNode *vars)
 {
-    TypeLog* left = leftNode->derived_type;
-    TypeLog* right = rightNode->derived_type;
+    while (vars)
+    {
+        TypeLog *mediator = trie_getRef(localSymbolTable, vars->token->lexeme)->entry.ptr;
+
+        if (mediator == NULL)
+            mediator = trie_getRef(globalSymbolTable, vars->token->lexeme)->entry.ptr;
+
+        VariableEntry *varEntry = mediator->structure;
+
+        varEntry->isGlobal = vars->isGlobal;
+        varEntry->offset = varEntry->isGlobal ? globalOffset : localOffset;
+        localOffset += varEntry->isGlobal ? 0 : vars->derived_type->width;
+        globalOffset += varEntry->isGlobal ? vars->derived_type->width : 0;
+        vars = vars->sibling;
+    }
+}
+
+void generateFuncOffsets(ASTNode *funcNode)
+{
+    TypeLog *mediator = trie_getRef(globalSymbolTable, funcNode->token->lexeme)->entry.ptr;
+    FuncEntry *funcEntry = mediator->structure;
+    localSymbolTable = funcEntry->symbolTable;
+    localOffset = 0;
+
+    // Iterate over statements
+    fillOffsets(funcNode->children[0]);
+    fillOffsets(funcNode->children[1]);
+    fillOffsets(funcNode->children[2]->children[1]);
+
+    funcEntry->activationRecordSize = localOffset;
+}
+
+void calculateOffsets(ASTNode *ast)
+{
+    // TODO: Encorporate this in typechecking (3rd pass)
+    ASTNode *func = ast->children[0] == NULL ? ast->children[1] : ast->children[0];
+    while (func)
+    {
+        generateFuncOffsets(func);
+        if (func->sibling == NULL && func != ast->children[1])
+            func = ast->children[1];
+        else
+            func = func->sibling;
+    }
+}
+
+int areCompatible(ASTNode *leftNode, ASTNode *rightNode)
+{
+    TypeLog *left = leftNode->derived_type;
+    TypeLog *right = rightNode->derived_type;
     while (leftNode && rightNode)
     {
         left = leftNode->derived_type;
@@ -25,12 +77,12 @@ int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
     return !leftNode && !rightNode;
 }
 
-TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
+TypeLog *finalType(ASTNode *leftNode, ASTNode *rightNode, Token *opToken)
 {
-    TypeLog* left = leftNode->derived_type;
-    TypeLog* right = rightNode ? rightNode->derived_type : NULL;
+    TypeLog *left = leftNode->derived_type;
+    TypeLog *right = rightNode ? rightNode->derived_type : NULL;
     TokenType op = opToken->type;
-    
+
     if (op == TK_ASSIGNOP)
     {
         if (areCompatible(leftNode, rightNode))
@@ -55,16 +107,18 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
     {
         if (left == right && (left == real || left == integer) && left != boolean && left != void_empty)
             return left;
-        
-        // TODO
+
+        // TODO:
 
         return NULL;
     }
 
     if (op == TK_DIV)
     {
-        int first_type = left == real ? 0x01 : left == integer ? 0x02 : 0x04;
-        int second_type = right == real ? 0x01 : right == integer ? 0x02 : 0x04;
+        int first_type = left == real ? 0x01 : left == integer ? 0x02
+                                                               : 0x04;
+        int second_type = right == real ? 0x01 : right == integer ? 0x02
+                                                                  : 0x04;
 
         if ((first_type & 0x03) && (second_type & 0x03) && left != boolean && left != void_empty)
             return real;
@@ -76,7 +130,7 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
     {
         if (left == boolean && right == boolean)
             return boolean;
-        
+
         isTypeError = 1;
         logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
         return NULL;
@@ -86,10 +140,10 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
     {
         if (left == real && right == real)
             return boolean;
-        
+
         if (left == integer && right == integer)
             return boolean;
-        
+
         isTypeError = 1;
         logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
         return NULL;
@@ -99,7 +153,7 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
     {
         if (left == boolean)
             return boolean;
-        
+
         isTypeError = 1;
         logIt("Operation %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, opToken->line_number);
         return NULL;
@@ -107,8 +161,7 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
     assert(0);
 }
 
-
-Trie* localSymbolTable;
+Trie *localSymbolTable;
 void typeChecker_init()
 {
     real = trie_getRef(globalSymbolTable, "real")->entry.ptr;
@@ -118,7 +171,7 @@ void typeChecker_init()
     localSymbolTable = globalSymbolTable;
 }
 
-void assignTypes(ASTNode* node)
+void assignTypes(ASTNode *node)
 {
     if (!node)
         return;
@@ -127,12 +180,13 @@ void assignTypes(ASTNode* node)
     {
         // program -> functions, main
         assignTypes(node->children[0]);
+
         assignTypes(node->children[1]);
     }
     else if (node->sym_index == 58 || node->sym_index == 60)
     {
         // function/main-function
-        localSymbolTable = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->symbolTable;
+        localSymbolTable = ((FuncEntry *)((TypeLog *)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->symbolTable;
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
         assignTypes(node->children[2]);
@@ -141,7 +195,8 @@ void assignTypes(ASTNode* node)
     {
         // stmts -> .. .. stmt ..
         assignTypes(node->children[1]);
-        ASTNode* stmt = node->children[2];
+        ASTNode *stmt = node->children[2];
+
         assignTypes(stmt);
     }
     else if (node->sym_index == 81)
@@ -149,13 +204,13 @@ void assignTypes(ASTNode* node)
         // assignment --> <identifier> = <expression>
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
-        // TODO The type of an identifier of union data type is reported as an error.
+        // TODO: The type of an identifier of union data type is reported as an error.
         node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
     else if (node->sym_index == 86)
     {
         // function call statement
-        // TODO
+        // TODO:
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
 
@@ -188,32 +243,32 @@ void assignTypes(ASTNode* node)
     else if (node->sym_index == 63 || node->sym_index == 77)
     {
         // idList
-        ASTNode* temp = node;
-        
+        ASTNode *temp = node;
+
         while (temp)
         {
-            TypeLog* mediator = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
+            TypeLog *mediator = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
 
             if (mediator == NULL)
                 mediator = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
 
-            VariableEntry* entry = mediator->structure;
+            VariableEntry *entry = mediator->structure;
             temp->derived_type = entry->type;
             temp = temp->sibling;
         }
-        // TODO 
+        // TODO:
     }
     else if (node->sym_index == 108)
     {
         // typedef
         node->derived_type = trie_getRef(globalSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
 
-        node->children[1]->derived_type = node->children[2]->derived_type = node->derived_type; 
+        node->children[1]->derived_type = node->children[2]->derived_type = node->derived_type;
     }
     else if (
-        node->token->type == TK_PLUS || 
-        node->token->type == TK_MINUS || 
-        node->token->type == TK_MUL || 
+        node->token->type == TK_PLUS ||
+        node->token->type == TK_MINUS ||
+        node->token->type == TK_MUL ||
         node->token->type == TK_DIV ||
         node->token->type == TK_AND ||
         node->token->type == TK_OR ||
@@ -237,24 +292,24 @@ void assignTypes(ASTNode* node)
     }
     else if (node->token->type == TK_ID)
     {
-        TypeLog* entry = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
+        TypeLog *entry = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
 
         if (entry == NULL)
-           entry = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
+            entry = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
 
-        node->derived_type = ((VariableEntry*)entry->structure)->type;
+        node->derived_type = ((VariableEntry *)entry->structure)->type;
     }
     else if (node->token->type == TK_DOT)
     {
         // <dot> ===> <left> TK_DOT <right>
         assignTypes(node->children[0]);
 
-        DerivedEntry* leftEntry = node->children[0]->derived_type->structure;
-        
+        DerivedEntry *leftEntry = node->children[0]->derived_type->structure; //
+
         // search for token on right of DOT
 
-        TypeInfoListNode* field = leftEntry->list->head;
-        
+        TypeInfoListNode *field = leftEntry->list->head;
+
         while (field)
         {
             if (strcmp(field->name, node->children[1]->token->lexeme) == 0)
@@ -273,6 +328,5 @@ void assignTypes(ASTNode* node)
         node->derived_type = trie_getRef(globalSymbolTable, "int")->entry.ptr;
     else if (node->token->type == TK_RNUM)
         node->derived_type = trie_getRef(globalSymbolTable, "real")->entry.ptr;
-
     assignTypes(node->sibling);
 }

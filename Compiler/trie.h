@@ -30,4 +30,4 @@ int trie_exists(Trie* t, char* key);
 
 TrieEntry trie_getVal(Trie* t, char* key);
 
-void iterateTrie(Trie* t, void (*fptr)(TrieEntry*));
+void iterateTrie(Trie* t, void (*fptr)(char* , TrieEntry*));

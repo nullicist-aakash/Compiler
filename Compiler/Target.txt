@@ -1,5 +1,5 @@
 During pass 1:
-Function overloading is not allowed.
+Function overloading is not allowed.//
 A record type name should not be redefined anywhere
 
 During pass 2:
@@ -29,17 +29,17 @@ The parameter of variant record type (for variant field only) is type checked at
 
 // Summary
 Till the end of phase 1:
-	No repeated record/union definitions.
-	No duplicate function names.
-	No duplicate global variables
-	Valid Typedef check
-	Check if typedef record exists
-	Alias exists
+	1. No repeated record/union definitions.
+	2. No duplicate function names. 
+	3. No duplicate global variables 
+	4. Valid Typedef check
+	5. Check if typedef record exists
+	6. Alias exists
 
 Till the end of phase 2:
 
 For functions:
-	Input/Output parameter types are defined
+	1. Input/Output parameter types are defined
 
 For variables:
 	variables have valid type
@@ -58,6 +58,7 @@ For statements:
 	Valid number of args in function call and return *
 	
 	
-Width calculation phase: (DONE)
+	
+Width calculation phase:
 	Topo sort					-- No circular will be given in test cases
 	Union width recalculation

@@ -429,10 +429,6 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 
 	while (lookahead != NULL)
 	{
-		StackNode* temp = s->top;
-		while (temp->data != -1)
-			temp = temp->prev;
-
 		if (lookahead->type == TK_ERROR_LENGTH ||
 			lookahead->type == TK_ERROR_PATTERN ||
 			lookahead->type == TK_ERROR_SYMBOL)
@@ -577,8 +573,11 @@ double getVal(Token* token)
 			eLoc = i;
 	}
 
-	str[dotLoc] = '\0';
-	str[eLoc] = '\0';
+	if(dotLoc >=0)
+		str[dotLoc] = '\0';
+	
+	if (eLoc >= 0)
+		str[eLoc] = '\0';
 
 	double val = getIntVal(str);
 
@@ -606,12 +605,8 @@ double getVal(Token* token)
 	return val;
 }
 
-void printParseTree(TreeNode* node, FILE* fptr)
+void printParseTree(TreeNode* node)
 {
-	if (fptr == NULL) {
-		perror("Error opening file");
-		return;
-	}
 	if (node->parent != NULL)
 	{
 		char* A = node->isLeaf ? node->token->lexeme : "----";
@@ -622,13 +617,13 @@ void printParseTree(TreeNode* node, FILE* fptr)
 		char* F = node->isLeaf ? "yes" : "no";
 		char* G = node->isLeaf ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
 
-		fprintf(fptr, "%30s %10d %30s %15f %30s %10s %30s\n", A, B, C, D, E, F, G);
+		printf( "%25s %10d %15s %15f %27s %10s %27s\n", A, B, C, D, E, F, G);
 	}
 	else
-		fprintf(fptr, "%30s %10d %30s %15s %30s %10s %30s\n", "----", -1, "----", "-nan", "ROOT", "no", "program");
+		printf( "%25s %10d %15s %15s %27s %10s %27s\n", "----", -1, "----", "-nan", "ROOT", "no", "program");
 
 	for (int i = 0; i < node->child_count; ++i)
-		printParseTree(node->children[i], fptr);
+		printParseTree(node->children[i]);
 }
 
 void freeParseTree(TreeNode* node)
@@ -648,4 +643,14 @@ void freeParseTree(TreeNode* node)
 		free(node->children);
 
 	free(node);
+}
+
+void ParseTreeDfs(TreeNode* node, int* numParseTreeNodes, int* parseTreeSize)
+{
+	if (!node)
+		return;
+	for (int i = 0; i < node->child_count; i++)
+		ParseTreeDfs(node->children[i], numParseTreeNodes, parseTreeSize);
+	(*numParseTreeNodes)++;
+	(*parseTreeSize) += sizeof(TreeNode) + (node->token ? node->token->length : 0);
 }

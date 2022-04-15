@@ -6,8 +6,8 @@
 #include <stdio.h>
 
 Trie* localSymbolTable;
-int localOffset;
-int globalOffset = 0;
+//int localOffset;
+//int globalOffset = 0;
 
 // helpers
 int getNextLabel()
@@ -545,7 +545,7 @@ IRInsList* generateFuncCode(ASTNode* funcNode)
 	TypeLog* mediator = trie_getRef(globalSymbolTable, funcNode->token->lexeme)->entry.ptr;
 	FuncEntry* funcEntry = mediator->structure;
 	localSymbolTable = funcEntry->symbolTable;
-	localOffset = 0;
+	/*localOffset = 0;*/
 
 	logIt("Generating code for function: %s and its symbol table is found at adress: %p\n", funcEntry->name, localSymbolTable);
 

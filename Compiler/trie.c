@@ -9,6 +9,7 @@
 #include "trie.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 int getIndex(char c)
 {
@@ -26,6 +27,26 @@ int getIndex(char c)
 
 	if (c == '#')
 		return 63;
+
+	assert(0);
+}
+
+char getCharacter(int index)
+{
+	if (index == 63)
+		return '#';
+
+	if (index == 62)
+		return '_';
+
+	if (index >= 52 && index <= 61)
+		return index - 52 + '0';
+
+	if (index >= 26 && index <= 51)
+		return index - 26 + 'a';
+
+	if (index>=0 && index < 26)
+		return 'A' + index;
 
 	assert(0);
 }
@@ -85,19 +106,25 @@ TrieEntry trie_getVal(Trie* t, char* key)
 	return traverse->entry;
 }
 
-void dfs(TrieNode* node, void (*fptr)(TrieEntry*))
+void dfs(TrieNode* node, char* buff, int depth,void (*fptr)(char*, TrieEntry*))
 {
 	if (node == NULL)
 		return;
 
 	if (node->entry.value != 0)
-		fptr(&node->entry);
+		fptr(buff, &node->entry);
 	
 	for (int i = 0; i < TRIE_CHILD_COUNT; ++i)
-		dfs(node->children[i], fptr);
+	{
+		buff[depth] = getCharacter(i);
+		buff[depth + 1] = '\0';
+		dfs(node->children[i], buff, depth + 1, fptr);
+	}
 }
 
-void iterateTrie(Trie* t, void (*fptr)(TrieEntry*))
+void iterateTrie(Trie* t, void (*fptr)(char*, TrieEntry*))
 {
-	dfs(t->root, fptr);
+	char buffer[50];
+	memset(buffer, 0, sizeof(buffer));
+	dfs(t->root, buffer, 0, fptr);
 }
