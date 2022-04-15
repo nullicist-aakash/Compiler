@@ -14,6 +14,7 @@
 #include "logger.h"
 
 ParserData* parserData;
+int ParseErr = 0;
 
 int isTerminal(int index)
 {
@@ -39,9 +40,9 @@ void setUnion(char* bitset1, char* bitset2, int n, int* flag) {
 
 	for (int i = 0; i < n; i++) {
 		char c = bitset1[i];
-		
+
 		bitset1[i] = bitset1[i] | bitset2[i];
-		if (c != bitset1[i])  *flag = *flag + 1; 		
+		if (c != bitset1[i])  *flag = *flag + 1;
 
 	}
 }
@@ -80,7 +81,7 @@ void computeNullable()
 		flag = 0;
 		for (int i = 0; i < parserData->num_productions; i++) {
 			int changed = 0;
-			if (isEqual(bitAnd(bitset3,parserData->nullable, productionBitset[i], n, &changed), productionBitset[i], n)) {
+			if (isEqual(bitAnd(bitset3, parserData->nullable, productionBitset[i], n, &changed), productionBitset[i], n)) {
 				BITSET(parserData->nullable, rules[i][0]);
 				flag = changed;
 			}
@@ -103,7 +104,7 @@ void printFollowSets()
 				cnt++;
 				printf("%s, ", parserData->symbolType2symbolStr[j]);
 			}
-		if(cnt)
+		if (cnt)
 			printf("\b\b");
 		printf("}\n");
 	}
@@ -119,8 +120,8 @@ void printFirstSets()
 		printf("\b\b }\n");
 	}
 }
-void addToFirstSet(int lhs, int symbol,int* change) {
-	char** bitset1 = calloc(1,sizeof(char*));
+void addToFirstSet(int lhs, int symbol, int* change) {
+	char** bitset1 = calloc(1, sizeof(char*));
 	*bitset1 = parserData->firstSet[lhs];
 	int t = parserData->num_terminals;
 	int n = parserData->num_non_terminals;
@@ -130,7 +131,7 @@ void addToFirstSet(int lhs, int symbol,int* change) {
 			*change = 1;
 		}
 	}
-	else 
+	else
 		setUnion(*bitset1, parserData->firstSet[symbol - t], n, change);
 	free(bitset1);
 }
@@ -214,7 +215,7 @@ void populateFollowSets()
 					for (int j = i + 1; j < k; j++)
 					{
 						int dummy = 0;
-						addToFollowSet(temp,rules[ind][j],&dummy,&nullableFlag);
+						addToFollowSet(temp, rules[ind][j], &dummy, &nullableFlag);
 						if (!nullableFlag)
 							break;
 					}
@@ -291,18 +292,18 @@ void computeParseTable()
 			if (!BITTEST(nullable, rules[ind][j]))
 				break;
 		}
-		
+
 		if (!(rules[ind][1] == 0))
 			for (int i = 0; i < parserData->num_terminals; i++)
 				if (BITTEST(temp, i))
 					parserData->parseTable[lhs][i] = ind;
-		
+
 		char* followSet = parserData->followSet[lhs];
 		int ruleIsNullable = 1;
 		for (int i = 0; i < parserData->num_terminals; i++)
-			if (BITTEST(temp, i) && !BITTEST(nullable, i)) 
+			if (BITTEST(temp, i) && !BITTEST(nullable, i))
 				ruleIsNullable = 0;
-		
+
 		if (ruleIsNullable || (rules[ind][1] == 0 && BITTEST(nullable, lhs + parserData->num_terminals)))
 			for (int i = 0; i < parserData->num_terminals; i++)
 				if (BITTEST(followSet, i))
@@ -315,14 +316,14 @@ void computeParseTable()
 void loadSymbols(FILE* fp)
 {
 	for (int i = 0; i < parserData->num_terminals + parserData->num_non_terminals; ++i)
-    {
-        char BUFF[64];
-        fscanf(fp, "%s\n", BUFF);
-        parserData->symbolType2symbolStr[i] = calloc(strlen(BUFF) + 1, sizeof(char));
-        strcpy(parserData->symbolType2symbolStr[i], BUFF);
-        TrieNode* ref = trie_getRef(parserData->symbolStr2symbolType, BUFF);
-        ref->entry.value = i;
-    }
+	{
+		char BUFF[64];
+		fscanf(fp, "%s\n", BUFF);
+		parserData->symbolType2symbolStr[i] = calloc(strlen(BUFF) + 1, sizeof(char));
+		strcpy(parserData->symbolType2symbolStr[i], BUFF);
+		TrieNode* ref = trie_getRef(parserData->symbolStr2symbolType, BUFF);
+		ref->entry.value = i;
+	}
 }
 
 void loadProductions(FILE* fp)
@@ -383,8 +384,12 @@ int lexerToParserToken(int index)
 
 void _pop(TreeNode** node, Stack* s)
 {
-	assert((*node)->symbol_index == top(s));
-
+	//assert((*node)->symbol_index == top(s));
+	if (top(s) == -1)
+	{
+		printf("ERROR : Stack is empty. Cannot pop.\n");
+		return;
+	}
 	pop(s);
 
 	while ((*node)->parent_child_index == (*node)->parent->child_count - 1)
@@ -393,7 +398,7 @@ void _pop(TreeNode** node, Stack* s)
 		if ((*node)->parent == NULL)
 			return;
 	}
-	
+
 	(*node) = (*node)->parent->children[(*node)->parent_child_index + 1];
 
 	assert((*node)->symbol_index == top(s));
@@ -433,7 +438,7 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 			lookahead->type == TK_ERROR_PATTERN ||
 			lookahead->type == TK_ERROR_SYMBOL)
 		{
-			flag = 1; 
+			ParseErr = 1;
 
 			if (lookahead->type == TK_ERROR_LENGTH)
 				printf("Line %d \t\tError: Identifier is longer than the prescribed length.\n", lookahead->line_number);
@@ -445,8 +450,10 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 			lookahead = getNextToken();
 			continue;
 		}
-		
+
 		int stack_top = top(s);
+		if (stack_top == -1)
+			break;
 		int input_terminal = lexerToParserToken(lookahead->type);;
 
 
@@ -468,8 +475,8 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 		// if top of stack is terminal but it is not matching with input look-ahead
 		if (isTerminal(stack_top))
 		{
-			flag = 1;
-			printf("Line %d \t\tError: The token %s for lexeme %s does not match with the expected token %s\n",line_number,la_token,lexeme,expected_token);
+			ParseErr = 1;
+			printf("Line %d \t\tError: The token %s for lexeme %s does not match with the expected token %s\n", line_number, la_token, lexeme, expected_token);
 			_pop(&node, s);
 			continue;
 		}
@@ -522,16 +529,17 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 		// left case is for sync set
 		assert(production_number == -2);
 
-		flag = 1;
+		ParseErr = 1;
 		printf("Line %d \t\tError: Invalid token %s encountered with value %s stack top %s\n", line_number, la_token, lexeme, expected_token);
 		_pop(&node, s);
 	}
 
-	assert(top(s) == -1);
+	
+	//assert(top(s) == -1);
 	free(s->top);
 	free(s);
 	fclose(fp);
-	
+
 	if (!flag)
 		fprintf(stderr, "Input source code is syntactically correct.\n");
 
@@ -573,9 +581,9 @@ double getVal(Token* token)
 			eLoc = i;
 	}
 
-	if(dotLoc >=0)
+	if (dotLoc >= 0)
 		str[dotLoc] = '\0';
-	
+
 	if (eLoc >= 0)
 		str[eLoc] = '\0';
 
@@ -617,10 +625,10 @@ void printParseTree(TreeNode* node)
 		char* F = node->isLeaf ? "yes" : "no";
 		char* G = node->isLeaf ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
 
-		printf( "%25s %10d %15s %15f %27s %10s %27s\n", A, B, C, D, E, F, G);
+		printf("%25s %10d %15s %15f %27s %10s %27s\n", A, B, C, D, E, F, G);
 	}
 	else
-		printf( "%25s %10d %15s %15s %27s %10s %27s\n", "----", -1, "----", "-nan", "ROOT", "no", "program");
+		printf("%25s %10d %15s %15s %27s %10s %27s\n", "----", -1, "----", "-nan", "ROOT", "no", "program");
 
 	for (int i = 0; i < node->child_count; ++i)
 		printParseTree(node->children[i]);
