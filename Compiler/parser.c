@@ -431,6 +431,7 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 	Token* lookahead = getNextToken();
 
 	int flag = 0;
+	int stackEmptiedParseError = 0;
 
 	while (lookahead != NULL)
 	{
@@ -478,6 +479,8 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 			ParseErr = 1;
 			printf("Line %d \t\tError: The token %s for lexeme %s does not match with the expected token %s\n", line_number, la_token, lexeme, expected_token);
 			_pop(&node, s);
+			if (top(s) == -1)
+				printf("Stack emptied\n");
 			continue;
 		}
 
@@ -534,6 +537,8 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 		ParseErr = 1;
 		printf("Line %d \t\tError: Invalid token %s encountered with value %s stack top %s\n", line_number, la_token, lexeme, expected_token);
 		_pop(&node, s);
+		if (top(s) == -1)
+			printf("Stack Emptied\n");
 	}
 
 	

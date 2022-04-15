@@ -31,10 +31,9 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
     TypeLog* left = leftNode->derived_type;
     TypeLog* right = rightNode ? rightNode->derived_type : NULL;
     TokenType op = opToken->type;
-    printf("Line number %d : Op = %s\n", opToken->line_number, opToken->lexeme);
 
     if (!left)
-        printf("ERROR : Line Number %d : Variable %s is not declared\n", opToken->line_number, ((DerivedEntry*)left->structure)->name);
+        return NULL;
     if (op == TK_ASSIGNOP)
     {
         if (areCompatible(leftNode, rightNode))
@@ -64,8 +63,8 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
         if (!leftType || !rightType)
             return NULL;
         //logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
-        printf("ERROR : Line number %d : Expression has a type mismatch with one argument of type %s and the other argument of type %s\n",
-            opToken->line_number, leftType, rightType);
+        printf("ERROR : Line number %d : Expression has a type mismatch, %s is of type %s and %s is of type %s\n",
+            opToken->line_number, leftNode->token->lexeme, leftType, rightNode->token->lexeme, rightType);
         return NULL;
     }
 
@@ -110,7 +109,6 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
 
     if (op == TK_AND || op == TK_OR)
     {
-        printf("%d %d\n", left->entryType, right->entryType);
         if (left == boolean && right == boolean)
             return boolean;
 
@@ -185,7 +183,8 @@ void assignTypes(ASTNode* node)
     if (!node)
         return;
 
-    if (node->sym_index == 57)
+    if (node->sym_index == -1){}
+    else if (node->sym_index == 57)
     {
         // program -> functions, main
         assignTypes(node->children[0]);
@@ -249,7 +248,7 @@ void assignTypes(ASTNode* node)
 
         node->derived_type = void_empty;
     }
-    else if (node->sym_index == 63 || node->sym_index == 77)
+    else if (node->sym_index == 63 || node->sym_index == 77 || node->sym_index==106)
     {
         // idList
         ASTNode* temp = node;
@@ -261,8 +260,13 @@ void assignTypes(ASTNode* node)
             if (mediator == NULL)
                 mediator = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
 
-            VariableEntry* entry = mediator->structure;
-            temp->derived_type = entry->type;
+            if (mediator)
+            {
+                VariableEntry* entry = mediator->structure;
+                temp->derived_type = entry->type;
+            }
+            else
+                printf("ERROR : Line number %d : Variable %s is not declared\n", node->token->line_number, temp->token->lexeme);
             temp = temp->sibling;
         }
         // TODO:

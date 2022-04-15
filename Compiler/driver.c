@@ -159,6 +159,8 @@ void main(int argc, char **argv)
 		else if (option == 5)
 		{
 			TreeNode *node = parseInputSourceCode(argv[1]);
+			if (ParseErr == 1)
+				continue;
 			ASTNode *ast = createAST(node);
 			loadSymbolTable(ast);
 			calculateOffsets(ast);
@@ -169,6 +171,8 @@ void main(int argc, char **argv)
 		else if (option == 6)
 		{
 			TreeNode *node = parseInputSourceCode(argv[1]);
+			if (ParseErr == 1)
+				continue;
 			ASTNode *ast = createAST(node);
 			loadSymbolTable(ast);
 			calculateOffsets(ast);
@@ -178,6 +182,8 @@ void main(int argc, char **argv)
 		else if (option == 7)
 		{
 			TreeNode* node = parseInputSourceCode(argv[1]);
+			if (ParseErr == 1)
+				continue;
 			ASTNode* ast = createAST(node);
 			loadSymbolTable(ast);
 			calculateOffsets(ast);
@@ -187,6 +193,8 @@ void main(int argc, char **argv)
 		else if (option == 8)
 		{
 			TreeNode* node = parseInputSourceCode(argv[1]);
+			if (ParseErr == 1)
+				continue;
 			ASTNode* ast = createAST(node);
 			loadSymbolTable(ast);
 			iterateTrie(globalSymbolTable, printRecordDetails);
@@ -195,7 +203,10 @@ void main(int argc, char **argv)
 		{
 			start_time = clock();
 			TreeNode* node = parseInputSourceCode(argv[1]);
-
+			if (ParseErr == 1)
+				continue;
+			else
+				printf("Program is syntactically correct\n");
 			ASTNode* ast = createAST(node);
 
 			loadSymbolTable(ast);
@@ -211,6 +222,8 @@ void main(int argc, char **argv)
 		else if (option == 11)
 		{
 			TreeNode *node = parseInputSourceCode(argv[1]);
+			if (ParseErr == 1)
+				continue;
 			// printParseTree(node);
 
 			ASTNode *ast = createAST(node);

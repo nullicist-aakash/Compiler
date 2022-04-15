@@ -1,3 +1,5 @@
+
+
 %Test Case 1: Type checking 
 %Details: 
 %        (a) Simple arithmetic expressions involvoing primitive data types are used in this test case
@@ -17,6 +19,50 @@
 %logical op between int and real not allowed
 %if record has union, record should have tagvalue
 %type of tagvalue is integer
+
+_unionfunction  input parameter list [record #tow d5cc34, #point b5c6]  
+output parameter list[#rela d3];
+
+	record #two
+		type #point: beginpoint;
+		type #point: endpoint;
+	endrecord
+
+
+	type record #two : b5b567;
+	type record #one : b3;
+	type #poe: d5;
+	b5b567 <--- b5c6*2;
+	b3 <--- b5c6-d5cc34;
+	while ( b5b567 <= d5cc34)
+		read(d5cc34);
+		d3 <--- d3 + d5cc34;
+		b5b567 <--- b5b567 + 1;
+	endwhile
+	return [d3];
+end
+
+_intersectionfunction  input parameter list [union #four d5cc34, #yash b5c6]  
+output parameter list[union #four d7];
+
+	record #two
+		type #point: beginpoint;
+		type #point: endpoint;
+	endrecord
+
+
+	type record #two : b5b567;
+	type record #one : b3;
+	type #poe: d5;
+	b5b567 <--- b5c6*2;
+	b3 <--- b5c6-d5cc34;
+	while ( b5b567 <= d5cc34)
+		read(d5cc34);
+		d3 <--- d3 + d5cc34;
+		b5b567 <--- b5b567 + 1;
+	endwhile
+	return [d3];
+end
 
 _main 
 	record #coordinate
@@ -81,9 +127,6 @@ _main
 		b6b7 <--- b6b7 * 2;
 	endwhile
 	while ((b6b7<0) @@@ (b5b5>0))
-		b6b7 <--- b6b7 * 2;
-	endwhile
-	while (b6b7 @@@ (b5b5>0))
 		b6b7 <--- b6b7 * 2;
 	endwhile
 	b5 <--- c6 + d5cb34567 - b5;            % No error
