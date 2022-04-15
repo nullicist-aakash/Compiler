@@ -551,60 +551,6 @@ int getIntVal(char* str)
 	return str[0] == '-' ? -val : val;
 }
 
-double getVal(Token* token)
-{
-	double zr = 0;
-	if (token == NULL)
-		return zr / zr;
-	if (token->type != TK_RNUM && token->type != TK_NUM)
-		return zr / zr;
-
-	char* str = calloc(strlen(token->lexeme) + 1, sizeof(char));
-	strcpy(str, token->lexeme);
-
-	int dotLoc = -1;
-	int eLoc = -1;
-
-	for (int i = 0; i < strlen(str); ++i)
-	{
-		if (str[i] == '.')
-			dotLoc = i;
-		if (str[i] == 'E')
-			eLoc = i;
-	}
-
-	if(dotLoc >=0)
-		str[dotLoc] = '\0';
-	
-	if (eLoc >= 0)
-		str[eLoc] = '\0';
-
-	double val = getIntVal(str);
-
-	if (dotLoc >= 0)
-	{
-		double f = getIntVal(str + dotLoc + 1);
-		f /= 100;
-		val += f;
-	}
-
-	if (eLoc >= 0)
-	{
-		double e = getIntVal(str + eLoc + 1);
-		double pow = 1;
-		for (int i = 0; i < (e > 0 ? e : -e); ++i)
-			pow *= 10;
-
-		if (e < 0)
-			pow = 1 / pow;
-
-		val *= pow;
-	}
-
-	free(str);
-	return val;
-}
-
 void freeParseTree(TreeNode* node)
 {
 	for (int i = 0; i < node->child_count; ++i)

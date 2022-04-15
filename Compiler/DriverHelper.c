@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "typeChecker.h"
 
@@ -60,7 +61,7 @@ void recursivePrintParseTree(FILE* fp, TreeNode* node)
 		char* A = node->isLeaf ? node->token->lexeme : "----";
 		int B = node->isLeaf ? node->token->line_number : -1;
 		char* C = !(node->isLeaf) ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
-		double D = getVal(node->token);
+		double D = node->token->type == TK_RNUM ? atof(node->token->lexeme) : -1;
 		char* E = node->parent == NULL ? "root" : parserData->symbolType2symbolStr[node->parent->symbol_index];
 		char* F = node->isLeaf ? "yes" : "no";
 		char* G = node->isLeaf ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
