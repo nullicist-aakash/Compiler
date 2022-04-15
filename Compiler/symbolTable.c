@@ -18,59 +18,6 @@ TypeLog **structList;
 // First pass : Collect struct , typedef and pass through typedef list
 // Second pass : Add function, Fill TypeInfo, fill variable infos
 
-int localOffset;
-int globalOffset = 0;
-Trie *localSymbolTable;
-
-void fillOffsets(ASTNode *vars, Trie *table)
-{
-    while (vars)
-    {
-        TypeLog *mediator = trie_getRef(localSymbolTable, vars->token->lexeme)->entry.ptr;
-
-        if (mediator == NULL)
-            mediator = trie_getRef(globalSymbolTable, vars->token->lexeme)->entry.ptr;
-
-        VariableEntry *varEntry = mediator->structure;
-
-        varEntry->isGlobal = vars->isGlobal;
-        varEntry->offset = varEntry->isGlobal ? globalOffset : localOffset;
-        localOffset += varEntry->isGlobal ? 0 : varEntry->type->width;
-        globalOffset += varEntry->isGlobal ? varEntry->type->width : 0;
-
-        vars = vars->sibling;
-    }
-}
-
-void generateFuncOffsets(ASTNode *funcNode)
-{
-    TypeLog *mediator = trie_getRef(globalSymbolTable, funcNode->token->lexeme)->entry.ptr;
-    FuncEntry *funcEntry = mediator->structure;
-    localSymbolTable = funcEntry->symbolTable;
-    localOffset = 0;
-    // Iterate over statements
-    fillOffsets(funcNode->children[0], localSymbolTable);
-    fillOffsets(funcNode->children[1], localSymbolTable);
-    fillOffsets(funcNode->children[2]->children[1], localSymbolTable);
-
-    funcEntry->activationRecordSize = localOffset;
-}
-
-void calculateOffsets(ASTNode *ast)
-{
-    globalOffset = 0;
-    ASTNode *func = ast->children[0] == NULL ? ast->children[1] : ast->children[0];
-    while (func)
-    {
-        if (func->sym_index != -1)
-            generateFuncOffsets(func);
-        if (func->sibling == NULL && func != ast->children[1])
-            func = ast->children[1];
-        else
-            func = func->sibling;
-    }
-}
-
 void initTables()
 {
     globalSymbolTable = calloc(1, sizeof(Trie));
@@ -122,38 +69,38 @@ TypeLog *getMediator(Trie *t, char *key)
     return (TypeLog *)node->entry.ptr;
 }
 
-//int firstPassErrorCheck(ASTNode *node)
+// int firstPassErrorCheck(ASTNode *node)
 //{
-//    return 1;
-//    if (node->token->type != TK_DEFINETYPE)
-//    {
-//        if (trie_exists(prefixTable, node->children[0]->token->lexeme))
-//        {
-//            // TODO: Name redefined error
-//            return -1;
-//        }
-//    }
+//     return 1;
+//     if (node->token->type != TK_DEFINETYPE)
+//     {
+//         if (trie_exists(prefixTable, node->children[0]->token->lexeme))
+//         {
+//             // TODO: Name redefined error
+//             return -1;
+//         }
+//     }
 //
-//    // TODO: : Errors
-//    // 1.1 Type Name Redefined
-//    // 1.2.1 Non Existent type for Alias
-//    // 1.2.2 Alias type mismatch
-//    // 1.2.3 Redefined alias name
-//    // 1.3.1 Func Name Redefined
+//     // TODO: : Errors
+//     // 1.1 Type Name Redefined
+//     // 1.2.1 Non Existent type for Alias
+//     // 1.2.2 Alias type mismatch
+//     // 1.2.3 Redefined alias name
+//     // 1.3.1 Func Name Redefined
 //
-//    return 0;
-//}
+//     return 0;
+// }
 //
-//int secondPassErrorCheck(ASTNode *node)
+// int secondPassErrorCheck(ASTNode *node)
 //{
-//    return 1;
-//    // TODO: : Errors
-//    /* For Functions
-//        1. Invalid argument type
-//        2. Repeated variable name
-//    */
-//    return 0;
-//}
+//     return 1;
+//     // TODO: : Errors
+//     /* For Functions
+//         1. Invalid argument type
+//         2. Repeated variable name
+//     */
+//     return 0;
+// }
 
 FuncEntry *local_func; // TODO: Udao isko bc, use key
 
@@ -200,16 +147,16 @@ int firstPass(ASTNode *node)
         // <stmts> -> <definitions> <declarations> <funcBody> <return>
         firstPass(node->children[0]);
     }
-    //else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) // Type Definition Names Parsed
+    // else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) // Type Definition Names Parsed
     else if (node->sym_index == 71)
     {
-        if (getMediator(globalSymbolTable, node->children[0]->token->lexeme)->refCount==1) // ERROR Defined Type name repeated
-         {
-             printf("ERROR : Redeclaration of defined type %s in line number %d\n\n", node->children[0]->token->lexeme, node->children[0]->token->line_number);
-             node->sym_index = -1;
-             firstPass(node->sibling);
-             return -1;
-         }
+        if (getMediator(globalSymbolTable, node->children[0]->token->lexeme)->refCount == 1) // ERROR Defined Type name repeated
+        {
+            printf("ERROR : Redeclaration of defined type %s in line number %d\n\n", node->children[0]->token->lexeme, node->children[0]->token->line_number);
+            node->sym_index = -1;
+            firstPass(node->sibling);
+            return -1;
+        }
         trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
             node->token->type;
 
@@ -225,7 +172,7 @@ int firstPass(ASTNode *node)
         entry->list = calloc(1, sizeof(TypeInfoList));
         mediator->index = dataTypeCount++;
     }
-    //else if (node->sym_index == 108 && firstPassErrorCheck(node) != -1)
+    // else if (node->sym_index == 108 && firstPassErrorCheck(node) != -1)
     else if (node->sym_index == 108) // Type Aliases Parsed
     {
         char *oldName = node->children[1]->token->lexeme;
@@ -237,12 +184,18 @@ int firstPass(ASTNode *node)
             firstPass(node->sibling);
             return -1;
         }
-
         TypeLog *mediator = getMediator(globalSymbolTable, oldName);
-        //mediator->refCount++;
+        // mediator->refCount++;
         trie_getRef(globalSymbolTable, newName)->entry.ptr = mediator;
 
         trie_getRef(prefixTable, newName)->entry.value = node->token->type;
+        // DerivedEntry *temp = mediator->structure;
+        // AliasListNode *newAlias = calloc(1, sizeof(AliasListNode));
+        // strcpy(newAlias->RUName, newName);
+
+        // newAlias->next = temp->aliases;
+        // temp->aliases = newAlias;
+        // trie_getRef(prefixTable, newName)->entry.value = node->token->type;
     }
 
     firstPass(node->sibling);
@@ -349,7 +302,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         secondPass(node->children[0], adj, symTable);
         secondPass(node->children[1], adj, symTable);
     }
-    //else if (node->sym_index == 71 && secondPassErrorCheck(node) != -1) 
+    // else if (node->sym_index == 71 && secondPassErrorCheck(node) != -1)
     else if (node->sym_index == 71) // Record/Union full type information parsed
     {
         ASTNode *field = node->children[1];
@@ -385,7 +338,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             field = field->sibling;
         }
     }
-    //else if ((node->sym_index == 63 || node->sym_index == 77) && secondPassErrorCheck(node) != -1)
+    // else if ((node->sym_index == 63 || node->sym_index == 77) && secondPassErrorCheck(node) != -1)
     else if ((node->sym_index == 63 || node->sym_index == 77))
     {
         // <declaration> ===> { token: TK_ID, type: <dataType> }
@@ -408,6 +361,87 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
     }
 
     secondPass(node->sibling, adj, symTable);
+}
+void printRecordUndefinedError(char *key, TrieEntry *entry)
+{
+    int type = trie_getRef(prefixTable, key)->entry.value;
+    TypeLog *typelog = entry->ptr;
+    if (!typelog->refCount)
+    {
+        // DerivedEntry *de = typelog->structure;
+        if (type == TK_DEFINETYPE)
+            printf("ERROR : %s could not be defined as an alias a defined type\n", key);
+        else
+            printf("ERROR : %s is not a defined type\n", key);
+
+        // printf("<");
+        // TypeInfoListNode *cur = de->list->head;
+
+        // printTypeExpression(cur->type);
+        // cur = cur->next;
+        // while (cur)
+        // {
+        //     printf(", ");
+        //     printTypeExpression(cur->type);
+
+        //     cur = cur->next;
+        // }
+        // printf("> %d\n", typelog->width);
+    }
+    else
+        return;
+}
+int localOffset;
+int globalOffset = 0;
+Trie *localSymbolTable;
+
+void fillOffsets(ASTNode *vars, Trie *table)
+{
+    while (vars)
+    {
+        TypeLog *mediator = trie_getRef(localSymbolTable, vars->token->lexeme)->entry.ptr;
+
+        if (mediator == NULL)
+            mediator = trie_getRef(globalSymbolTable, vars->token->lexeme)->entry.ptr;
+
+        VariableEntry *varEntry = mediator->structure;
+
+        varEntry->isGlobal = vars->isGlobal;
+        varEntry->offset = varEntry->isGlobal ? globalOffset : localOffset;
+        localOffset += varEntry->isGlobal ? 0 : varEntry->type->width;
+        globalOffset += varEntry->isGlobal ? varEntry->type->width : 0;
+
+        vars = vars->sibling;
+    }
+}
+
+void generateFuncOffsets(ASTNode *funcNode)
+{
+    TypeLog *mediator = trie_getRef(globalSymbolTable, funcNode->token->lexeme)->entry.ptr;
+    FuncEntry *funcEntry = mediator->structure;
+    localSymbolTable = funcEntry->symbolTable;
+    localOffset = 0;
+    // Iterate over statements
+    fillOffsets(funcNode->children[0], localSymbolTable);
+    fillOffsets(funcNode->children[1], localSymbolTable);
+    fillOffsets(funcNode->children[2]->children[1], localSymbolTable);
+
+    funcEntry->activationRecordSize = localOffset;
+}
+
+void calculateOffsets(ASTNode *ast)
+{
+    globalOffset = 0;
+    ASTNode *func = ast->children[0] == NULL ? ast->children[1] : ast->children[0];
+    while (func)
+    {
+        if (func->sym_index != -1)
+            generateFuncOffsets(func);
+        if (func->sibling == NULL && func != ast->children[1])
+            func = ast->children[1];
+        else
+            func = func->sibling;
+    }
 }
 
 void calculateWidth(int *sortedList, int index, int **adj)
@@ -613,6 +647,8 @@ void loadSymbolTable(ASTNode *root)
     initTables();
 
     firstPass(root);
+    iterateTrie(globalSymbolTable, printRecordUndefinedError);
+
     // iterateTrie(globalSymbolTable, iterationFunction);
     structList = calloc(dataTypeCount, sizeof(TypeLog *));
     structList[0] = trie_getRef(globalSymbolTable, "int")->entry.ptr;

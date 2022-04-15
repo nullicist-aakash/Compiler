@@ -1,4 +1,4 @@
-%Testcase for undefined type definition
+%Testcase for repeated type definition
 
 _one  input parameter list [int c4, #newline c2c7, real c5, #point c2c6, int c7]  
 output parameter list[real d3, record #line d3b2];
@@ -6,8 +6,8 @@ output parameter list[real d3, record #line d3b2];
 		type #point: beginpoint;
 		type #point: endpoint;
 	endrecord
-	definetype record #abc as #newline
-	definetype record #coordinate as #point
+	definetype record #line as #newline
+	definetype record #coordinate as #line
 	type record #line :  d7d3;
 	type record #coordinate : b3bbb2;
 	type record #coordinate : b3bbb3;
