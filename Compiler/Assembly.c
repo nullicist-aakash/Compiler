@@ -1,8 +1,8 @@
 #include "Assembly.h"
 #include <assert.h>
 
-ASTNode* root;
 ASTNode* func;
+FuncEntry* entry;
 Trie* localSymbolTable;
 FILE* fp_output;
 
@@ -21,12 +21,15 @@ void writeVariables(TrieEntry* entry)
 
 void handleFunction(IRInsNode* funcCode)
 {
-
+	// assuming this is main for now
+	fprintf(fp_output, "\tpush ebp\n");
+	fprintf(fp_output, "\tmov ebp, esp\n");
+	fprintf(fp_output, "\tsub esp, %d\n", )
 }
 
 void generateAssembly(FILE* fp, ASTNode* rt, IRInsNode** functions)
 {
-	root = rt;
+	ASTNode* root = rt;
 	fp_output = fp;
 
 	fprintf(fp, "\tglobal main\n");
@@ -52,7 +55,7 @@ void generateAssembly(FILE* fp, ASTNode* rt, IRInsNode** functions)
 
 	func = rt->children[1];
 	TypeLog* mediator = trie_getRef(globalSymbolTable, func->token->lexeme)->entry.ptr;
-	FuncEntry* entry = mediator->structure;
+	entry = mediator->structure;
 	localSymbolTable = entry->symbolTable;
 
 	fprintf(fp, "main:\n");
