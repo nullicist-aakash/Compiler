@@ -170,6 +170,16 @@
   <ItemGroup>
     <Text Include="DFA_Structure.txt" />
     <Text Include="grammar.txt" />
+    <Text Include="p1.txt" />
+    <Text Include="p2.txt" />
+    <Text Include="p3.txt" />
+    <Text Include="p4.txt" />
+    <Text Include="p5.txt" />
+    <Text Include="s1.txt" />
+    <Text Include="s2.txt" />
+    <Text Include="s3.txt" />
+    <Text Include="s4.txt" />
+    <Text Include="s5.txt" />
     <Text Include="Target.txt" />
     <Text Include="testcase1.txt" />
     <Text Include="testcase2.txt" />

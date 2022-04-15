@@ -189,13 +189,6 @@ int firstPass(ASTNode *node)
         trie_getRef(globalSymbolTable, newName)->entry.ptr = mediator;
 
         trie_getRef(prefixTable, newName)->entry.value = node->token->type;
-        // DerivedEntry *temp = mediator->structure;
-        // AliasListNode *newAlias = calloc(1, sizeof(AliasListNode));
-        // strcpy(newAlias->RUName, newName);
-
-        // newAlias->next = temp->aliases;
-        // temp->aliases = newAlias;
-        // trie_getRef(prefixTable, newName)->entry.value = node->token->type;
     }
 
     firstPass(node->sibling);
@@ -358,6 +351,22 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         entry->isGlobal = node->isGlobal;
         entry->usage = LOCAL;
         entry->type = getMediator(globalSymbolTable, node->type->sibling == NULL ? node->type->token->lexeme : node->type->sibling->token->lexeme);
+    }
+    else if (node->sym_index == 108) // Type Aliases Parsed
+    {
+        char* oldName = node->children[1]->token->lexeme;
+        char* newName = node->children[2]->token->lexeme;
+        TypeLog* mediator = getMediator(globalSymbolTable, oldName);
+
+        DerivedEntry* temp = mediator->structure;
+        AliasListNode* newAlias = calloc(1, sizeof(AliasListNode));
+        newAlias->RUName = calloc(1, strlen(newName) + 1);
+        strcpy(newAlias->RUName, newName);
+
+        if (temp->aliases != NULL)
+            newAlias->next = temp->aliases;
+        temp->aliases = newAlias;
+        trie_getRef(prefixTable, newName)->entry.value = node->token->type;
     }
 
     secondPass(node->sibling, adj, symTable);

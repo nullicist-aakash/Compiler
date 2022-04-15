@@ -23,6 +23,18 @@ The type of an identifier is the type appearing while declaring the variable.
 //WTF IS THIS IDK// The types and the number of parameters returned by a function must be the same as that of the parameters used in invoking the function.
 // The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
 
+record variable int to real not allowed
+record scalar multi allowed
+int real mult not allowed
+division tests - real int , int real, real real, int int -> all LHS real - assign to int then error
+boolean testcases - int comparison with real not allowed
+logical op between int and real not allowed
+if record has union, record should have tagvalue
+type of tagvalue is integer
+
+
+
+
 Runtime:
 The parameter of variant record type (for variant field only) is type checked at run type as described above.
 

@@ -63,7 +63,7 @@ typedef struct
     int isUnion;
     char *name; // Name of record/union
     TypeInfoList *list;
-    AliasListNode *aliases; // TODO: : Remove the comment , but Aakash chutiya
+    AliasListNode *aliases; 
 } DerivedEntry;
 
 typedef struct
