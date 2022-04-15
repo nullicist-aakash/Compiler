@@ -16,36 +16,6 @@ int getNextLabel()
 	return ++label;
 }
 
-char* genNextVar()
-{
-	static int var = 0;
-	char* name = calloc(10, sizeof(char));
-	strcpy(name, "##temp");
-
-	sprintf(name + strlen(name), "%d", var++);
-	return name;
-}
-
-void fillOffsets(ASTNode* vars)
-{
-	while (vars)
-	{
-		TypeLog* mediator = trie_getRef(localSymbolTable, vars->token->lexeme)->entry.ptr;
-
-		if (mediator == NULL)
-			mediator = trie_getRef(globalSymbolTable, vars->token->lexeme)->entry.ptr;
-
-		VariableEntry* varEntry = mediator->structure;
-
-		varEntry->offset = localOffset;
-		varEntry->isGlobal = vars->isGlobal;
-		localOffset += varEntry->isGlobal ? 0 : vars->derived_type->width;
-		globalOffset += varEntry->isGlobal ? vars->derived_type->width : 0;
-
-		vars = vars->sibling;
-	}
-}
-
 // List operations
 IRInsList* mergeLists(IRInsList* left, IRInsList* right)
 {
@@ -97,11 +67,19 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 
 		IRInstr* ins = calloc(1, sizeof(IRInstr));
 		ins->op = OP_ASSIGN;
-		ins->dst.name = to.payload._arith.name;
-		ins->src1.name = exp.payload._arith.name;
+		ins->src1.name = to.payload._arith.name;
 
+		IRInstr* pop = calloc(1, sizeof(IRInstr));
+		pop->op = OP_POP;
+		pop->src1.type = stmt->derived_type;
+
+		// assign
 		payload->payload._stmt.code = exp.payload._arith.code;
 		insert(payload->payload._stmt.code, ins);
+		insert(payload->payload._stmt.code, pop);
+
+		// clear memory
+		free(to.payload._arith.code);
 	}
 	else if (stmt->token->type == TK_ID)
 	{
@@ -112,22 +90,21 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 	}
 	else if (stmt->token->type == TK_DOT)
 	{
-		Payload parent;
-		memset(&parent, 0, sizeof(Payload));
-		parent.payload_type = PAYLOAD_ARITH;
-		recurseiveGenFuncCode(stmt->children[0], &parent);
+		Payload prefix;
+		memset(&prefix, 0, sizeof(Payload));
+		prefix.payload_type = PAYLOAD_ARITH;
+		recurseiveGenFuncCode(stmt->children[0], &prefix);
 
-		char* name = calloc(strlen(parent.payload._arith.name) + 1 + stmt->children[1]->token->length + 1, sizeof(char));
-		strcpy(name, parent.payload._arith.name);
-		free(parent.payload._arith.name);
+		char* name = calloc(strlen(prefix.payload._arith.name) + 1 + stmt->children[1]->token->length + 1, sizeof(char));
+		strcpy(name, prefix.payload._arith.name);
+		free(prefix.payload._arith.name);
 		name[strlen(name)] = '.';
 		strcpy(name + strlen(name), stmt->children[1]->token->lexeme);
 		payload->payload._arith.name = name;
-		payload->payload._arith.code = parent.payload._arith.code;
+		payload->payload._arith.code = prefix.payload._arith.code;
 	}
 	else if (stmt->sym_index == 86) // funcCall
 	{
-		// output args
 		payload->payload._stmt.code = calloc(1, sizeof(IRInsList));
 
 		for (
@@ -143,7 +120,7 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 
 			IRInstr* instr = calloc(1, sizeof(IRInstr));
 			instr->op = OP_PUSH;
-			instr->dst.name = p.payload._arith.name;
+			instr->src1.name = p.payload._arith.name;
 
 			insert(payload->payload._stmt.code, instr);
 
@@ -152,14 +129,47 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 
 		IRInstr* call_stmt = calloc(1, sizeof(IRInstr));
 		call_stmt->op = OP_CALL;
-		call_stmt->dst.name = stmt->token->lexeme;
+		call_stmt->src1.name = stmt->token->lexeme;
 		insert(payload->payload._stmt.code, call_stmt);
+
+		// unwind the stack
+		// remove input args
+		for (ASTNode* in = stmt->children[1]; in; in = in->sibling)
+		{
+			IRInstr* pop_stmt = calloc(1, sizeof(IRInstr));
+			pop_stmt->op = OP_POP;
+			pop_stmt->src1.type = in->derived_type;
+			insert(payload->payload._stmt.code, pop_stmt);
+		}
+
+		// store outputs to appropriate places and pop
+		for (ASTNode* out = stmt->children[0]; out; out = out->sibling)
+		{
+			Payload p;
+			memset(&p, 0, sizeof(Payload));
+
+			p.payload_type = PAYLOAD_ARITH;
+			recurseiveGenFuncCode(out, &p);
+
+			IRInstr* store_stmt = calloc(1, sizeof(IRInstr));
+			store_stmt->op = OP_ASSIGN;
+			store_stmt->src1.name = p.payload._arith.name;
+
+			insert(payload->payload._stmt.code, store_stmt);
+			free(p.payload._arith.code);
+
+
+			IRInstr* pop_stmt = calloc(1, sizeof(IRInstr));
+			pop_stmt->op = OP_POP;
+			pop_stmt->src1.type = out->derived_type;
+			insert(payload->payload._stmt.code, pop_stmt);
+		}
 	}
 	else if (stmt->sym_index == 89) // while -> B S
 	{
 		IRInstr* begin = calloc(1, sizeof(IRInstr));
 		begin->op = OP_LABEL;
-		begin->dst.int_val = getNextLabel();
+		begin->src1.label = getNextLabel();
 
 		// B.true = label();
 		// B.false = while.next
@@ -174,22 +184,22 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 		Payload S;
 		memset(&S, 0, sizeof(Payload));
 		S.payload_type = PAYLOAD_STMT;
-		S.payload._stmt.label_next.label_no = begin->dst.int_val;
+		S.payload._stmt.label_next.label_no = begin->src1.label;
 		recurseiveGenFuncCode(stmt->children[1], &S);
 
 		// while.code = label(begin) || B.code || label(B.true) || S.code || goto(begin)
 
 		IRInstr* btrue = calloc(1, sizeof(IRInstr));
 		btrue->op = OP_LABEL;
-		btrue->dst.int_val = B.payload._bool._true.label_no;
+		btrue->src1.label = B.payload._bool._true.label_no;
 
 		IRInstr* gto = calloc(1, sizeof(IRInstr));
 		gto->op = OP_JMP;
-		gto->dst.int_val = begin->dst.int_val;
+		gto->src1.label = begin->src1.label;
 
 		IRInstr* next_label = calloc(1, sizeof(IRInstr));
 		next_label->op = OP_LABEL;
-		next_label->dst.int_val = payload->payload._stmt.label_next.label_no;
+		next_label->src1.label = payload->payload._stmt.label_next.label_no;
 
 		payload->payload._stmt.code = calloc(1, sizeof(IRInsList));
 		insert(payload->payload._stmt.code, begin);
@@ -225,11 +235,11 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 		// if.code = B.code || label(B.true) || S.code || if.next
 		IRInstr* instr = calloc(1, sizeof(IRInstr));
 		instr->op = OP_LABEL;
-		instr->dst.int_val = B.payload._bool._true.label_no;
+		instr->src1.label = B.payload._bool._true.label_no;
 
 		IRInstr* next_label = calloc(1, sizeof(IRInstr));
 		next_label->op = OP_LABEL;
-		next_label->dst.int_val = payload->payload._stmt.label_next.label_no;
+		next_label->src1.label = payload->payload._stmt.label_next.label_no;
 
 		insert(B.payload._bool.code, instr);
 		payload->payload._stmt.code = mergeLists(B.payload._bool.code, S.payload._stmt.code);
@@ -267,19 +277,19 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 		// if.code = B.code || label(B.true) || S1.code || goto if.next || label(B.false) || S2.code || label(if.next)
 		IRInstr* _btrue = calloc(1, sizeof(IRInstr));
 		_btrue->op = OP_LABEL;
-		_btrue->dst.int_val = B.payload._bool._true.label_no;
+		_btrue->src1.label = B.payload._bool._true.label_no;
 
 		IRInstr* _goto = calloc(1, sizeof(IRInstr));
 		_goto->op = OP_JMP;
-		_goto->dst.int_val = payload->payload._stmt.label_next.label_no;
+		_goto->src1.label = payload->payload._stmt.label_next.label_no;
 
 		IRInstr* _bfalse = calloc(1, sizeof(IRInstr));
 		_bfalse->op = OP_LABEL;
-		_bfalse->dst.int_val = B.payload._bool._false.label_no;
+		_bfalse->src1.label = B.payload._bool._false.label_no;
 
 		IRInstr* next_label = calloc(1, sizeof(IRInstr));
 		next_label->op = OP_LABEL;
-		next_label->dst.int_val = payload->payload._stmt.label_next.label_no;
+		next_label->src1.label = payload->payload._stmt.label_next.label_no;
 
 		insert(B.payload._bool.code, _btrue);
 		payload->payload._stmt.code = mergeLists(B.payload._bool.code, S1.payload._stmt.code);
@@ -303,7 +313,7 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 
 		IRInstr* ins = calloc(1, sizeof(IRInstr));
 		ins->op = stmt->token->type == TK_READ ? OP_READ : OP_WRITE;
-		ins->dst.name = to.payload._arith.name;
+		ins->src1.name = to.payload._arith.name;
 
 		payload->payload._stmt.code = to.payload._arith.code;
 		insert(payload->payload._stmt.code, ins);
@@ -321,33 +331,52 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 		E1.payload_type = PAYLOAD_ARITH;
 		recurseiveGenFuncCode(stmt->children[0], &E1);
 
+
+		if (stmt->children[0]->token->type == TK_ID || stmt->children[0]->token->type == TK_DOT)
+		{
+			// push on stack
+			IRInstr* ins = calloc(1, sizeof(IRInstr));
+			ins->op = OP_PUSH;
+			ins->src1.name = E1.payload._arith.name;
+			insert(E1.payload._arith.code, ins);
+		}
+
 		Payload E2;
 		memset(&E2, 0, sizeof(Payload));
 		E2.payload_type = PAYLOAD_ARITH;
 		recurseiveGenFuncCode(stmt->children[1], &E2);
 
-		// relop.code = E1.code || E2.code || Operation || jump to relop.false
-		IRInstr* code1 = calloc(1, sizeof(IRInstr));
-		switch (stmt->token->type)
+		if (stmt->children[1]->token->type == TK_ID || stmt->children[1]->token->type == TK_DOT)
 		{
-		case TK_LE: code1->op = OP_LE; break;
-		case TK_LT: code1->op = OP_LT; break;
-		case TK_GE: code1->op = OP_GE; break;
-		case TK_GT: code1->op = OP_GT; break;
-		case TK_EQ: code1->op = OP_EQ; break;
-		case TK_NE: code1->op = OP_NEQ; break;
+			// push on stack
+			IRInstr* ins = calloc(1, sizeof(IRInstr));
+			ins->op = OP_PUSH;
+			ins->src1.name = E2.payload._arith.name;
+			insert(E2.payload._arith.code, ins);
 		}
 
-		code1->src1.name = E1.payload._arith.name;
-		code1->src2.name = E2.payload._arith.name;
-		code1->dst.int_val = payload->payload._bool._true.label_no;
+		// relop.code = E1.code || E2.code || Operation || jump to relop.false
+		IRInstr* compare = calloc(1, sizeof(IRInstr));
+		switch (stmt->token->type)
+		{
+		case TK_LE: compare->op = OP_LE; break;
+		case TK_LT: compare->op = OP_LT; break;
+		case TK_GE: compare->op = OP_GE; break;
+		case TK_GT: compare->op = OP_GT; break;
+		case TK_EQ: compare->op = OP_EQ; break;
+		case TK_NE: compare->op = OP_NEQ; break;
+		}
+
+		compare->src1.type = stmt->children[0]->derived_type;
+		compare->src2.type = stmt->children[1]->derived_type;
+		compare->dst.label = payload->payload._bool._true.label_no;
 
 		IRInstr* code2 = calloc(1, sizeof(IRInstr));
 		code2->op = OP_JMP;
-		code2->dst.int_val = payload->payload._bool._false.label_no;
+		code2->src1.label = payload->payload._bool._false.label_no;
 
 		// merge
-		insert(E2.payload._arith.code, code1);
+		insert(E2.payload._arith.code, compare);
 		insert(E2.payload._arith.code, code2);
 		payload->payload._bool.code = mergeLists(E1.payload._arith.code, E2.payload._arith.code);
 
@@ -373,7 +402,7 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 		// B.code = B1.code || B1.false || B2.code
 		IRInstr* instr = calloc(1, sizeof(IRInstr));
 		instr->op = OP_LABEL;
-		instr->dst.int_val = B1.payload._bool._false.label_no;
+		instr->src1.label = B1.payload._bool._false.label_no;
 
 		insert(B1.payload._bool.code, instr);
 		payload->payload._bool.code = mergeLists(B1.payload._bool.code, B2.payload._bool.code);
@@ -400,7 +429,7 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 		// B.code = B1.code || B1.true || B2.code
 		IRInstr* instr = calloc(1, sizeof(IRInstr));
 		instr->op = OP_LABEL;
-		instr->dst.int_val = B1.payload._bool._true.label_no;
+		instr->src1.label = B1.payload._bool._true.label_no;
 
 		insert(B1.payload._bool.code, instr);
 		payload->payload._bool.code = mergeLists(B1.payload._bool.code, B2.payload._bool.code);
@@ -426,17 +455,33 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 		stmt->token->type == TK_DIV
 		)
 	{
-		payload->payload._arith.name = genNextVar();
-
 		Payload E1;
 		memset(&E1, 0, sizeof(Payload));
 		E1.payload_type = PAYLOAD_ARITH;
 		recurseiveGenFuncCode(stmt->children[0], &E1);
 
+		if (stmt->children[0]->token->type == TK_ID || stmt->children[0]->token->type == TK_DOT)
+		{
+			// push on stack
+			IRInstr* ins = calloc(1, sizeof(IRInstr));
+			ins->op = OP_PUSH;
+			ins->src1.name = E1.payload._arith.name;
+			insert(E1.payload._arith.code, ins);
+		}
+
 		Payload E2;
 		memset(&E2, 0, sizeof(Payload));
 		E2.payload_type = PAYLOAD_ARITH;
 		recurseiveGenFuncCode(stmt->children[1], &E2);
+
+		if (stmt->children[1]->token->type == TK_ID || stmt->children[1]->token->type == TK_DOT)
+		{
+			// push on stack
+			IRInstr* ins = calloc(1, sizeof(IRInstr));
+			ins->op = OP_PUSH;
+			ins->src1.name = E2.payload._arith.name;
+			insert(E2.payload._arith.code, ins);
+		}
 
 		IRInstr* ins = calloc(1, sizeof(IRInstr));
 
@@ -448,9 +493,8 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 		case TK_DIV: ins->op = OP_DIV; break;
 		}
 
-		ins->src1.name = E1.payload._arith.name;
-		ins->src2.name = E2.payload._arith.name;
-		ins->dst.name = payload->payload._arith.name;
+		ins->src1.type = stmt->children[0]->derived_type;
+		ins->src2.type = stmt->children[1]->derived_type;
 
 		mergeLists(E1.payload._arith.code, E2.payload._arith.code);
 		insert(E1.payload._arith.code, ins);
@@ -463,11 +507,9 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 	{
 		// Store the value to temp
 		IRInstr* store = calloc(1, sizeof(IRInstr));
-		store->op = OP_STORE_INT;
-		store->dst.name = genNextVar();
+		store->op = OP_PUSHI;
 		store->src1.int_val = atoi(stmt->token->lexeme);
 
-		payload->payload._arith.name = store->dst.name;
 		payload->payload._arith.code = calloc(1, sizeof(IRInsList));
 		insert(payload->payload._arith.code, store);
 	}
@@ -475,20 +517,16 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 	{
 		// Store the value to temp
 		IRInstr* store = calloc(1, sizeof(IRInstr));
-		store->op = OP_STORE_REAL;
-		store->dst.name = genNextVar();
+		store->op = OP_PUSHR;
 		store->src1.real_val = atof(stmt->token->lexeme);
 
-		payload->payload._arith.name = store->dst.name;
 		payload->payload._arith.code = calloc(1, sizeof(IRInsList));
 		insert(payload->payload._arith.code, store);
 	}
 
 	// Goto siblings
-	if (stmt->sibling)
+	if (stmt->sibling && payload->payload_type == PAYLOAD_STMT)
 	{
-		assert(payload->payload_type == PAYLOAD_STMT);
-
 		Payload p;
 		memset(&p, 0, sizeof(p));
 		p.payload_type = PAYLOAD_STMT;
@@ -510,11 +548,6 @@ IRInsList* generateFuncCode(ASTNode* funcNode)
 	localOffset = 0;
 
 	logIt("Generating code for function: %s and its symbol table is found at adress: %p\n", funcEntry->name, localSymbolTable);
-
-	// Iterate over statements
-	fillOffsets(funcNode->children[1]);
-	fillOffsets(funcNode->children[0]);
-	fillOffsets(funcNode->children[2]->children[1]);
 
 	Payload p;
 	p.payload_type = PAYLOAD_STMT;

@@ -19,6 +19,7 @@
 #include "symbolTable.h"
 #include "typeChecker.h"
 #include "IRGenerator.h"
+#include "Assembly.h"
 #include "logger.h"
 
 #define MAX_OPTIONS 5
@@ -37,6 +38,16 @@ void clear_screen()
 #ifdef __linux__
 	system("clear");
 #endif
+}
+
+int countFunctions(ASTNode* node)
+{
+	int count = 1;
+
+	for (ASTNode* f = node->children[0]; f; f = f->sibling)
+		++count;
+
+	return count;
 }
 
 void printLexerOutput(char* path)
@@ -198,6 +209,9 @@ void main(int argc, char** argv)
 
 			ASTNode* func = ast->children[0] == NULL ? ast->children[1] : ast->children[0];
 
+			IRInsNode** asmList = calloc(countFunctions(ast), sizeof(IRInsNode*));
+			int i = 0;
+
 			while (func)
 			{
 				IRInsNode* code = generateFuncCode(func)->head;
@@ -205,45 +219,45 @@ void main(int argc, char** argv)
 				while (code)
 				{
 					if (code->ins->op == OP_JMP)
-						logIt("\tJMP Label#%d\n", code->ins->dst.int_val);
+						logIt("\tjmp Label#%d\n", code->ins->src1.int_val);
 					else if (code->ins->op == OP_LABEL)
-						logIt("Label#%d:\n", code->ins->dst.int_val);
+						logIt("Label#%d:\n", code->ins->src1.int_val);
 					else if (code->ins->op == OP_ASSIGN)
-						logIt("\t%s = %s\n", code->ins->dst.name, code->ins->src1.name);
-					else if (code->ins->op == OP_STORE_INT)
-						logIt("\t%s = %d\n", code->ins->dst.name, code->ins->src1.int_val);
-					else if (code->ins->op == OP_STORE_REAL)
-						logIt("\t%s = %f\n", code->ins->dst.name, code->ins->src1.real_val);
+						logIt("\t%s <- Stack top\n", code->ins->src1.name);
+					else if (code->ins->op == OP_PUSHI)
+						logIt("\tpush %d\n", code->ins->src1.int_val);
+					else if (code->ins->op == OP_PUSHR)
+						logIt("\tpush %lf\n", code->ins->src1.real_val);
 					else if (code->ins->op == OP_ADD)
-						logIt("\t%s = %s + %s\n", code->ins->dst.name, code->ins->src1.name, code->ins->src2.name);
+						logIt("\tadd\n");
 					else if (code->ins->op == OP_SUB)
-						logIt("\t%s = %s - %s\n", code->ins->dst.name, code->ins->src1.name, code->ins->src2.name);
+						logIt("\tsub\n");
 					else if (code->ins->op == OP_MUL)
-						logIt("\t%s = %s * %s\n", code->ins->dst.name, code->ins->src1.name, code->ins->src2.name);
+						logIt("\tmul\n");
 					else if (code->ins->op == OP_DIV)
-						logIt("\t%s = %s / %s\n", code->ins->dst.name, code->ins->src1.name, code->ins->src2.name);
+						logIt("\tdiv\n");
 					else if (code->ins->op == OP_LE)
-						logIt("\tif %s <= %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+						logIt("\tif <=, JMP Label#%d\n", code->ins->dst.label);
 					else if (code->ins->op == OP_LT)
-						logIt("\tif %s < %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+						logIt("\tif <, JMP Label#%d\n", code->ins->dst.label);
 					else if (code->ins->op == OP_GE)
-						logIt("\tif %s >= %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+						logIt("\tif >=, JMP Label#%d\n", code->ins->dst.label);
 					else if (code->ins->op == OP_GT)
-						logIt("\tif %s > %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+						logIt("\tif >, JMP Label#%d\n", code->ins->dst.label);
 					else if (code->ins->op == OP_EQ)
-						logIt("\tif %s == %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+						logIt("\tif ==, JMP Label#%d\n", code->ins->dst.label);
 					else if (code->ins->op == OP_NEQ)
-						logIt("\tif %s != %s, JMP Label#%d\n", code->ins->src1.name, code->ins->src2.name, code->ins->dst.int_val);
+						logIt("\tif !=, JMP Label#%d\n", code->ins->dst.label);
 					else if (code->ins->op == OP_READ)
-						logIt("\tRead %s\n", code->ins->dst.name);
+						logIt("\tread %s\n", code->ins->src1.name);
 					else if (code->ins->op == OP_WRITE)
-						logIt("\tWrite %s\n", code->ins->dst.name);
+						logIt("\twrite %s\n", code->ins->src1.name);
 					else if (code->ins->op == OP_PUSH)
-						logIt("\tpush %s\n", code->ins->dst.name);
+						logIt("\tpush %s\n", code->ins->src1.name);
 					else if (code->ins->op == OP_POP)
-						logIt("\tpop %s\n", code->ins->dst.name);
+						logIt("\tpop\n");
 					else if (code->ins->op == OP_CALL)
-						logIt("\tcall %s\n", code->ins->dst.name);
+						logIt("\tcall %s\n", code->ins->src1.name);
 					else if (code->ins->op == OP_RET)
 						logIt("\tret\n");
 					else
@@ -256,7 +270,21 @@ void main(int argc, char** argv)
 					func = ast->children[1];
 				else
 					func = func->sibling;
+
+				asmList[i++] = code;
 			}
+
+			logIt("\n\nGenerating Assembly ====================\n\n");
+
+			FILE* fp = fopen(argv[2], "w");
+
+			if (fp == NULL)
+			{
+				logIt("Error opening output file");
+				continue;
+			}
+
+			generateAssembly(fp, ast, asmList);
 		}
 
 	} while (option != 0);

@@ -5,13 +5,9 @@ typedef struct IRInsList IRInsList;
 
 typedef enum
 {
-	OP_LOAD,
-	OP_STORE,
 	OP_JMP,
 	OP_LABEL,
 	OP_ASSIGN,
-	OP_STORE_INT,		// store integer to destination
-	OP_STORE_REAL,		// store real number to destination
 	OP_CALL,
 	OP_RET,
 
@@ -37,6 +33,8 @@ typedef enum
 
 	// Stack
 	OP_PUSH,
+	OP_PUSHI,
+	OP_PUSHR,
 	OP_POP,
 } IROPType;
 
@@ -89,8 +87,10 @@ typedef struct
 typedef union
 {
 	char* name;
+	int label;
 	int int_val;
 	float real_val;
+	TypeLog* type;
 } Operand;
 
 typedef struct

@@ -47,7 +47,7 @@ void initTables()
     TypeLog *intInfo = calloc(1, sizeof(TypeLog));
     intInfo->refCount = 1;
     intInfo->entryType = INT;
-    intInfo->width = 8;
+    intInfo->width = 2;
     intInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "int")->entry.ptr = intInfo;
@@ -55,7 +55,7 @@ void initTables()
     TypeLog *realInfo = calloc(1, sizeof(TypeLog *));
     realInfo->refCount = 1;
     realInfo->entryType = REAL;
-    realInfo->width = 8;
+    realInfo->width = 4;
     realInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "real")->entry.ptr = realInfo;
@@ -63,7 +63,7 @@ void initTables()
     TypeLog *boolInfo = calloc(1, sizeof(TypeLog *));
     boolInfo->refCount = 1;
     boolInfo->entryType = BOOL;
-    boolInfo->width = 8;
+    boolInfo->width = 0;
     boolInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "##bool")->entry.ptr = boolInfo;
@@ -71,7 +71,7 @@ void initTables()
     TypeLog *voidInfo = calloc(1, sizeof(TypeLog *));
     voidInfo->refCount = 1;
     voidInfo->entryType = VOID;
-    voidInfo->width = 8;
+    voidInfo->width = 0;
     voidInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "##void")->entry.ptr = voidInfo;
