@@ -189,6 +189,17 @@ void main(int argc, char **argv)
 			loadSymbolTable(ast);
 			iterateTrie(globalSymbolTable, printRecordDetails);
 		}
+		else if (option == 9)
+		{
+			TreeNode* node = parseInputSourceCode(argv[1]);
+
+			ASTNode* ast = createAST(node);
+
+			loadSymbolTable(ast);
+
+			typeChecker_init();
+			assignTypes(ast);
+		}
 		else if (option == 11)
 		{
 			TreeNode *node = parseInputSourceCode(argv[1]);

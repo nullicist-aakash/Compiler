@@ -80,7 +80,7 @@ void initTables()
     intInfo->entryType = INT;
     intInfo->width = 2;
     intInfo->index = dataTypeCount++;
-    intInfo->structure = calloc(1, sizeof(DerivedEntry));
+    intInfo->structure = calloc(1, sizeof(DerivedEntry* ));
     ((DerivedEntry *)intInfo->structure)->name = "int";
     trie_getRef(globalSymbolTable, "int")->entry.ptr = intInfo;
 
@@ -89,7 +89,7 @@ void initTables()
     realInfo->entryType = REAL;
     realInfo->width = 4;
     realInfo->index = dataTypeCount++;
-    realInfo->structure = calloc(1, sizeof(DerivedEntry));
+    realInfo->structure = calloc(1, sizeof(DerivedEntry* ));
     ((DerivedEntry *)realInfo->structure)->name = "real";
     trie_getRef(globalSymbolTable, "real")->entry.ptr = realInfo;
 
