@@ -31,7 +31,10 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
     TypeLog* left = leftNode->derived_type;
     TypeLog* right = rightNode ? rightNode->derived_type : NULL;
     TokenType op = opToken->type;
+    printf("Line number %d : Op = %s\n", opToken->line_number, opToken->lexeme);
 
+    if (!left)
+        printf("ERROR : Line Number %d : Variable %s is not declared\n", opToken->line_number, ((DerivedEntry*)left->structure)->name);
     if (op == TK_ASSIGNOP)
     {
         if (areCompatible(leftNode, rightNode))
@@ -107,14 +110,18 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
 
     if (op == TK_AND || op == TK_OR)
     {
+        printf("%d %d\n", left->entryType, right->entryType);
         if (left == boolean && right == boolean)
             return boolean;
 
+        
+        printf("ERROR : Line number %d :\n",
+            opToken->line_number);
         isTypeError = 1;
-        if (!rightNode || !leftNode->derived_type || !rightNode->derived_type)
+        if (!rightNode || !left || !right)
             return NULL;
-        char* leftType = ((DerivedEntry*)leftNode->derived_type->structure)->name;
-        char* rightType = ((DerivedEntry*)rightNode->derived_type->structure)->name;
+        char* leftType = ((DerivedEntry*)left->structure)->name;
+        char* rightType = ((DerivedEntry*)right->structure)->name;
         if (!leftType || !rightType)
             return NULL;
         //logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
@@ -132,10 +139,10 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
             return boolean;
 
         isTypeError = 1; 
-        if (!rightNode || !leftNode->derived_type || !rightNode->derived_type)
+        if (!rightNode || !left || !right)
             return NULL;
-        char* leftType = ((DerivedEntry*)leftNode->derived_type->structure)->name;
-        char* rightType = ((DerivedEntry*)rightNode->derived_type->structure)->name;
+        char* leftType = ((DerivedEntry*)left->structure)->name;
+        char* rightType = ((DerivedEntry*)right->structure)->name;
         if (!leftType || !rightType)
             return NULL;
         //logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);4

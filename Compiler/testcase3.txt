@@ -44,7 +44,7 @@ _main
 		% above displays the sum of records
 		b5 <--- b5 +1;
 	endwhile
-	d4 <--- b5c6 / d5cb34567;
+	%d4 <--- b5c6 / d5cb34567;
 	write(d4.maths);
 	write(d4.physics);
 	write(d4.chemistry);

@@ -6,6 +6,7 @@
   Aakash				-   2018B4A70887P
 *****************************************/
 // TODO: change all temp and bruh
+// TODO: if code is sytactically incorrect dont call further
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,6 +81,7 @@ void main(int argc, char **argv)
 		printf("6: Global Variables\n");
 		printf("7. Activation Record Sizes\n");
 		printf("8. Record Types and Sizes\n");
+		printf("9. Type checking and semantic analysis\n");
 		printf("11: Compile\n");
 
 		printf("Select an option: ");
@@ -191,6 +193,7 @@ void main(int argc, char **argv)
 		}
 		else if (option == 9)
 		{
+			start_time = clock();
 			TreeNode* node = parseInputSourceCode(argv[1]);
 
 			ASTNode* ast = createAST(node);
@@ -199,6 +202,11 @@ void main(int argc, char **argv)
 
 			typeChecker_init();
 			assignTypes(ast);
+
+			end_time = clock();
+			double total_CPU_time = (double)(end_time - start_time);
+			printf("Total CPU Time Taken: %f\n", total_CPU_time);
+			printf("Total CPU Time taken in seconds: %f\n", total_CPU_time / CLOCKS_PER_SEC);
 		}
 		else if (option == 11)
 		{
