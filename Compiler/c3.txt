@@ -1,13 +1,13 @@
 %Test case 3- Simple expressions involving if-then-else statement
 _main
-	type int :b3c45;
-	type int : b2d6;
-	type int : b2bb3;
-	type int : d6:global;
+	type int :b3c45;	a
+	type int : b2d6;	b
+	type int : b2bb3;	c
+	type int : d6:global;	d
 	read(b3c45);
 	read(b2d6);
 	b2bb3<--- 2097;
-	d6<--- 66987;
+	d6<--- 600;
 	if((b3c45 <= b2d6) &&& (b2d6 <= b2bb3))
 	then
 		d6<---d6 - 89 + b2bb3;

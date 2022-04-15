@@ -11,49 +11,130 @@ main:
 	mov rbp, rsp
 	sub rsp, 16
 
-	; Reading variable: b2
-	lea rsi, [rbp - 8d]
-	mov rdi, real_in
+	; Reading variable: b3c45
+	lea rsi, [rbp - 2]
+	mov rdi, int_in
 	xor rax, rax
 	call scanf
 
-	; Push 35.450001
-	mov eax, __?float32?__(35.450001)
-	mov dword [real_val], eax
-	fld dword [real_val]
-
-	; Assign to c2
-	fstp dword [rbp - 12d]
-
-	; Reading variable: d2
-	lea rsi, [rbp - 16d]
-	mov rdi, real_in
+	; Reading variable: b2d6
+	lea rsi, [rbp - 4]
+	mov rdi, int_in
 	xor rax, rax
 	call scanf
 
-	; Push b2
-	fld dword [rbp - 8d]
+	; Push 2097
+	mov ax, 2097d
+	push ax
 
-	; Push c2
-	fld dword [rbp - 12d]
+	; Assign to b2bb3
+	pop ax
+	mov word [rbp - 6], ax
+
+	; Push 66987
+	mov ax, 6387d
+	push ax
+
+	; Assign to d6
+	pop ax
+	mov word [d6 - 0], ax
+
+	; Push b3c45
+	mov ax, word [rbp - 2]
+	push ax
+
+	; Push b2d6
+	mov ax, word [rbp - 4]
+	push ax
+
+	; if <=, JMP Label#17
+	pop bx
+	pop ax
+	cmp ax, bx
+	jle .label17
+	jmp .label16
+.label17:
+
+	; Push b2d6
+	mov ax, word [rbp - 4]
+	push ax
+
+	; Push b2bb3
+	mov ax, word [rbp - 6]
+	push ax
+
+	; if <=, JMP Label#15
+	pop bx
+	pop ax
+	cmp ax, bx
+	jle .label15
+	jmp .label16
+.label15:
+
+	; Push d6
+	mov ax, word [d6 - 0]
+	push ax
+
+	; Push 89
+	mov ax, 89d
+	push ax
+
+	; sub
+	pop bx
+	pop ax
+	sub ax, bx
+	push ax
+
+	; Push b2bb3
+	mov ax, word [rbp - 6]
+	push ax
 
 	; add
-	fadd
+	pop bx
+	pop ax
+	add ax, bx
+	push ax
 
-	; Push d2
-	fld dword [rbp - 16d]
+	; Assign to d6
+	pop ax
+	mov word [d6 - 0], ax
+	jmp .label14
+.label16:
 
-	; add
-	fadd
+	; Push d6
+	mov ax, word [d6 - 0]
+	push ax
 
-	; Assign to b3
-	fstp dword [rbp - 4d]
+	; Push b2bb3
+	mov ax, word [rbp - 6]
+	push ax
 
-	; Writing variable: b3
-	cvtss2sd xmm0, [real_val]
-	mov      rdi, real_out            ; 1st arg to printf
-	mov      rax, 1                 ; printf is varargs, there is 1 non-int argument
+	; Push 3
+	mov ax, 3d
+	push ax
 
+	; multiply
+	pop bx
+	pop ax
+	mul bx
+	push ax
+
+	; sub
+	pop bx
+	pop ax
+	sub ax, bx
+	push ax
+
+	; Assign to d6
+	pop ax
+	mov word [d6 - 0], ax
+.label14:
+
+	; Writing variable: d6
+	mov ax, word [d6 - 0]
+	movsx rsi, ax
+	mov rdi, int_out
+	xor rax, rax
 	call printf
 
 .exit:
@@ -67,6 +148,5 @@ section .data
 	int_in:  db  "%hd", 0
 	real_out:  db  "%f", 10, 0
 	real_in:  db  "%f", 0
-	real_val:  db  0cdh,0cch,019h,042h
-	count:  dq       30
-	sum:    dq       3
+	real_val:  db  0,0,0,0
+d6:	db	2	dup(0)

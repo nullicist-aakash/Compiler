@@ -10,44 +10,50 @@ FILE* fp_output;
 
 char* prefix = "section .text\n\tdefault rel\n\textern printf\n\textern scanf\n\tglobal main\n\n";
 
-int* calcByteAddress(char* name)
+VariableEntry* getVarEntry(char* name)
 {
-	int argc = 1;
-	for (char* c = name; *c; c++)
-		if (*c == '.')
-			++argc;
-
-	char* tmp = calloc(strlen(name) + 1, sizeof(char));
-	strcpy(tmp, name);
-
-	char** argv = calloc(argc, sizeof(char*));
-	argv[0] = tmp;
-
-	argc = 1;
-	for (char* c = tmp; *c; c++)
-		if (*c == '.')
-			argv[argc++] = c + 1, *c = '\0';
-
-	TypeLog* entry = trie_getRef(localSymbolTable, argv[0])->entry.ptr;
+	TypeLog* entry = trie_getRef(localSymbolTable, name)->entry.ptr;
 
 	if (entry == NULL)
-		entry = trie_getRef(globalSymbolTable, argv[0])->entry.ptr;
+		entry = trie_getRef(globalSymbolTable, name)->entry.ptr;
 
-	VariableEntry* varEntry = entry->structure;
+	return entry->structure;
+}
 
-	if (argc == 1)
+int calcWidth(char* name)
+{
+	return getVarEntry(name)->type->width;
+}
+
+int getOffset(char* name)
+{
+	TypeLog* entry = trie_getRef(localSymbolTable, name)->entry.ptr;
+
+	if (entry)
 	{
-		free(tmp);
-		free(argv);
-
-		int* x = calloc(2, sizeof(int));
-		x[0] = varEntry->offset + varEntry->type->width;
-		x[1] = varEntry->type->width;
-		return x;
+		VariableEntry* var = entry->structure;
+		return var->offset + var->type->width;
 	}
 
-	assert(0);
-	return NULL;
+	return 0;
+}
+
+char* getReferenceName(char* name)
+{
+	TypeLog* entry = trie_getRef(localSymbolTable, name)->entry.ptr;
+
+	char buff[50];
+
+	if (entry != NULL)
+		strcpy(buff, "rbp");
+	else
+		strcpy(buff, name);
+
+	entry = trie_getRef(globalSymbolTable, name)->entry.ptr;
+
+	char* ret = calloc(50, sizeof(char));
+	sprintf(ret, "[%s - %d]", buff, getOffset(name));
+	return ret;
 }
 
 // Write globals
@@ -65,41 +71,34 @@ void fillDataSegment(char* key, TrieEntry* entry)
 
 void readVariable(char* name)
 {
-	int* pair = calcByteAddress(name);
-	int address = pair[0];
-	int width = pair[1];
-	free(pair);
-
 	fprintf(fp_output, "\n\t; Reading variable: %s\n", name);
-	
-	if (width == 2)
+
+	char* loc = getReferenceName(name);
+	if (getVarEntry(name)->type->entryType == INT)
 	{
-		fprintf(fp_output, "\tlea rsi, [rbp - %dd]\n", address);
+		fprintf(fp_output, "\tlea rsi, %s\n", loc);
 		fprintf(fp_output, "\tmov rdi, int_in\n");
 		fprintf(fp_output, "\txor rax, rax\n");
 		fprintf(fp_output, "\tcall scanf\n");
 	}
 	else
 	{
-		fprintf(fp_output, "\tlea rsi, [rbp - %dd]\n", address);
+		fprintf(fp_output, "\tlea rsi, %s\n", loc);
 		fprintf(fp_output, "\tmov rdi, real_in\n");
 		fprintf(fp_output, "\txor rax, rax\n");
 		fprintf(fp_output, "\tcall scanf\n");
 	}
+	free(loc);
 }
 
 void writeVariable(char* name)
 {
-	int* pair = calcByteAddress(name);
-	int address = pair[0];
-	int width = pair[1];
-	free(pair);
-
 	fprintf(fp_output, "\n\t; Writing variable: %s\n", name);
 
-	if (width == 2)
+	char* loc = getReferenceName(name);
+	if (getVarEntry(name)->type->entryType == INT)
 	{
-		fprintf(fp_output, "\tmov ax, word [rbp - %dd]\n", address);
+		fprintf(fp_output, "\tmov ax, word %s\n", loc);
 		fprintf(fp_output, "\tmovsx rsi, ax\n");
 		fprintf(fp_output, "\tmov rdi, int_out\n");
 		fprintf(fp_output, "\txor rax, rax\n");
@@ -107,11 +106,12 @@ void writeVariable(char* name)
 	}
 	else
 	{
-		fprintf(fp_output, "\tcvtss2sd xmm0, [rbp - %dd]\n", address);
+		fprintf(fp_output, "\tcvtss2sd xmm0, %s\n", loc);
 		fprintf(fp_output, "\tmov rdi, real_out\n");
 		fprintf(fp_output, "\tmov rax, 1\n");
 		fprintf(fp_output, "\tcall printf\n");
 	}
+	free(loc);
 }
 
 void handleFunction(IRInsNode* funcCode)
@@ -131,24 +131,22 @@ void handleFunction(IRInsNode* funcCode)
 		if (instr->op == OP_JMP)
 			fprintf(fp_output, "\tjmp .label%d\n", instr->src1.label);
 		else if (instr->op == OP_LABEL)
-			fprintf(fp_output, ".label%d\n", instr->src1.label);
+			fprintf(fp_output, ".label%d:\n", instr->src1.label);
 		else if (instr->op == OP_ASSIGN)
 		{
-			int* pair = calcByteAddress(instr->src1.name);
-			int address = pair[0];
-			int width = pair[1];
-			free(pair);
-
 			fprintf(fp_output, "\n\t; Assign to %s\n", instr->src1.name);
 
-			if (width == 2)
+			char* loc = getReferenceName(instr->src1.name);
+
+			if (getVarEntry(instr->src1.name)->type->entryType == INT)
 			{
 				fprintf(fp_output, "\tpop ax\n");
-				fprintf(fp_output, "\tmov word [rbp - %dd], ax\n", address);
+				fprintf(fp_output, "\tmov word %s, ax\n", loc);
 			}
 			else
-				fprintf(fp_output, "\tfstp dword [rbp - %dd]\n", address);
-		
+				fprintf(fp_output, "\tfstp dword %s\n", loc);
+
+			free(loc);
 		}
 		else if (instr->op == OP_CALL)
 			fprintf(fp_output, "\tjmp .exit\n");
@@ -358,22 +356,19 @@ void handleFunction(IRInsNode* funcCode)
 			writeVariable(instr->src1.name);
 		else if (instr->op == OP_PUSH)
 		{
-			int* pair = calcByteAddress(instr->src1.name);
-			int address = pair[0];
-			int width = pair[1];
-			free(pair);
-
 			fprintf(fp_output, "\n\t; Push %s\n", instr->src1.name);
 
-			if (width == 2)
+			char* loc = getReferenceName(instr->src1.name);
+			if (getVarEntry(instr->src1.name)->type->entryType == INT)
 			{
-				fprintf(fp_output, "\tmov ax, word [rbp - %dd]\n", address);
+				fprintf(fp_output, "\tmov ax, word %s\n", loc);
 				fprintf(fp_output, "\tpush ax\n");
 			}
 			else
 			{
-				fprintf(fp_output, "\tfld dword [rbp - %dd]\n", address);
+				fprintf(fp_output, "\tfld dword %s\n", loc);
 			}
+			free(loc);
 		}
 		else if (instr->op == OP_PUSHI)
 		{
