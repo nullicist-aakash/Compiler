@@ -32,11 +32,12 @@ _main
 	
 	b6b7 <--- d7c6;
 	b5 <--- c6 + d5cb34567 - b5;            % No error
-	%d7 <--- b5c6 + d5cb34567;  		% ERROR- The expression has a type mismatch as one argument is of integer type and the other is of real type.
+	d7 <--- b5c6 + d5cb34567;  		% ERROR- The expression has a type mismatch as one argument is of integer type and the other is of real type.
 	c2d5 <--- d5c2 * c2c2;			% No error
 	c2 <--- c3c56 + d6b7*d5cb34567;		% No error
 	c2 <--- c3c56 + 23 - d6b7*d5cb34567;	% No error
-	%c2d5 <--- d5c2 * c2c2 + 23;		% ERROR- The expression has a type mismatch as one argument is of integer type and the other is of real type.	
+	c2d5 <--- d5c2 * c2c2 + 23;		% ERROR- The expression has a type mismatch as one argument is of integer type and the other is of real type.	
+	c2 <--- 8.52;
 	
 	return;
 end

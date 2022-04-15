@@ -38,8 +38,10 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
             return void_empty;
 
         isTypeError = 1;
-        char* leftType = ((DerivedEntry*)leftNode->derived_type->structure)->name;
-        char* rightType = ((DerivedEntry*)rightNode->derived_type->structure)->name;
+        if (!rightNode ||!leftNode->derived_type || !rightNode->derived_type)
+            return NULL;
+        char* leftType = ((DerivedEntry*)left->structure)->name;
+        char* rightType = ((DerivedEntry*)right->structure)->name;
         //logIt("Assignment with incompatible types at line no. %d \n", opToken->line_number);
         printf("ERROR : Line number %d : Assignment has a type mismatch as LHS variable is of type %s and RHS expression is of type %s\n",
             opToken->line_number, leftType, rightType);
@@ -52,7 +54,15 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
             return right;
 
         isTypeError = 1;
-        logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
+        if (!rightNode || !leftNode->derived_type || !rightNode->derived_type)
+            return NULL;
+        char* leftType = ((DerivedEntry*)left->structure)->name;
+        char* rightType = ((DerivedEntry*)right->structure)->name;
+        if (!leftType || !rightType)
+            return NULL;
+        //logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
+        printf("ERROR : Line number %d : Expression has a type mismatch with one argument of type %s and the other argument of type %s\n",
+            opToken->line_number, leftType, rightType);
         return NULL;
     }
 
@@ -62,7 +72,14 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
             return left;
 
         // TODO:
-
+        // scalar with integer allowed with record
+        if (!rightNode || !right)
+            return NULL;
+        if (left->entryType == DERIVED && right == integer)
+            return left;
+        if (left == integer && right->entryType == DERIVED)
+            return right;
+            
         return NULL;
     }
 
@@ -76,6 +93,15 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
         if ((first_type & 0x03) && (second_type & 0x03) && left != boolean && left != void_empty)
             return real;
 
+        isTypeError = 1;
+        if (!rightNode || !leftNode->derived_type || !rightNode->derived_type)
+            return NULL;
+        char* leftType = ((DerivedEntry*)leftNode->derived_type->structure)->name;
+        char* rightType = ((DerivedEntry*)rightNode->derived_type->structure)->name;
+        if (!leftType || !rightType)
+            return NULL;
+        printf("ERROR : Line number %d : Incompatible types for operation %s with one argument of type %s and the other argument of type %s\n",
+            opToken->line_number, opToken->lexeme, leftType, rightType);
         return NULL;
     }
 
@@ -85,7 +111,15 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
             return boolean;
 
         isTypeError = 1;
-        logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
+        if (!rightNode || !leftNode->derived_type || !rightNode->derived_type)
+            return NULL;
+        char* leftType = ((DerivedEntry*)leftNode->derived_type->structure)->name;
+        char* rightType = ((DerivedEntry*)rightNode->derived_type->structure)->name;
+        if (!leftType || !rightType)
+            return NULL;
+        //logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
+        printf("ERROR : Line number %d : Incompatible types for operation %s with one argument of type %s and the other argument of type %s\n",
+            opToken->line_number, opToken->lexeme, leftType, rightType);
         return NULL;
     }
 
@@ -97,8 +131,16 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
         if (left == integer && right == integer)
             return boolean;
 
-        isTypeError = 1;
-        logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);
+        isTypeError = 1; 
+        if (!rightNode || !leftNode->derived_type || !rightNode->derived_type)
+            return NULL;
+        char* leftType = ((DerivedEntry*)leftNode->derived_type->structure)->name;
+        char* rightType = ((DerivedEntry*)rightNode->derived_type->structure)->name;
+        if (!leftType || !rightType)
+            return NULL;
+        //logIt("Operation %s %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, rightNode->token->lexeme, opToken->line_number);4
+        printf("ERROR : Line number %d : Incompatible types for operation %s with one argument of type %s and the other argument of type %s\n",
+            opToken->line_number, opToken->lexeme, leftType, rightType);
         return NULL;
     }
 
@@ -108,7 +150,14 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
             return boolean;
 
         isTypeError = 1;
-        logIt("Operation %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, opToken->line_number);
+        if (!leftNode->derived_type)
+            return NULL;
+        char* leftType = ((DerivedEntry*)leftNode->derived_type->structure)->name;
+        if (!leftType)
+            return NULL;
+        //logIt("Operation %s %s with incompatible types at line no. %d \n", leftNode->token->lexeme, opToken->lexeme, opToken->line_number);
+        printf("ERROR : Line number %d : Incompatible types for operation %s with argument of type %s\n",
+            opToken->line_number, opToken->lexeme, leftType);
         return NULL;
     }
     assert(0);
@@ -250,7 +299,13 @@ void assignTypes(ASTNode* node)
         if (entry == NULL)
             entry = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
 
-        node->derived_type = ((VariableEntry*)entry->structure)->type;
+        if (entry)
+            node->derived_type = ((VariableEntry*)entry->structure)->type;
+        else
+        {
+            isTypeError = 1;
+            printf("ERROR : Line Number %d : Variable %s is not declared\n", node->token->line_number, node->token->lexeme);
+        }
     }
     else if (node->token->type == TK_DOT)
     {
