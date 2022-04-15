@@ -6,7 +6,10 @@
 
 TypeLog* real, * integer, * boolean, * void_empty;
 int isTypeError = 0;
-
+int localWhileCount = 0;    // Number of while loops in the function
+int localIdentifierCount = 0;
+int curSize = 4;
+int** localAssigned;        // Matrix representing if a variable has been assigned in a scope
 
 int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
 {
@@ -24,6 +27,35 @@ int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
         rightNode = rightNode->sibling;
     }
     return !leftNode && !rightNode;
+}
+
+void recordAssignment(int index) {
+    for (int i = 0; i <= localWhileCount; i++)
+        localAssigned[i][index] = 1;
+}
+
+void reAllocate()
+{
+    if (curSize <= localWhileCount)
+    {
+        curSize *= 2;
+        localAssigned = (int**)realloc(localAssigned, curSize*sizeof(int*));
+        for (int i = curSize / 2; i < curSize; i++)
+            localAssigned[i] = calloc(localIdentifierCount, sizeof(int));
+    }
+}
+
+void getTypes(ASTNode* node, int* arr)
+{
+    if (node->childCount == 0)
+        arr[((TypeLog*)(trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr))->index] = 1;
+    else if (node->childCount == 1)
+        getTypes(node->children[0], arr);
+    else if (node->childCount == 2)
+    {
+        getTypes(node->children[0], arr);
+        getTypes(node->children[1], arr);
+    }
 }
 
 TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
@@ -195,9 +227,36 @@ void assignTypes(ASTNode* node)
     {
         // function/main-function
         localSymbolTable = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->symbolTable;
+
+        localWhileCount = 0;
+        localIdentifierCount = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->identifierCount;
+        localAssigned = calloc(curSize, sizeof(int*));
+        for (int i = 0; i < curSize; i++)
+            localAssigned[i] = calloc(localIdentifierCount, sizeof(int));
+
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
         assignTypes(node->children[2]);
+
+        int* reqTypes = calloc(localIdentifierCount, sizeof(int));
+        ASTNode* cur = node->children[1];
+        while (cur)
+        {
+            reqTypes[((TypeLog*)(trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr))->index] = 1;
+            cur = cur->sibling;
+        }
+
+        int flag = 1;
+        for (int i = 0; i < localIdentifierCount; i++)
+            if (reqTypes[i] && !localAssigned[0][i])
+                flag = 0;
+        free(reqTypes);
+        if (!flag)
+            printf("ERROR : Line Number %d : Function output paramters not assigned a value\n", node->token->line_number);
+
+        for (int i = 0; i < curSize; i++)
+            free(localAssigned[i]);
+        free(localAssigned);
     }
     else if (node->sym_index == 68)
     {
@@ -212,6 +271,8 @@ void assignTypes(ASTNode* node)
         // assignment --> <identifier> = <expression>
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
+
+        recordAssignment(((TypeLog*)(trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr))->index);
         // TODO: The type of an identifier of union data type is reported as an error.
         node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
@@ -221,15 +282,39 @@ void assignTypes(ASTNode* node)
         // TODO:
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
+        
+        ASTNode* cur = node->children[0];
+        while (cur)
+        {
+            recordAssignment(((TypeLog*)(trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr))->index);
+            cur = cur->sibling;
+        }
 
         node->derived_type = node->children[0]->derived_type;
     }
     else if (node->sym_index == 89)
     {
         // iterative statement, while
+
+        localWhileCount++;
+        reAlloc();
+
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
 
+        int* reqTypes = calloc(localIdentifierCount, sizeof(int));
+        getTypes(node->children[0], reqTypes);
+
+        int flag = 0;
+        for (int i = 0; i < localIdentifierCount; i++)
+        {
+            if (reqTypes[i] && localAssigned[localWhileCount][i])
+                flag = 1;
+        }
+        free(reqTypes);
+        if (!flag)
+            printf("ERROR : Line Number %d : Variables of while loop are not assigned\n", node->token->line_number);
+        localWhileCount--;
         node->derived_type = void_empty;
     }
     else if (node->sym_index == 90)
@@ -246,6 +331,9 @@ void assignTypes(ASTNode* node)
         // io
         assignTypes(node->children[0]);
 
+        ASTNode* cur = node->children[0];
+
+        recordAssignment(((TypeLog*)(trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr))->index);
         node->derived_type = void_empty;
     }
     else if (node->sym_index == 63 || node->sym_index == 77 || node->sym_index==106)
@@ -323,7 +411,7 @@ void assignTypes(ASTNode* node)
         // <dot> ===> <left> TK_DOT <right>
         assignTypes(node->children[0]);
 
-        DerivedEntry* leftEntry = node->children[0]->derived_type->structure; //
+        DerivedEntry* leftEntry = node->children[0]->derived_type->structure; 
 
         // search for token on right of DOT
 
