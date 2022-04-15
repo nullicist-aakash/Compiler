@@ -605,27 +605,6 @@ double getVal(Token* token)
 	return val;
 }
 
-void printParseTree(TreeNode* node)
-{
-	if (node->parent != NULL)
-	{
-		char* A = node->isLeaf ? node->token->lexeme : "----";
-		int B = node->isLeaf ? node->token->line_number : -1;
-		char* C = !(node->isLeaf) ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
-		double D = getVal(node->token);
-		char* E = node->parent == NULL ? "root" : parserData->symbolType2symbolStr[node->parent->symbol_index];
-		char* F = node->isLeaf ? "yes" : "no";
-		char* G = node->isLeaf ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
-
-		printf( "%25s %10d %15s %15f %27s %10s %27s\n", A, B, C, D, E, F, G);
-	}
-	else
-		printf( "%25s %10d %15s %15s %27s %10s %27s\n", "----", -1, "----", "-nan", "ROOT", "no", "program");
-
-	for (int i = 0; i < node->child_count; ++i)
-		printParseTree(node->children[i]);
-}
-
 void freeParseTree(TreeNode* node)
 {
 	for (int i = 0; i < node->child_count; ++i)
@@ -643,14 +622,4 @@ void freeParseTree(TreeNode* node)
 		free(node->children);
 
 	free(node);
-}
-
-void ParseTreeDfs(TreeNode* node, int* numParseTreeNodes, int* parseTreeSize)
-{
-	if (!node)
-		return;
-	for (int i = 0; i < node->child_count; i++)
-		ParseTreeDfs(node->children[i], numParseTreeNodes, parseTreeSize);
-	(*numParseTreeNodes)++;
-	(*parseTreeSize) += sizeof(TreeNode) + (node->token ? node->token->length : 0);
 }

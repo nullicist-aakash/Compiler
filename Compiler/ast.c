@@ -861,58 +861,27 @@ ASTNode *performRecursion(TreeNode *input, TreeNode *parent, ASTNode *inherited)
 	return node;
 }
 
-void printTabs(int tabCount)
-{
-	while (tabCount--)
-		printf("\t");
-}
-
-void printAST(ASTNode *node, int tab)
-{
-	if (node == NULL)
-		return;
-
-	printTabs(tab);
-	/*printf("{ symbol: '%s', lexeme: '%s', isGlobal: %d }\n",
-		parserData->symbolType2symbolStr[node->sym_index],
-		node->token ? node->token->lexeme : "",
-		node->isGlobal);
-	*/
-
-	char symbol_string[50], lexeme_string[50];
-	symbol_string[0] = lexeme_string[0] = '\0';
-	char *isGlobal = (node->isGlobal ? ", is Global" : "");
-	snprintf(symbol_string, 50, "symbol : %s", parserData->symbolType2symbolStr[node->sym_index]);
-	if (node->token)
-		snprintf(lexeme_string, 50, ", lexeme : %s", node->token->lexeme);
-	printf("{ %s%s%s }\n", symbol_string, lexeme_string, isGlobal);
-
-	for (int i = 0; i < node->childCount; ++i)
-		printAST(node->children[i], tab + 1);
-
-	printAST(node->sibling, tab);
-}
-
 ASTNode *createAST(TreeNode *input)
 {
 	assert(input != NULL);
 
-	ASTNode *node = performRecursion(input, NULL, NULL);
-
-	logIt("========== Printing AST Structure ==========\n");
-	// printAST(node, 0);
-	logIt("========== Printing AST Structure Done ==========\n");
-
-	return node;
+	return performRecursion(input, NULL, NULL);
 }
 
-void ASTDfs(ASTNode *node, int *numASTNodes, int *ASTSize)
+void freeAST(ASTNode* node)
 {
 	if (!node)
 		return;
-	for (int i = 0; i < node->childCount; i++)
-		ASTDfs(node->children[i], numASTNodes, ASTSize);
-	(*numASTNodes)++;
-	(*ASTSize) += sizeof(TreeNode) + (node->token ? node->token->length : 0);
-	ASTDfs(node->sibling, numASTNodes, ASTSize);
+
+	free(node->type);
+
+	if (node->token)
+		free(node->token->lexeme);
+
+	for (int i = 0; i < node->childCount; ++i)
+		free(node->children[i]);
+
+	free(node->sibling);
+
+	free(node);
 }

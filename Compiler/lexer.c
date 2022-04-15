@@ -282,54 +282,6 @@ Token *getNextToken()
 	return NULL;
 }
 
-void removeComments(FILE *source, FILE *destination)
-{
-	char c;
-	int is_comment = 0;
-	while (fscanf(source, "%c", &c) != EOF)
-	{
-		if (c == '%')
-			is_comment = 1;
-
-		if (is_comment && (c == '\n' || c == '\r'))
-			is_comment = 0;
-
-		if (!is_comment)
-			fprintf(destination, "%c", c);
-	}
-}
-
-void printLexerOutput(char *path)
-{
-	FILE *fp = fopen(path, "r");
-
-	if (!fp)
-	{
-		fprintf(stderr, "Error opening file %s: %s\n", path, strerror(errno));
-		return;
-	}
-
-	loadFile(fp);
-
-	Token *tk;
-	while ((tk = getNextToken()) != NULL)
-	{
-		if (tk->type == TK_ERROR_LENGTH)
-			printf("Line no. %d: Error: Identifier length is greater than the prescribed length.\n", tk->line_number);
-		else if (tk->type == TK_ERROR_SYMBOL)
-			printf("Line no. %d: Error: Unknwon Symbol <%s>\n", tk->line_number, tk->lexeme);
-		else if (tk->type == TK_ERROR_PATTERN)
-			printf("Line no. %d: Error: Unknown Pattern <%s>\n", tk->line_number, tk->lexeme);
-		else
-			printf("Line no. %d\tLexeme %s\t\tToken %s\n", tk->line_number, tk->lexeme, lexerData->tokenType2tokenStr[tk->type]);
-
-		if (tk->lexeme != NULL)
-			free(tk->lexeme);
-
-		free(tk);
-	}
-}
-
 void freeLexerData()
 {
 	for (int i = 0; i < lexerData->num_tokens; ++i)

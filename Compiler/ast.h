@@ -7,10 +7,23 @@
 *****************************************/
 #pragma once
 
-#include "astDef.h"																														
+#include "parserDef.h"
+
+typedef struct ASTNode
+{
+	int isLeaf;
+	int isGlobal;
+	int sym_index;
+
+	Token* token;
+	struct ASTNode* type;
+	struct TypeLog* derived_type;
+	int childCount;
+	struct ASTNode** children;
+	struct ASTNode* sibling;
+} ASTNode;
 
 struct TypeLog;
 
 ASTNode *createAST(TreeNode *);
-void printAST(ASTNode*, int);
-void ASTDfs(ASTNode*, int*, int*);
+void freeAST(ASTNode*);

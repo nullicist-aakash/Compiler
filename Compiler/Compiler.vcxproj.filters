@@ -51,6 +51,9 @@
     <ClCompile Include="IRGenerator.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DriverHelper.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lexerDef.h">
@@ -92,6 +95,9 @@
     <ClInclude Include="symbolTableDef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DriverHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="grammar.txt">
@@ -121,8 +127,53 @@
     <Text Include="Target.txt">
       <Filter>Resource Files</Filter>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="makefile" />
+    <Text Include="testcase11.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="fpTest2.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="fpTest3.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="p1.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="p2.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="p3.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="p4.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="s1.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="s2.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="s3.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="s4.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="s5.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="testcase7.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="testcase8.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="testcase9.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
+    <Text Include="testcase10.txt">
+      <Filter>Resource Files\testcases</Filter>
+    </Text>
   </ItemGroup>
 </Project>
