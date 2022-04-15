@@ -50,13 +50,13 @@ int countFunctions(ASTNode* node)
 	return count;
 }
 
-void printLexerOutput(char* path)
+int main(int argc, char** argv)
 {
 	clear_screen();
 	loadLexer();
 	loadParser();
 
-	if (argc != 2)
+	if (argc != 3)
 	{
 		fprintf(stderr, "usage: stage1exe <source_code_file>\n");
 		exit(-1);
@@ -213,17 +213,12 @@ void printLexerOutput(char* path)
 		else if (option == 11)
 		{
 			TreeNode *node = parseInputSourceCode(argv[1]);
-			// printParseTree(node);
-
 			ASTNode *ast = createAST(node);
-
 			loadSymbolTable(ast);
-
 			typeChecker_init();
 			assignTypes(ast);
-			logIt("Type Checking Completed ==========\n");
+			calculateOffsets(ast);
 
-			logIt("Generating code for functions ==========\n");
 
 			ASTNode* func = ast->children[0] == NULL ? ast->children[1] : ast->children[0];
 
@@ -284,12 +279,13 @@ void printLexerOutput(char* path)
 					code = code->next;
 				}
 
+				asmList[i++] = generateFuncCode(func)->head;
+
 				if (func->sibling == NULL && func != ast->children[1])
 					func = ast->children[1];
 				else
 					func = func->sibling;
 
-				asmList[i++] = code;
 			}
 
 			logIt("\n\nGenerating Assembly ====================\n\n");

@@ -69,14 +69,9 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 		ins->op = OP_ASSIGN;
 		ins->src1.name = to.payload._arith.name;
 
-		IRInstr* pop = calloc(1, sizeof(IRInstr));
-		pop->op = OP_POP;
-		pop->src1.type = stmt->derived_type;
-
 		// assign
 		payload->payload._stmt.code = exp.payload._arith.code;
 		insert(payload->payload._stmt.code, ins);
-		insert(payload->payload._stmt.code, pop);
 
 		// clear memory
 		free(to.payload._arith.code);

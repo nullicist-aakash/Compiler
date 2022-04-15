@@ -132,20 +132,46 @@ mov rax, rsp
 	sub rsp, 8
 	
 .startlabel:
-    mov     rax, 0
-    mov     rdi, 0
-    mov     rsi, buff
-    mov     rdx, buff_size
-    syscall         ;print prompt
+	push rbp
+	mov rbp, rsp
+	sub rsp, 6
 
+	; Reading variable: b2
+	mov rax, 0
+	mov rdi, 0
+	mov rsi, buff
+	mov rdx, buff_size
+	syscall
 	call __str_to_int
-	call __int_to_str
+	push ax
+	mov ax, [integer]
+	mov word [rbp + 4d], ax
+	pop ax
 
-    mov     rax, 1
-    mov     rdi, 1
-    mov     rsi, buff
-    mov     rdx, buff_size
-    syscall         ;print prompt
+	; Reading variable: d2
+	mov rax, 0
+	mov rdi, 0
+	mov rsi, buff
+	mov rdx, buff_size
+	syscall
+	call __str_to_int
+	push ax
+	mov ax, [integer]
+	mov word [rbp + 2d], ax
+	pop ax
+
+	; Writing variable: b2
+	push ax
+	mov ax, word [rbp + 4d]
+	mov [integer], ax
+	pop ax
+	call __int_to_str
+	
+	mov rax, 1
+	mov rdi, 1
+	mov rsi, buff
+	mov rdx, buff_size
+	syscall
 
 exit:
     mov     rax, 60
@@ -157,5 +183,5 @@ section .data
 integer      dw  0
 real		 dq  0
 buff        db 10 dup(0)
-buff_size    equ $-intstr
+buff_size    equ $-buff
 d2:	db	2	dup(0)

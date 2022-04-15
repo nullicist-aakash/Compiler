@@ -3,7 +3,7 @@ _main
 	type int :b3;
 	type int : b2;
 	type int : c2;
-	type int : d2;
+	type int : d2 : global;
 	read(b2);
 	c2<--- 35;
 	read(d2);
