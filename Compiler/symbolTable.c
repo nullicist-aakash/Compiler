@@ -227,6 +227,13 @@ int firstPass(ASTNode *node)
     {
         char *oldName = node->children[1]->token->lexeme;
         char *newName = node->children[2]->token->lexeme;
+        if (trie_exists(globalSymbolTable, newName))
+        {
+            printf("ERROR : Line number %d : Alias name %s already exists\n\n", node->token->line_number, newName);
+            node->sym_index = -1;
+            firstPass(node->sibling);
+            return -1;
+        }
 
         TypeLog *mediator = getMediator(globalSymbolTable, oldName);
         mediator->refCount++;

@@ -31,10 +31,9 @@ The parameter of variant record type (for variant field only) is type checked at
 Till the end of pass 1:
 	1. No repeated record/union definitions. 
 	2. No duplicate function names.  DONE
-	3. No duplicate global variables 
-	4. Valid Typedef check
-	5. Check if typedef record exists
-	6. Alias exists
+	3. Check if typedef record/union exists 
+	4. Correct struct type(record or union) used in definetype 
+	5. Alias exists
 
 Till the end of pass 2:
 
@@ -45,6 +44,7 @@ For variables:
 	variables have valid type
 	No datatype of union
 	No duplicate variables
+	No duplicate global variables
 
 For structs:
 	Valid type entry
