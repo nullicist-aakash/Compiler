@@ -10,7 +10,8 @@ compile:
 	gcc -c driver.c -o bin/driver.o -g
 	gcc -c toposort.c -o bin/toposort.o -g
 	gcc -c logger.c -o bin/logger.o -g
-	gcc -o stage1exe bin/lexer.o bin/stack.o bin/logger.o bin/toposort.o bin/trie.o bin/parser.o bin/ast.o bin/driver.o bin/symbolTable.o bin/typeChecker.o -g
+	gcc -c DriverHelper.c -o bin/DriverHelper.o -g
+	gcc -o stage1exe bin/lexer.o bin/stack.o bin/logger.o bin/toposort.o bin/trie.o bin/parser.o bin/ast.o bin/driver.o bin/symbolTable.o bin/typeChecker.o bin/DriverHelper.o -g
 	rm -r bin
 	
 clean:
