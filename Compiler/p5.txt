@@ -28,7 +28,7 @@ _main
 		type #point: pt; 
 		type #triangle:tr;
 	endunion
-	definetype union #four as #yash;
+	definetype union #four as #yash
 	record #sourabh
 		type #yash: x;
 		type int: y;
