@@ -429,10 +429,6 @@ TreeNode* parseInputSourceCode(char* fileLoc)
 
 	while (lookahead != NULL)
 	{
-		StackNode* temp = s->top;
-		while (temp->data != -1)
-			temp = temp->prev;
-
 		if (lookahead->type == TK_ERROR_LENGTH ||
 			lookahead->type == TK_ERROR_PATTERN ||
 			lookahead->type == TK_ERROR_SYMBOL)

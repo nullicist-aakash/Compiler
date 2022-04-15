@@ -35,14 +35,20 @@ char getCharacter(int index)
 {
 	if (index == 63)
 		return '#';
+
 	if (index == 62)
 		return '_';
+
 	if (index >= 52 && index <= 61)
 		return index - 52 + '0';
+
 	if (index >= 26 && index <= 51)
 		return index - 26 + 'a';
+
 	if (index>=0 && index < 26)
 		return 'A' + index;
+
+	assert(0);
 }
 
 // returns 0 on success, -1 on error

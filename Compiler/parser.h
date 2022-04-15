@@ -15,6 +15,7 @@
 
 extern ParserData* parserData;
 extern TreeNode* parseTree;
+extern int ParseErr;
 
 void loadParser();
 void printParseTree(TreeNode* node);
