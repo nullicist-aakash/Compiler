@@ -8,8 +8,7 @@ FuncEntry* entry;
 Trie* localSymbolTable;
 FILE* fp_output;
 
-char* prefix = "global _start\n\nsection .text\n__int_to_str:\n	push rax\n	push rbx\n	push rcx\n	push rdx\n	\n	mov rax, 0\n	mov ax, [integer]\n	mov rbx, 0\n	mov cx, 0ah\n	mov rdx, 0\n	\n	cmp ax, 0\n	jge .label1\n	\n	; store minus\n	mov byte [buff + rbx], '-'\n	inc bx\n	\n	; multiply ax by -1\n	xor ax, 0FFFFh\n	add ax, 1\n	\n.label1:\n	div cx\n	\n	; dx <- remainder, ax <- ax / 10\n	add dx, 030h\n	mov byte [buff + rbx], dl\n	inc rbx\n\n	mov dx, 0\n	cmp ax, 0\n	jnz .label1\n	\n	mov byte [buff + rbx], 10\n	mov byte [buff + rbx + 1], 0\n	mov rdx, rbx\n	inc rdx\n	dec rbx\n	\n	; Now reverse the string\n	mov rax, 0\n	\n	cmp byte [buff], '-'\n	jnz .label2\n	mov rax, 1\n	\n.label2:\n	cmp rax, rbx\n	jge .label3\n	mov cl, [buff + rbx]\n	mov ch, [buff + rax]\n	mov byte [buff + rbx], ch\n	mov byte [buff + rax], cl\n	\n	inc rax\n	dec rbx\n	jmp .label2\n	\n.label3:\n	cmp rdx, buff_size\n	jz .label4\n	mov byte [buff + rdx], 0\n	inc rdx\n	jmp .label3\n\n.label4:\n	pop rdx\n	pop rcx\n	pop rbx\n	pop rax\n	ret\n\n__str_to_int:\n	push rax\n	push rbx\n	push rcx\n	push rdx\n	\n	mov ax, 0\n	mov cx, 0\n	mov cl, byte [buff]\n	mov rbx, 0\n	\n	cmp cl, '-'\n	jnz .label1\n	mov rbx, 1\n	\n.label1:\n	; move arr[rbx] to cl\n	mov cl, byte [buff + rbx]\n	inc rbx\n	\n	cmp cl, 10\n	je .label2\n	\n	; ax = ax * 10 + cl\n	mov dx, 10d\n	mul dx\n	sub cl, '0'\n	add ax, cx\n	\n	jmp .label1\n\n.label2:\n	mov cl, byte [buff]\n	cmp cl, '-'\n	jnz .label3\n	\n	xor ax, 0ffffh\n	add ax, 1\n	\n.label3:\n	mov word [integer], ax\n	\n	pop rdx\n	pop rcx\n	pop rbx\n	pop rax\n	ret\n\n";
-char* postfix = "\nexit:\n    mov     rax, 60\n    mov     rdi, 0\n    syscall\n	\n	\nsection .data\ninteger      dw  0\nreal		 dq  0\nbuff        db 10 dup(0)\nbuff_size    equ $-buff\n";
+char* prefix = "section .text\n\tdefault rel\n\textern printf\n\textern scanf\n\tglobal main\n\n";
 
 int* calcByteAddress(char* name)
 {
@@ -76,9 +75,11 @@ void readVariable(char* name)
 	if (width > 2)
 		fprintf(fp_output, "\tcall exit\n");
 
-	fprintf(fp_output, "\tmov rax, 0\n\tmov rdi, 0\n\tmov rsi, buff\n\tmov rdx, buff_size\n\tsyscall\n");
-	fprintf(fp_output, "\tcall __str_to_int\n\tpush ax\n\tmov ax, [integer]\n");
-	fprintf(fp_output, "\tmov word [rbp + %dd], ax\n\tpop ax\n", address);
+
+	fprintf(fp_output, "\tlea rsi, [rbp - %dd]\n", address);
+	fprintf(fp_output, "\tmov rdi, int_in\n");
+	fprintf(fp_output, "\txor rax, rax\n");
+	fprintf(fp_output, "\tcall scanf\n");
 }
 
 void writeVariable(char* name)
@@ -93,8 +94,11 @@ void writeVariable(char* name)
 	if (width > 2)
 		fprintf(fp_output, "\tcall exit\n");
 
-	fprintf(fp_output, "\tpush ax\n\tmov ax, word [rbp + %dd]\n\tmov [integer], ax\n\tpop ax\n", address);
-	fprintf(fp_output, "\tcall __int_to_str\n\tmov rax, 1\n\tmov rdi, 1\n\tmov rsi, buff\n\tmov rdx, buff_size\n\tsyscall\n");
+	fprintf(fp_output, "\tmov ax, word [rbp - %dd]\n", address);
+	fprintf(fp_output, "\tmovsx rsi, ax\n");
+	fprintf(fp_output, "\tmov rdi, int_out\n");
+	fprintf(fp_output, "\txor rax, rax\n");
+	fprintf(fp_output, "\tcall printf\n");
 }
 
 void handleFunction(IRInsNode* funcCode)
@@ -102,7 +106,10 @@ void handleFunction(IRInsNode* funcCode)
 	// assuming this is main for now
 	fprintf(fp_output, "\tpush rbp\n");
 	fprintf(fp_output, "\tmov rbp, rsp\n");
-	fprintf(fp_output, "\tsub rsp, %d\n", entry->activationRecordSize);
+
+	int localSize = entry->activationRecordSize;
+	localSize += (16 - (localSize % 16)) % 16;
+	fprintf(fp_output, "\tsub rsp, %d\n", localSize);
 
 	for (; funcCode; funcCode = funcCode->next)
 	{
@@ -125,7 +132,7 @@ void handleFunction(IRInsNode* funcCode)
 				fprintf(fp_output, "\tcall exit\n");
 		
 			fprintf(fp_output, "\tpop ax\n");
-			fprintf(fp_output, "\tmov word [rbp + %dd], ax\n", address);
+			fprintf(fp_output, "\tmov word [rbp - %dd], ax\n", address);
 		}
 		else if (instr->op == OP_CALL)
 			fprintf(fp_output, "\tcall exit\n");
@@ -282,7 +289,7 @@ void handleFunction(IRInsNode* funcCode)
 			if (width > 2)
 				fprintf(fp_output, "\tcall exit\n");
 
-			fprintf(fp_output, "\tmov ax, word [rbp + %dd]\n", address);
+			fprintf(fp_output, "\tmov ax, word [rbp - %dd]\n", address);
 			fprintf(fp_output, "\tpush ax\n");
 		}
 		else if (instr->op == OP_PUSHI)
@@ -305,6 +312,9 @@ void handleFunction(IRInsNode* funcCode)
 				fprintf(fp_output, "\tpop ax\n");
 		}
 	}
+
+
+	fprintf(fp_output, "\tadd rsp, %d\n", localSize);
 }
 
 void generateAssembly(FILE* fp, ASTNode* rt, IRInsNode** functions)
@@ -334,9 +344,17 @@ void generateAssembly(FILE* fp, ASTNode* rt, IRInsNode** functions)
 	entry = mediator->structure;
 	localSymbolTable = entry->symbolTable;
 
-	fprintf(fp, "\n_start:\nmov rax, rsp\n	and rax, 0fh\n	cmp rax, 0\n	jz .startlabel\n	sub rsp, 8\n	\n.startlabel:\n");
+	fprintf(fp, "\nmain:\n");
 	handleFunction(functions[i++]);
 
-	fprintf(fp, "%s", postfix);
+	fprintf(fp, "\n\tpop rbp\n");
+	fprintf(fp, "\tmov rax, 0\n");
+	fprintf(fp, "\tret\n");
+	fprintf(fp, "\nsection .data\n");
+	fprintf(fp, "\tint_out:  db  \"%chd\", 10, 0\n", '%');
+	fprintf(fp, "\tint_in:  db  \"%chd\", 0\n", '%');
+	fprintf(fp, "\treal_out:  db  \"%cf\", 10, 0\n", '%');
+	fprintf(fp, "\treal_in:  db  \"%cf\", 0\n", '%');
+
 	iterateTrie(globalSymbolTable, fillDataSegment);
 }
