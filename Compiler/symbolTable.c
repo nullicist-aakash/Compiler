@@ -104,26 +104,32 @@ TypeLog *getMediator(Trie *t, char *key)
 
 FuncEntry *local_func; // TODO: Udao isko bc, use key
 
-int firstPass(ASTNode *node)
+int firstPass(ASTNode *node, int flag)
 {
     if (!node)
         return 0;
-    if (node->sym_index == -1)
-        firstPass(node->sibling);
     else if (node->sym_index == 57)
     {
         // <program> -> <funcList> <mainFunction>
-        firstPass(node->children[0]);
-        firstPass(node->children[1]);
+        firstPass(node->children[0], 0);
+        firstPass(node->children[1], 0);
+        firstPass(node->children[0], 1);
+        firstPass(node->children[1], 1);
     }
     else if (node->sym_index == 60 || node->sym_index == 58) // Function names parsed
     {
         // <function> -> <inputList><outputList> <stmts>
+        if (flag)
+        {
+            firstPass(node->children[2], flag);
+            firstPass(node->sibling, flag);
+            return 0;
+        }
         if (trie_exists(globalSymbolTable, node->token->lexeme)) // ERROR: Function name repeated
         {
             printf("ERROR : Redeclaration of function in line number %d\n\n", node->token->line_number);
             node->sym_index = -1;
-            firstPass(node->sibling);
+            firstPass(node->sibling, flag);
             return -1;
         }
 
@@ -140,21 +146,21 @@ int firstPass(ASTNode *node)
         entry->argTypes = calloc(1, sizeof(TypeInfoList));
         entry->retTypes = calloc(1, sizeof(TypeInfoList));
         entry->symbolTable = calloc(1, sizeof(Trie));
-        firstPass(node->children[2]);
+        firstPass(node->children[2], flag);
     }
     else if (node->sym_index == 68)
     {
         // <stmts> -> <definitions> <declarations> <funcBody> <return>
-        firstPass(node->children[0]);
+        firstPass(node->children[0], flag);
     }
     // else if (node->sym_index == 71 && firstPassErrorCheck(node) != -1) // Type Definition Names Parsed
-    else if (node->sym_index == 71)
+    else if (node->sym_index == 71 && !flag)
     {
         if (getMediator(globalSymbolTable, node->children[0]->token->lexeme)->refCount == 1) // ERROR Defined Type name repeated
         {
             printf("ERROR : Redeclaration of defined type %s in line number %d\n\n", node->children[0]->token->lexeme, node->children[0]->token->line_number);
             node->sym_index = -1;
-            firstPass(node->sibling);
+            firstPass(node->sibling, flag);
             return -1;
         }
         trie_getRef(prefixTable, node->children[0]->token->lexeme)->entry.value =
@@ -173,25 +179,49 @@ int firstPass(ASTNode *node)
         mediator->index = dataTypeCount++;
     }
     // else if (node->sym_index == 108 && firstPassErrorCheck(node) != -1)
-    else if (node->sym_index == 108) // Type Aliases Parsed
+    else if (node->sym_index == 108 && flag) // Type Aliases Parsed
     {
         char *oldName = node->children[1]->token->lexeme;
         char *newName = node->children[2]->token->lexeme;
         if (trie_exists(globalSymbolTable, newName))
         {
             printf("ERROR : Line number %d : Alias name %s already exists\n\n", node->token->line_number, newName);
-            node->sym_index = -1;
-            firstPass(node->sibling);
+            firstPass(node->sibling, flag);
             return -1;
         }
-        TypeLog *mediator = getMediator(globalSymbolTable, oldName);
-        // mediator->refCount++;
-        trie_getRef(globalSymbolTable, newName)->entry.ptr = mediator;
+        if (!trie_exists(globalSymbolTable, oldName))
+        {
+            printf("ERROR : Line number %d : %s is not a defined type\n\n", node->token->line_number, oldName);
+            firstPass(node->sibling, flag);
+            return -1;
+        }
 
+        TypeLog *mediator = getMediator(globalSymbolTable, oldName);
+
+        DerivedEntry *temp = mediator->structure;
+        if ((node->children[0]->token->type == TK_UNION) != temp->isUnion)
+        {
+            if (temp->isUnion)
+                printf("ERROR : Line number %d : %s is defined as union, not record\n\n", node->token->line_number, oldName);
+            else
+                printf("ERROR : Line number %d : %s is defined as record, not union\n\n", node->token->line_number, oldName);
+
+            firstPass(node->sibling, flag);
+            return -1;
+        }
+        AliasListNode *newAlias = calloc(1, sizeof(AliasListNode));
+        newAlias->RUName = calloc(1, strlen(newName) + 1);
+        strcpy(newAlias->RUName, newName);
+
+        if (temp->aliases != NULL)
+            newAlias->next = temp->aliases;
+        temp->aliases = newAlias;
+
+        trie_getRef(globalSymbolTable, newName)->entry.ptr = mediator;
         trie_getRef(prefixTable, newName)->entry.value = node->token->type;
     }
 
-    firstPass(node->sibling);
+    firstPass(node->sibling, flag);
     return 0;
 }
 
@@ -354,19 +384,19 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
     }
     else if (node->sym_index == 108) // Type Aliases Parsed
     {
-        char* oldName = node->children[1]->token->lexeme;
-        char* newName = node->children[2]->token->lexeme;
-        TypeLog* mediator = getMediator(globalSymbolTable, oldName);
+        // char *oldName = node->children[1]->token->lexeme;
+        // char *newName = node->children[2]->token->lexeme;
+        // TypeLog *mediator = getMediator(globalSymbolTable, oldName);
 
-        DerivedEntry* temp = mediator->structure;
-        AliasListNode* newAlias = calloc(1, sizeof(AliasListNode));
-        newAlias->RUName = calloc(1, strlen(newName) + 1);
-        strcpy(newAlias->RUName, newName);
+        // DerivedEntry *temp = mediator->structure;
+        // AliasListNode *newAlias = calloc(1, sizeof(AliasListNode));
+        // newAlias->RUName = calloc(1, strlen(newName) + 1);
+        // strcpy(newAlias->RUName, newName);
 
-        if (temp->aliases != NULL)
-            newAlias->next = temp->aliases;
-        temp->aliases = newAlias;
-        trie_getRef(prefixTable, newName)->entry.value = node->token->type;
+        // if (temp->aliases != NULL)
+        //     newAlias->next = temp->aliases;
+        // temp->aliases = newAlias;
+        // trie_getRef(prefixTable, newName)->entry.value = node->token->type;
     }
 
     secondPass(node->sibling, adj, symTable);
@@ -655,7 +685,7 @@ void loadSymbolTable(ASTNode *root)
 {
     initTables();
 
-    firstPass(root);
+    firstPass(root, 0);
     iterateTrie(globalSymbolTable, printRecordUndefinedError);
 
     // iterateTrie(globalSymbolTable, iterationFunction);
