@@ -38,7 +38,7 @@ TypeLog *finalType(ASTNode *leftNode, ASTNode *rightNode, Token *opToken)
             return void_empty;
 
         isTypeError = 1;
-        logIt("Assignment with incompatible types at line no. %d \n", opToken->line_number);
+        //logIt("Assignment with incompatible types at line no. %d \n", opToken->line_number);
         return NULL;
     }
 
