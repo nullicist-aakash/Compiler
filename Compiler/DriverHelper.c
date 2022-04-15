@@ -61,7 +61,7 @@ void recursivePrintParseTree(FILE* fp, TreeNode* node)
 		char* A = node->isLeaf ? node->token->lexeme : "----";
 		int B = node->isLeaf ? node->token->line_number : -1;
 		char* C = !(node->isLeaf) ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
-		double D = node->token->type == TK_RNUM ? atof(node->token->lexeme) : -1;
+		double D = node->token && node->token->type == TK_RNUM ? atof(node->token->lexeme) : -1;
 		char* E = node->parent == NULL ? "root" : parserData->symbolType2symbolStr[node->parent->symbol_index];
 		char* F = node->isLeaf ? "yes" : "no";
 		char* G = node->isLeaf ? "----" : parserData->symbolType2symbolStr[node->symbol_index];
@@ -157,7 +157,7 @@ void printCompression(FILE* fp, TreeNode* node, ASTNode* ast)
 }
 
 
-FuncEntry* local_func;
+FuncEntry* local_func1;
 
 void printTypeName(VariableEntry* entry)
 {
@@ -225,7 +225,7 @@ void printVariables(char* key, TrieEntry* entry)
 
 	VariableEntry* varentry = typelog->structure;
 	printf("Name - %s\n", varentry->name);
-	printf("Scope - %s\n", local_func->name);
+	printf("Scope - %s\n", local_func1->name);
 
 	printf("Type Name - ");
 	printTypeName(varentry);
@@ -251,8 +251,8 @@ void printFunctions(char* key, TrieEntry* entry)
 	if (typelog->entryType != FUNCTION)
 		return;
 
-	local_func = (FuncEntry*)typelog->structure;
-	iterateTrie(local_func->symbolTable, printVariables);
+	local_func1 = (FuncEntry*)typelog->structure;
+	iterateTrie(local_func1->symbolTable, printVariables);
 }
 
 void printActivationRecSize(char* key, TrieEntry* entry)
@@ -262,8 +262,8 @@ void printActivationRecSize(char* key, TrieEntry* entry)
 	if (typelog->entryType != FUNCTION)
 		return;
 
-	local_func = (FuncEntry*)typelog->structure;
-	printf("%s - %d\n", local_func->name, local_func->activationRecordSize);
+	local_func1 = (FuncEntry*)typelog->structure;
+	printf("%s - %d\n", local_func1->name, local_func1->activationRecordSize);
 }
 
 void printRecordDetails(char* key, TrieEntry* entry)
