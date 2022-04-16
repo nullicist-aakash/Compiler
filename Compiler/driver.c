@@ -63,6 +63,10 @@ void main(int argc, char **argv)
 
 	do
 	{
+		if(start)
+		{
+			printf("LEVEL 4: AST/Symbol Table/Semantic Rules/Type Checking");
+		}
 		if (!start)
 		{
 			printf("Press any key to continue...");
@@ -82,6 +86,7 @@ void main(int argc, char **argv)
 		printf("7. Activation Record Sizes\n");
 		printf("8. Record Types and Sizes\n");
 		printf("9. Type checking and semantic analysis\n");
+		printf("10. Code Generation and Dynamic Type Checking");
 		printf("11: Compile\n");
 
 		printf("Select an option: ");

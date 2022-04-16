@@ -61,7 +61,7 @@ int checkParameterType(ASTNode* node, int input)
         cur = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->argTypes->head;
     else
         cur = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->retTypes->head;
-    while (cur)
+    while (cur && cur->type)
     {
         if (cur->type != paramList->derived_type)
         {
@@ -315,7 +315,7 @@ void assignTypes(ASTNode* node)
                 flag = 0;
         free(reqTypes);
         if (!flag)
-            printf("ERROR : Line Number %d : Function output paramters not assigned a value\n", node->token->line_number);
+            printf("ERROR : Line Number %d : Function output parameters not assigned a value\n", node->token->line_number);
 
         for (int i = 0; i < curSize; i++)
             free(localAssigned[i]);
@@ -362,7 +362,7 @@ void assignTypes(ASTNode* node)
         if(checkParameterLength(node, 0))
             checkParameterType(node, 0);
         if(checkParameterLength(node, 1))
-        checkParameterType(node, 1);
+            checkParameterType(node, 1);
         ASTNode* cur = node->children[0];
         while (cur)
         {
@@ -432,7 +432,12 @@ void assignTypes(ASTNode* node)
     {
         // io
         assignTypes(node->children[0]);
-        printf("******** Line number %d - %s\n", node->children[0]->token->line_number, node->children[0]->token->lexeme);
+        if (node->children[0]->token->type == TK_DOT)
+        {
+            node->derived_type = void_empty;
+            assignTypes(node->sibling);
+            return;
+        }
         TypeLog* mediator = trie_getRef(globalSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
         if (!mediator)
             mediator = trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
@@ -456,10 +461,10 @@ void assignTypes(ASTNode* node)
 
         while (temp)
         {
-            TypeLog* mediator = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
+            TypeLog* mediator = trie_getRef(localSymbolTable, temp->token->lexeme)->entry.ptr;
 
             if (mediator == NULL)
-                mediator = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
+                mediator = trie_getRef(globalSymbolTable, temp->token->lexeme)->entry.ptr;
 
             if (mediator)
             {
@@ -467,7 +472,7 @@ void assignTypes(ASTNode* node)
                 temp->derived_type = entry->type;
             }
             else
-                printf("ERROR : Line number %d : Variable %s is not declared\n", node->token->line_number, temp->token->lexeme);
+                printf("ERROR : Line number %d : Variable %s is not declared\n", temp->token->line_number, temp->token->lexeme);
             temp = temp->sibling;
         }
         // TODO:

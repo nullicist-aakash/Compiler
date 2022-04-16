@@ -96,7 +96,7 @@ int firstPass(ASTNode *node, int flag)
         }
         if (trie_exists(globalSymbolTable, node->token->lexeme)) // ERROR: Function name repeated
         {
-            printf("ERROR : Line number %d : Redeclaration of function %s\n", node->children[0]->token->line_number, node->children[0]->token->lexeme);
+            printf("ERROR : Line number %d : Redeclaration of function %s\n", node->token->line_number, node->token->lexeme);
             node->sym_index = -1;
             firstPass(node->sibling, flag);
             return -1;

@@ -147,7 +147,7 @@ _main
 
 	b3 <--- 7;
 	read( c2);
-	[c4bd56]<--- call _sumN with parameters [c2];
+	[c4bd56]<--- call  _nestedwhile with parameters [c2];
 	write(c4bd56);
 	
 	b5 <--- 1;

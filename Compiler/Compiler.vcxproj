@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AST.h" />
+    <ClInclude Include="astDef.h" />
     <ClInclude Include="IRGenerator.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="lexerDef.h" />
@@ -168,7 +169,13 @@
     <ClInclude Include="typeChecker.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="compiler.log" />
     <Text Include="DFA_Structure.txt" />
+    <Text Include="fpTest1.txt" />
+    <Text Include="fpTest2.txt" />
+    <Text Include="fpTest3.txt" />
+    <Text Include="fpTest4.txt" />
+    <Text Include="fpTest5.txt" />
     <Text Include="grammar.txt" />
     <Text Include="p1.txt" />
     <Text Include="p2.txt" />
@@ -185,14 +192,22 @@
     <Text Include="s5.txt" />
     <Text Include="Target.txt" />
     <Text Include="testcase1.txt" />
+    <Text Include="testcase10.txt" />
+    <Text Include="testcase11.txt" />
     <Text Include="testcase2.txt" />
     <Text Include="testcase3.txt" />
     <Text Include="testcase4.txt" />
     <Text Include="testcase5.txt" />
     <Text Include="testcase6.txt" />
+    <Text Include="testcase7.txt" />
+    <Text Include="testcase8.txt" />
+    <Text Include="testcase9.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="compiler.log.bak" />
     <None Include="makefile" />
+    <None Include="testcase8.txt.bak" />
+    <None Include="testcase9.txt.bak" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

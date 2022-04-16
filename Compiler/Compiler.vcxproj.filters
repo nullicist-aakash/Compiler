@@ -92,6 +92,9 @@
     <ClInclude Include="symbolTableDef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="astDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="grammar.txt">
@@ -134,8 +137,22 @@
     <Text Include="p7.txt" />
     <Text Include="p6.txt" />
     <Text Include="p8.txt" />
+    <Text Include="compiler.log" />
+    <Text Include="fpTest5.txt" />
+    <Text Include="fpTest1.txt" />
+    <Text Include="fpTest2.txt" />
+    <Text Include="fpTest3.txt" />
+    <Text Include="fpTest4.txt" />
+    <Text Include="testcase11.txt" />
+    <Text Include="testcase7.txt" />
+    <Text Include="testcase8.txt" />
+    <Text Include="testcase9.txt" />
+    <Text Include="testcase10.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
+    <None Include="compiler.log.bak" />
+    <None Include="testcase8.txt.bak" />
+    <None Include="testcase9.txt.bak" />
   </ItemGroup>
 </Project>
