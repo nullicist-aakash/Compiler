@@ -133,6 +133,7 @@
     <Text Include="p4.txt" />
     <Text Include="p7.txt" />
     <Text Include="p6.txt" />
+    <Text Include="p8.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />

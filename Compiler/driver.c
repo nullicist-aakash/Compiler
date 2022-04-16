@@ -210,6 +210,7 @@ void main(int argc, char **argv)
 			ASTNode* ast = createAST(node);
 
 			loadSymbolTable(ast);
+			calculateOffsets(ast);
 
 			typeChecker_init();
 			assignTypes(ast);

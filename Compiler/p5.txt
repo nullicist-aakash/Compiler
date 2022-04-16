@@ -20,8 +20,8 @@
 %if record has union, record should have tagvalue
 %type of tagvalue is integer
 
-_unionfunction  input parameter list [record #tow d5cc34, #point b5c6]  
-output parameter list[#rela d3];
+_unionfunction  input parameter list [record #two d5cc34, #point b5c6]  
+output parameter list[#real d3];
 
 	record #two
 		type #point: beginpoint;

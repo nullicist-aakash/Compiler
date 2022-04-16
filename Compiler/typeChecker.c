@@ -18,9 +18,10 @@ int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
     TypeLog* left = leftNode->derived_type;
     TypeLog* right = rightNode->derived_type;
     while (leftNode && rightNode)
-    {
+    {   
         left = leftNode->derived_type;
         right = rightNode->derived_type;
+        
 
         if (left != right || left == boolean || left == void_empty || !left || !right)
             return 0;
@@ -29,6 +30,48 @@ int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
         rightNode = rightNode->sibling;
     }
     return !leftNode && !rightNode;
+}
+
+int checkParameterLength(ASTNode* node, int input)
+{
+    ASTNode* paramList = node->children[input];
+    TypeInfoListNode* cur;
+    if(input==1)
+        cur = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->argTypes->head;
+    else
+        cur = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->retTypes->head;
+    while (cur && paramList)
+    {
+        cur = cur->next;
+        paramList = paramList->sibling;
+    }
+    if (cur || paramList)
+    {
+        printf("ERROR : Line Number %d : Number of %s parameters does not match the formal parameters\n", node->token->line_number, input ? "input" : "output");
+        return 0;
+    }
+    return 1;
+}
+
+int checkParameterType(ASTNode* node, int input)
+{
+    ASTNode* paramList = node->children[input];
+    TypeInfoListNode* cur;
+    if(input==1)
+        cur = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->argTypes->head;
+    else
+        cur = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->retTypes->head;
+    while (cur)
+    {
+        if (cur->type != paramList->derived_type)
+        {
+            printf("ERROR : Line Number %d : Types of %s parameters does not match the formal parameters\n", node->token->line_number, input ? "input" : "output");
+            return 0;
+        }
+        cur = cur->next;
+        paramList = paramList->sibling;
+    }
+    return 1;
 }
 
 void recordAssignment(int index) {
@@ -49,8 +92,12 @@ void reAllocate()
 
 void getTypes(ASTNode* node, int* arr)
 {
+    //printf("Boolean childcount = %d\n", node->childCount);
     if (node->childCount == 0)
     {
+        //printf("Searching for %s\n", node->token->lexeme);
+        if (node->token->type == TK_RNUM)
+            return;
         TypeLog* mediator = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
         if(!mediator)
             mediator = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
@@ -59,7 +106,8 @@ void getTypes(ASTNode* node, int* arr)
             assignTypes(node->sibling);
             return;
         }
-        arr[mediator->index + node->isGlobal ? identifierCount : 0] = 1;
+        VariableEntry* varentry = mediator->structure;
+        arr[mediator->index + (varentry->isGlobal ? localIdentifierCount : 0)] = 1;
     }
     else if (node->childCount == 1)
         getTypes(node->children[0], arr);
@@ -155,10 +203,12 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
         if (left == boolean && right == boolean)
             return boolean;
 
-        
-        printf("ERROR : Line number %d :\n",
-            opToken->line_number);
-        isTypeError = 1;
+        /*if(left && right)
+            printf("ERROR : Line number %d : \n",
+            opToken->line_number);*/
+            
+            
+                   isTypeError = 1;
         if (!rightNode || !left || !right)
             return NULL;
         char* leftType = ((DerivedEntry*)left->structure)->name;
@@ -211,7 +261,6 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
     assert(0);
 }
 
-Trie* localSymbolTable;
 void typeChecker_init()
 {
     real = trie_getRef(globalSymbolTable, "real")->entry.ptr;
@@ -238,6 +287,8 @@ void assignTypes(ASTNode* node)
     {
         // function/main-function
         localSymbolTable = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->symbolTable;
+        printf("%s\n",node->token->lexeme);
+        //iterateTrie(localSymbolTable, printLocalTable);
 
         localWhileCount = 0;
         localIdentifierCount = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->identifierCount;
@@ -253,10 +304,8 @@ void assignTypes(ASTNode* node)
         ASTNode* cur = node->children[1];
         while (cur)
         {
-            TypeLog* mediator = trie_getRef(globalSymbolTable, cur->token->lexeme)->entry.ptr;
-            if(!mediator)
-                mediator = trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr;
-            reqTypes[mediator->index + node->isGlobal ? identifierCount : 0] = 1;
+            TypeLog *mediator = trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr;
+            reqTypes[mediator->index] = 1;
             cur = cur->sibling;
         }
 
@@ -285,16 +334,20 @@ void assignTypes(ASTNode* node)
         // assignment --> <identifier> = <expression>
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
-        
-        TypeLog* mediator = trie_getRef(globalSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
-        if(!mediator)
-            mediator = trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
-        if (!mediator)
+        if(node->children[0]->token->type != TK_DOT)
         {
-            assignTypes(node->sibling);
-            return;
+            TypeLog* mediator = trie_getRef(globalSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
+            if(!mediator)
+                mediator = trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
+            if (!mediator)
+            {
+                assignTypes(node->sibling);
+                return;
+            }
+            VariableEntry* varentry = mediator->structure;
+            //printf("Updating %s with index %d\n", ((VariableEntry*)mediator->structure)->name, mediator->index + (node->children[0]->isGlobal ? identifierCount : 0));
+            recordAssignment(mediator->index + (varentry->isGlobal ? localIdentifierCount : 0));
         }
-        recordAssignment(mediator->index + node->children[0]->isGlobal ? identifierCount : 0);
         // TODO: The type of an identifier of union data type is reported as an error.
         node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
@@ -304,14 +357,24 @@ void assignTypes(ASTNode* node)
         // TODO:
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
-        
+        //0 output
+        //1 input
+        if(checkParameterLength(node, 0))
+            checkParameterType(node, 0);
+        if(checkParameterLength(node, 1))
+        checkParameterType(node, 1);
         ASTNode* cur = node->children[0];
         while (cur)
         {
             TypeLog* mediator = trie_getRef(globalSymbolTable, cur->token->lexeme)->entry.ptr;
             if(!mediator)
                 mediator = trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr;
-            recordAssignment(mediator->index + node->children[0]->isGlobal ? identifierCount : 0);
+            if (mediator)
+            {
+                VariableEntry* varentry = mediator->structure;
+                //printf("Updating %s with index %d\n", ((VariableEntry*)mediator->structure)->name, mediator->index + node->children[0]->isGlobal ? identifierCount : 0);
+                recordAssignment(mediator->index + (varentry->isGlobal ? localIdentifierCount : 0));
+            }
             cur = cur->sibling;
         }
 
@@ -323,7 +386,6 @@ void assignTypes(ASTNode* node)
 
         localWhileCount++;
         reAllocate();
-
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
 
@@ -335,10 +397,25 @@ void assignTypes(ASTNode* node)
         {
             if (reqTypes[i] && localAssigned[localWhileCount][i])
                 flag = 1;
-        }
+        }/*
+        printf("ReqTypes - ==========\n");
+        for (int i = 0; i < localIdentifierCount + identifierCount; i++)
+            printf("%d ", reqTypes[i]);*/
+        /*printf("\n");*/
         free(reqTypes);
         if (!flag)
             printf("ERROR : Line Number %d : Variables of while loop are not assigned\n", node->token->line_number);
+
+        // for (int i = 0; i < curSize; i++)
+        // {
+        //     for (int j = 0; j < localIdentifierCount + identifierCount; j++)
+        //         printf("%d ", localAssigned[i][j]);
+        //     printf("\n");
+        // }
+        // printf("************ while end ***********\n");
+
+        for(int i =0 ;i<localIdentifierCount + identifierCount;i++)
+            localAssigned[localWhileCount][i]=0;
         localWhileCount--;
         node->derived_type = void_empty;
     }
@@ -355,7 +432,7 @@ void assignTypes(ASTNode* node)
     {
         // io
         assignTypes(node->children[0]);
-
+        printf("******** Line number %d - %s\n", node->children[0]->token->line_number, node->children[0]->token->lexeme);
         TypeLog* mediator = trie_getRef(globalSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
         if (!mediator)
             mediator = trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
@@ -364,7 +441,11 @@ void assignTypes(ASTNode* node)
             assignTypes(node->sibling);
             return;
         }
-        recordAssignment(mediator->index + node->children[0]->isGlobal ? identifierCount : 0);
+        //printf("mediator->index = %d\n", mediator->index);
+        VariableEntry* varentry = mediator->structure;
+        //printf("id count = %d\n", identifierCount);
+        //printf("Updating %s with index %d\n", varentry->name, mediator->index + (varentry->isGlobal ? localIdentifierCount : 0));
+        recordAssignment(mediator->index + (varentry->isGlobal ? localIdentifierCount : 0));
 
         node->derived_type = void_empty;
     }
@@ -415,6 +496,10 @@ void assignTypes(ASTNode* node)
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
 
+        /*printf("LINE NUMBER %d %d : ", node->token->line_number, node->token->type);
+        printf("%d\n", node->sym_index);
+        printf("%d\n", node->children[0]->derived_type->entryType);
+        printf("%d\n", node->children[1]->derived_type->entryType);*/
         node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
     else if (node->token->type == TK_NOT)
@@ -431,7 +516,10 @@ void assignTypes(ASTNode* node)
             entry = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
 
         if (entry)
+        {
             node->derived_type = ((VariableEntry*)entry->structure)->type;
+            //printf("Line number : %d, lexeme : %s, typeTag %d\n",node->token->line_number, node->token->lexeme,node->derived_type->entryType);
+        }
         else
         {
             isTypeError = 1;
@@ -442,15 +530,13 @@ void assignTypes(ASTNode* node)
     {
         // <dot> ===> <left> TK_DOT <right>
         assignTypes(node->children[0]);
-
         DerivedEntry* leftEntry = node->children[0]->derived_type->structure; 
-
         // search for token on right of DOT
 
         TypeInfoListNode* field = leftEntry->list->head;
-
         while (field)
         {
+            //printf("field->name = %s lexeme = %s\n", field->name, node->children[1]->token->lexeme);
             if (strcmp(field->name, node->children[1]->token->lexeme) == 0)
             {
                 node->children[1]->derived_type = field->type;
@@ -459,8 +545,14 @@ void assignTypes(ASTNode* node)
 
             field = field->next;
         }
+        
 
-        assert(node->children[1]->derived_type != NULL);
+        if (node->children[1]->derived_type == NULL)
+        {
+            printf("ERROR : Line Number %d : Field %s does not exist\n", node->token->line_number, node->children[1]->token->lexeme);
+            assignTypes(node->sibling);
+            return;
+        }
         node->derived_type = node->children[1]->derived_type;
     }
     else if (node->token->type == TK_NUM)
