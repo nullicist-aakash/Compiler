@@ -298,6 +298,11 @@ void writeVariable(char* name)
 	strcpy(prefix, name);
 	writeVariableRecursive(prefix, getVarType(name));
 	free(name);
+
+	fprintf(fp_output, "\tmov rsi, 0\n");
+	fprintf(fp_output, "\tmov rdi, newline\n");
+	fprintf(fp_output, "\txor rax, rax\n");
+	fprintf(fp_output, "\tcall printf\n");
 }
 
 // Arith
@@ -628,7 +633,6 @@ void handleFunction(IRInsNode* funcCode)
 		}
 	}
 
-
 	fprintf(fp_output, "\n.exit:\n");
 	fprintf(fp_output, "\tadd rsp, %d\n", localSize);
 	fprintf(fp_output, "\tpop rbp\n");
@@ -668,10 +672,11 @@ void generateAssembly(FILE* fp, ASTNode* rt, IRInsNode** functions)
 	fprintf(fp, "\tmov rax, 0\n");
 	fprintf(fp, "\tret\n");
 	fprintf(fp, "\nsection .data\n");
-	fprintf(fp, "\tint_out:  db  \"%chd\", 10, 0\n", '%');
+	fprintf(fp, "\tint_out:  db  \"%chd\", 09, 0\n", '%');
 	fprintf(fp, "\tint_in:  db  \"%chd\", 0\n", '%');
-	fprintf(fp, "\treal_out:  db  \"%cf\", 10, 0\n", '%');
+	fprintf(fp, "\treal_out:  db  \"%cf\", 09, 0\n", '%');
 	fprintf(fp, "\treal_in:  db  \"%cf\", 0\n", '%');
+	fprintf(fp, "\tnewline:  db  10, 0\n");
 	fprintf(fp, "\treal_val:  db  0,0,0,0\n");
 
 	iterateTrie(globalSymbolTable, fillDataSegment);
