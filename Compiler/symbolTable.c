@@ -1,3 +1,11 @@
+/***************************************
+				GROUP-08
+  Yash Bansal			-   2019A7PS0484P
+  Sourabh S Yelluru		-   2018B3A70815P
+  Nihir Agarwal			-   2018B4A70701P
+  Aakash				-   2018B4A70887P
+*****************************************/
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +23,7 @@ int dataTypeCount = 0;
 int identifierCount = 0; // both function and variables
 int functionCount = 0;
 TypeLog **structList;
+int symbolTableErr = 0;
 
 // First pass : Collect struct , typedef and pass through typedef list
 // Second pass : Add function, Fill TypeInfo, fill variable infos
@@ -96,6 +105,7 @@ int firstPass(ASTNode *node, int flag)
         }
         if (trie_exists(globalSymbolTable, node->token->lexeme)) // ERROR: Function name repeated
         {
+            symbolTableErr = 1;
             printf("ERROR : Line number %d : Redeclaration of function %s\n", node->token->line_number, node->token->lexeme);
             node->sym_index = -1;
             firstPass(node->sibling, flag);
@@ -127,6 +137,7 @@ int firstPass(ASTNode *node, int flag)
     {
         if (getMediator(globalSymbolTable, node->children[0]->token->lexeme)->refCount == 1) // ERROR Defined Type name repeated
         {
+            symbolTableErr = 1;
             printf("ERROR : Line number %d : Redeclaration of defined type %s\n", node->children[0]->token->line_number, node->children[0]->token->lexeme);
             node->sym_index = -1;
             firstPass(node->sibling, flag);
@@ -155,6 +166,7 @@ int firstPass(ASTNode *node, int flag)
         {
             if (trie_exists(globalSymbolTable, node->token->lexeme))
             {
+                symbolTableErr = 1;
                 node->sym_index = -1;
                 printf("ERROR : Line number %d : Global variable %s redefined\n", node->token->line_number, node->token->lexeme);
                 firstPass(node->sibling,flag);
@@ -172,12 +184,14 @@ int firstPass(ASTNode *node, int flag)
         char *newName = node->children[2]->token->lexeme;
         if (trie_exists(globalSymbolTable, newName))
         {
+            symbolTableErr = 1;
             printf("ERROR : Line number %d : Alias name %s already exists\n", node->token->line_number, newName);
             firstPass(node->sibling, flag);
             return -1;
         }
         if (!trie_exists(globalSymbolTable, oldName))
         {
+            symbolTableErr = 1;
             printf("ERROR : Line number %d : %s is not a defined type\n", node->token->line_number, oldName);
             firstPass(node->sibling, flag);
             return -1;
@@ -188,6 +202,7 @@ int firstPass(ASTNode *node, int flag)
         DerivedEntry *temp = mediator->structure;
         if ((node->children[0]->token->type == TK_UNION) != temp->isUnion)
         {
+            symbolTableErr = 1;
             if (temp->isUnion)
                 printf("ERROR : Line number %d : %s is defined as union, not record\n", node->token->line_number, oldName);
             else
@@ -248,6 +263,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             {
                 if (!trie_exists(globalSymbolTable, arg->type->sibling->token->lexeme))
                 {
+                    symbolTableErr = 1;
                     printf("ERROR : Line number %d : %s is not a valid type\n", node->children[0]->token->line_number, arg->type->sibling->token->lexeme);
                     arg->sym_index = -1;
                     arg = arg->sibling;
@@ -255,6 +271,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
                 }
                 else if (((DerivedEntry *)((TypeLog *)trie_getRef(globalSymbolTable, arg->type->sibling->token->lexeme)->entry.ptr)->structure)->isUnion)
                 {
+                    symbolTableErr = 1;
                     printf("ERROR : Line number %d : Variable %s cannot have union data type\n", node->children[0]->token->line_number, arg->token->lexeme);
                     arg->sym_index = -1;
                     arg = arg->sibling;
@@ -265,6 +282,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             {
                 if (!trie_exists(globalSymbolTable, arg->type->token->lexeme))
                 {
+                    symbolTableErr = 1;
                     printf("ERROR : Line number %d : %s is not a valid type\n", node->children[0]->token->line_number, arg->type->token->lexeme);
                     arg->sym_index = -1;
                     arg = arg->sibling;
@@ -272,6 +290,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
                 }
                 else if (((DerivedEntry *)((TypeLog *)trie_getRef(globalSymbolTable, arg->type->token->lexeme)->entry.ptr)->structure)->isUnion)
                 {
+                    symbolTableErr = 1;
                     printf("ERROR : Line number %d : Variable %s cannot have union data type\n", node->children[0]->token->line_number, arg->token->lexeme);
                     arg->sym_index = -1;
                     arg = arg->sibling;
@@ -281,6 +300,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
 
             if (trie_exists(entry->symbolTable, arg->token->lexeme))
             {
+                symbolTableErr = 1;
                 printf("ERROR : Line number %d : Variable %s redefined\n", node->children[0]->token->line_number, arg->token->lexeme);
                 arg->sym_index = -1;
                 arg = arg->sibling;
@@ -288,6 +308,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             }
             else if (trie_exists(globalSymbolTable, arg->token->lexeme))
             {
+                symbolTableErr = 1;
                 printf("ERROR : Line number %d : Variable %s redefined\n", node->children[0]->token->line_number, arg->token->lexeme);
                 arg->sym_index = -1;
                 arg = arg->sibling;
@@ -332,6 +353,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             {
                 if (!trie_exists(globalSymbolTable, ret->type->sibling->token->lexeme))
                 {
+                    symbolTableErr = 1;
                     printf("ERROR : Line number %d : %s is not a valid type\n", node->children[1]->token->line_number, ret->type->sibling->token->lexeme);
                     ret->sym_index = -1;
                     ret = ret->sibling;
@@ -339,6 +361,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
                 }
                 else if (((DerivedEntry *)((TypeLog *)trie_getRef(globalSymbolTable, ret->type->sibling->token->lexeme)->entry.ptr)->structure)->isUnion)
                 {
+                    symbolTableErr = 1;
                     printf("ERROR : Line number %d : Variable %s cannot have union data type\n", node->children[1]->token->line_number, ret->token->lexeme);
                     ret->sym_index = -1;
                     ret = ret->sibling;
@@ -349,6 +372,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             {
                 if (!trie_exists(globalSymbolTable, ret->type->token->lexeme))
                 {
+                    symbolTableErr = 1;
                     printf("ERROR : Line number %d : %s is not a valid type\n", node->children[1]->token->line_number, ret->type->token->lexeme);
                     ret->sym_index = -1;
                     ret = ret->sibling;
@@ -356,6 +380,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
                 }
                 else if (((DerivedEntry *)((TypeLog *)trie_getRef(globalSymbolTable, ret->type->token->lexeme)->entry.ptr)->structure)->isUnion)
                 {
+                    symbolTableErr = 1;
                     printf("ERROR : Line number %d : Variable %s cannot have union data type\n", node->children[1]->token->line_number, ret->token->lexeme);
                     ret->sym_index = -1;
                     ret = ret->sibling;
@@ -365,6 +390,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
 
             if (trie_exists(entry->symbolTable, ret->token->lexeme))
             {
+                symbolTableErr = 1;
                 printf("ERROR : Line number %d : Variable %s redefined\n", node->children[1]->token->line_number, ret->token->lexeme);
                 ret->sym_index = -1;
                 ret = ret->sibling;
@@ -372,6 +398,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             }
             else if (trie_exists(globalSymbolTable, ret->token->lexeme))
             {
+                symbolTableErr = 1;
                 printf("ERROR : Line number %d : Variable %s redefined\n", node->children[1]->token->line_number, ret->token->lexeme);
                 ret->sym_index = -1;
                 ret = ret->sibling;
@@ -450,6 +477,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
 
             if (!trie_exists(globalSymbolTable, field->type->token->lexeme))
             {
+                symbolTableErr = 1;
                 printf("ERROR : Line number %d : %s is not a valid type\n", field->token->line_number, field->type->token->lexeme);
                 field = field->sibling;
                 continue;
@@ -517,6 +545,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         {
             if (!trie_exists(globalSymbolTable, node->type->sibling->token->lexeme))
             {
+                symbolTableErr = 1;
                 printf("ERROR : Line number %d : %s is not a valid type\n", node->token->line_number, node->type->sibling->token->lexeme);
                 node->sym_index = -1;
                 secondPass(node->sibling, adj, symTable);
@@ -524,6 +553,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             }
             else if (((DerivedEntry *)((TypeLog *)trie_getRef(globalSymbolTable, node->type->sibling->token->lexeme)->entry.ptr)->structure)->isUnion)
             {
+                symbolTableErr = 1;
                 printf("ERROR : Line number %d : Variable %s cannot be of union data type\n", node->token->line_number, node->token->lexeme);
                 node->sym_index = -1;
                 secondPass(node->sibling, adj, symTable);
@@ -534,6 +564,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         {
             if (!trie_exists(globalSymbolTable, node->type->token->lexeme))
             {
+                symbolTableErr = 1;
                 printf("ERROR : Line number %d : %s is not a valid type\n", node->token->line_number, node->type->token->lexeme);
                 node->sym_index = -1;
                 secondPass(node->sibling, adj, symTable);
@@ -541,6 +572,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             }
             else if (((DerivedEntry *)((TypeLog *)trie_getRef(globalSymbolTable, node->type->token->lexeme)->entry.ptr)->structure)->isUnion)
             {
+                symbolTableErr = 1;
                 node->sym_index = -1;
                 printf("ERROR : Line number %d : Variable %s cannot have union data type\n", node->token->line_number, node->token->lexeme);
                 secondPass(node->sibling, adj, symTable);
@@ -554,6 +586,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         }
         else if (trie_exists(globalSymbolTable, node->token->lexeme))
         {
+            symbolTableErr = 1;
             node->sym_index = -1;
             printf("ERROR : Line number %d : Global variable %s redefined\n", node->token->line_number, node->token->lexeme);
             secondPass(node->sibling, adj, symTable);
@@ -561,6 +594,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         }
         else if (trie_exists(table, node->token->lexeme))
         {
+            symbolTableErr = 1;
             node->sym_index = -1;
             printf("ERROR : Line number %d : Variable %s redefined\n", node->token->line_number, node->token->lexeme);
             secondPass(node->sibling, adj, symTable);
@@ -597,6 +631,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         // TODO : Error handling
         if (!trie_exists(globalSymbolTable, node->token->lexeme))
         {
+            symbolTableErr = 1;
             node->sym_index = -1;
             printf("ERROR : Line number %d : Function %s must be defined before use\n", node->token->line_number, node->token->lexeme);
             secondPass(node->sibling, adj, symTable);
@@ -605,6 +640,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
         TypeLog *mediator = getMediator(globalSymbolTable, node->token->lexeme);
         if (mediator->index >= ((TypeLog *)(trie_getVal(globalSymbolTable, local_func->name)).ptr)->index)
         {
+            symbolTableErr = 1;
             node->sym_index = -1;
             printf("ERROR : Line number %d : Function %s must be defined before use\n", node->token->line_number, node->token->lexeme);
             secondPass(node->sibling, adj, symTable);
@@ -626,35 +662,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
     }
     secondPass(node->sibling, adj, symTable);
 }
-void printRecordUndefinedError(char *key, TrieEntry *entry)
-{
-    int type = trie_getRef(prefixTable, key)->entry.value;
-    TypeLog *typelog = entry->ptr;
-    if (!typelog->refCount)
-    {
-        // DerivedEntry *de = typelog->structure;
-        if (type == TK_DEFINETYPE)
-            printf("ERROR : %s could not be defined as an alias a defined type\n", key);
-        else
-            printf("ERROR : %s is not a defined type\n", key);
 
-        // printf("<");
-        // TypeInfoListNode *cur = de->list->head;
-
-        // printTypeExpression(cur->type);
-        // cur = cur->next;
-        // while (cur)
-        // {
-        //     printf(", ");
-        //     printTypeExpression(cur->type);
-
-        //     cur = cur->next;
-        // }
-        // printf("> %d\n", typelog->width);
-    }
-    else
-        return;
-}
 int localOffset;
 int globalOffset = 0;
 Trie *localSymbolTable;

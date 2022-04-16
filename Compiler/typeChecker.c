@@ -1,3 +1,11 @@
+/***************************************
+				GROUP-08
+  Yash Bansal			-   2019A7PS0484P
+  Sourabh S Yelluru		-   2018B3A70815P
+  Nihir Agarwal			-   2018B4A70701P
+  Aakash				-   2018B4A70887P
+*****************************************/
+
 #include "typeChecker.h"
 #include "logger.h"
 
@@ -6,12 +14,12 @@
 #include <stdlib.h>
 
 TypeLog* real, * integer, * boolean, * void_empty;
-int isTypeError = 0;
 int localWhileCount = 0;    // Number of while loops in the function
 int localIdentifierCount = 0;
 int curSize = 4;
 int** localAssigned;        // Matrix representing if a variable has been assigned in a scope
 Trie* localSymbolTable;
+int typeErr = 0;
 
 int areCompatible(ASTNode* leftNode, ASTNode* rightNode)
 {
@@ -47,6 +55,7 @@ int checkParameterLength(ASTNode* node, int input)
     }
     if (cur || paramList)
     {
+        typeErr = 1;
         printf("ERROR : Line Number %d : Number of %s parameters does not match the formal parameters\n", node->token->line_number, input ? "input" : "output");
         return 0;
     }
@@ -65,6 +74,7 @@ int checkParameterType(ASTNode* node, int input)
     {
         if (cur->type != paramList->derived_type)
         {
+            typeErr = 1;
             printf("ERROR : Line Number %d : Types of %s parameters does not match the formal parameters\n", node->token->line_number, input ? "input" : "output");
             return 0;
         }
@@ -130,7 +140,7 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
     {
         if (areCompatible(leftNode, rightNode))
             return void_empty;
-        isTypeError = 1;
+        typeErr = 1;
         if (!rightNode ||!leftNode->derived_type || !rightNode->derived_type)
             return NULL;
         char* leftType = ((DerivedEntry*)left->structure)->name;
@@ -146,7 +156,7 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
         if (left == right && left != boolean && left != void_empty && left && right)
             return right;
 
-        isTypeError = 1;
+        typeErr = 1;
         if (!rightNode || !leftNode->derived_type || !rightNode->derived_type)
             return NULL;
         char* leftType = ((DerivedEntry*)left->structure)->name;
@@ -186,7 +196,7 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
         if ((first_type & 0x03) && (second_type & 0x03) && left != boolean && left != void_empty)
             return real;
 
-        isTypeError = 1;
+        typeErr = 1;
         if (!rightNode || !leftNode->derived_type || !rightNode->derived_type)
             return NULL;
         char* leftType = ((DerivedEntry*)leftNode->derived_type->structure)->name;
@@ -208,7 +218,7 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
             opToken->line_number);*/
             
             
-                   isTypeError = 1;
+        typeErr = 1;
         if (!rightNode || !left || !right)
             return NULL;
         char* leftType = ((DerivedEntry*)left->structure)->name;
@@ -229,7 +239,7 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
         if (left == integer && right == integer)
             return boolean;
 
-        isTypeError = 1; 
+        typeErr = 1;
         if (!rightNode || !left || !right)
             return NULL;
         char* leftType = ((DerivedEntry*)left->structure)->name;
@@ -247,7 +257,7 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
         if (left == boolean)
             return boolean;
 
-        isTypeError = 1;
+        typeErr = 1;
         if (!leftNode->derived_type)
             return NULL;
         char* leftType = ((DerivedEntry*)leftNode->derived_type->structure)->name;
@@ -315,7 +325,10 @@ void assignTypes(ASTNode* node)
                 flag = 0;
         free(reqTypes);
         if (!flag)
+        {
+            typeErr = 1;
             printf("ERROR : Line Number %d : Function output parameters not assigned a value\n", node->token->line_number);
+        }
 
         for (int i = 0; i < curSize; i++)
             free(localAssigned[i]);
@@ -348,6 +361,24 @@ void assignTypes(ASTNode* node)
             //printf("Updating %s with index %d\n", ((VariableEntry*)mediator->structure)->name, mediator->index + (node->children[0]->isGlobal ? identifierCount : 0));
             recordAssignment(mediator->index + (varentry->isGlobal ? localIdentifierCount : 0));
         }
+        //else
+        //{
+        //    DerivedEntry* leftEntry = node->children[0]->derived_type->structure;
+        //    // search for token on right of DOT
+
+        //    TypeInfoListNode* field = leftEntry->list->head;
+        //    while (field)
+        //    {
+        //        //printf("field->name = %s lexeme = %s\n", field->name, node->children[1]->token->lexeme);
+        //        if (strcmp(field->name, node->children[1]->token->lexeme) == 0)
+        //        {
+        //            node->children[1]->derived_type = field->type;
+        //            break;
+        //        }
+        //        recordAssignment()
+        //        field = field->next;
+        //    }
+        //}
         // TODO: The type of an identifier of union data type is reported as an error.
         node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
@@ -404,7 +435,10 @@ void assignTypes(ASTNode* node)
         /*printf("\n");*/
         free(reqTypes);
         if (!flag)
+        {
+            typeErr = 1;
             printf("ERROR : Line Number %d : Variables of while loop are not assigned\n", node->token->line_number);
+        }
 
         // for (int i = 0; i < curSize; i++)
         // {
@@ -472,7 +506,10 @@ void assignTypes(ASTNode* node)
                 temp->derived_type = entry->type;
             }
             else
+            {
+                typeErr = 1;
                 printf("ERROR : Line number %d : Variable %s is not declared\n", temp->token->line_number, temp->token->lexeme);
+            }
             temp = temp->sibling;
         }
         // TODO:
@@ -527,7 +564,7 @@ void assignTypes(ASTNode* node)
         }
         else
         {
-            isTypeError = 1;
+            typeErr = 1;
             printf("ERROR : Line Number %d : Variable %s is not declared\n", node->token->line_number, node->token->lexeme);
         }
     }
@@ -554,6 +591,7 @@ void assignTypes(ASTNode* node)
 
         if (node->children[1]->derived_type == NULL)
         {
+            typeErr = 1;
             printf("ERROR : Line Number %d : Field %s does not exist\n", node->token->line_number, node->children[1]->token->lexeme);
             assignTypes(node->sibling);
             return;
