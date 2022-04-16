@@ -43,7 +43,7 @@ void reAllocate()
         curSize *= 2;
         localAssigned = (int**)realloc(localAssigned, curSize*sizeof(int*));
         for (int i = curSize / 2; i < curSize; i++)
-            localAssigned[i] = calloc(localIdentifierCount, sizeof(int));
+            localAssigned[i] = calloc(localIdentifierCount+identifierCount, sizeof(int));
     }
 }
 
@@ -51,13 +51,15 @@ void getTypes(ASTNode* node, int* arr)
 {
     if (node->childCount == 0)
     {
-        TypeLog* mediator = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
+        TypeLog* mediator = trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr;
+        if(!mediator)
+            mediator = trie_getRef(localSymbolTable, node->token->lexeme)->entry.ptr;
         if (!mediator)
         {
             assignTypes(node->sibling);
             return;
         }
-        arr[mediator->index] = 1;
+        arr[mediator->index + node->isGlobal ? identifierCount : 0] = 1;
     }
     else if (node->childCount == 1)
         getTypes(node->children[0], arr);
@@ -80,7 +82,6 @@ TypeLog* finalType(ASTNode* leftNode, ASTNode* rightNode, Token* opToken)
     {
         if (areCompatible(leftNode, rightNode))
             return void_empty;
-
         isTypeError = 1;
         if (!rightNode ||!leftNode->derived_type || !rightNode->derived_type)
             return NULL;
@@ -242,22 +243,25 @@ void assignTypes(ASTNode* node)
         localIdentifierCount = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->identifierCount;
         localAssigned = calloc(curSize, sizeof(int*));
         for (int i = 0; i < curSize; i++)
-            localAssigned[i] = calloc(localIdentifierCount, sizeof(int));
+            localAssigned[i] = calloc(localIdentifierCount +identifierCount , sizeof(int));
 
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
         assignTypes(node->children[2]);
 
-        int* reqTypes = calloc(localIdentifierCount, sizeof(int));
+        int* reqTypes = calloc(localIdentifierCount+identifierCount, sizeof(int));
         ASTNode* cur = node->children[1];
         while (cur)
         {
-            reqTypes[((TypeLog*)(trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr))->index] = 1;
+            TypeLog* mediator = trie_getRef(globalSymbolTable, cur->token->lexeme)->entry.ptr;
+            if(!mediator)
+                mediator = trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr;
+            reqTypes[mediator->index + node->isGlobal ? identifierCount : 0] = 1;
             cur = cur->sibling;
         }
 
         int flag = 1;
-        for (int i = 0; i < localIdentifierCount; i++)
+        for (int i = 0; i < localIdentifierCount+identifierCount; i++)
             if (reqTypes[i] && !localAssigned[0][i])
                 flag = 0;
         free(reqTypes);
@@ -281,14 +285,16 @@ void assignTypes(ASTNode* node)
         // assignment --> <identifier> = <expression>
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
-
-        TypeLog* mediator = trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
+        
+        TypeLog* mediator = trie_getRef(globalSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
+        if(!mediator)
+            mediator = trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
         if (!mediator)
         {
             assignTypes(node->sibling);
             return;
         }
-        recordAssignment(mediator->index);
+        recordAssignment(mediator->index + node->children[0]->isGlobal ? identifierCount : 0);
         // TODO: The type of an identifier of union data type is reported as an error.
         node->derived_type = finalType(node->children[0], node->children[1], node->token);
     }
@@ -302,7 +308,10 @@ void assignTypes(ASTNode* node)
         ASTNode* cur = node->children[0];
         while (cur)
         {
-            recordAssignment(((TypeLog*)(trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr))->index);
+            TypeLog* mediator = trie_getRef(globalSymbolTable, cur->token->lexeme)->entry.ptr;
+            if(!mediator)
+                mediator = trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr;
+            recordAssignment(mediator->index + node->children[0]->isGlobal ? identifierCount : 0);
             cur = cur->sibling;
         }
 
@@ -318,11 +327,11 @@ void assignTypes(ASTNode* node)
         assignTypes(node->children[0]);
         assignTypes(node->children[1]);
 
-        int* reqTypes = calloc(localIdentifierCount, sizeof(int));
+        int* reqTypes = calloc(localIdentifierCount+identifierCount, sizeof(int));
         getTypes(node->children[0], reqTypes);
 
         int flag = 0;
-        for (int i = 0; i < localIdentifierCount; i++)
+        for (int i = 0; i < localIdentifierCount+identifierCount; i++)
         {
             if (reqTypes[i] && localAssigned[localWhileCount][i])
                 flag = 1;
@@ -347,14 +356,16 @@ void assignTypes(ASTNode* node)
         // io
         assignTypes(node->children[0]);
 
-        ASTNode* cur = node->children[0];
-        TypeLog* mediator = trie_getRef(localSymbolTable, cur->token->lexeme)->entry.ptr;
+        TypeLog* mediator = trie_getRef(globalSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
+        if (!mediator)
+            mediator = trie_getRef(localSymbolTable, node->children[0]->token->lexeme)->entry.ptr;
         if (!mediator)
         {
             assignTypes(node->sibling);
             return;
         }
-        recordAssignment(mediator->index);
+        recordAssignment(mediator->index + node->children[0]->isGlobal ? identifierCount : 0);
+
         node->derived_type = void_empty;
     }
     else if (node->sym_index == 63 || node->sym_index == 77 || node->sym_index==106)

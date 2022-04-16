@@ -13,6 +13,7 @@ Trie *prefixTable;       // Stores the type of defined structure (record/union/t
 
 int dataTypeCount = 0;
 int identifierCount = 0; // both function and variables
+int functionCount = 0;
 TypeLog **structList;
 
 // First pass : Collect struct , typedef and pass through typedef list
@@ -20,6 +21,7 @@ TypeLog **structList;
 
 void initTables()
 {
+    dataTypeCount = identifierCount = functionCount = 0;
     globalSymbolTable = calloc(1, sizeof(Trie));
 
     TypeLog *intInfo = calloc(1, sizeof(TypeLog));
@@ -137,7 +139,7 @@ int firstPass(ASTNode *node, int flag)
         mediator->refCount = 1;
         mediator->entryType = FUNCTION;
         mediator->width = -1;
-        mediator->index = identifierCount++;
+        mediator->index = functionCount++;
 
         FuncEntry *entry = calloc(1, sizeof(FuncEntry));
         mediator->structure = entry;
