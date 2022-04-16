@@ -11,81 +11,84 @@ main:
 	mov rbp, rsp
 	sub rsp, 16
 
-	; Reading variable: b3c45
-	lea rsi, [rbp - 2]
-	mov rdi, int_in
-	xor rax, rax
-	call scanf
-
-	; Reading variable: b2d6
-	lea rsi, [rbp - 4]
-	mov rdi, int_in
-	xor rax, rax
-	call scanf
-
-	; Push 2097
-	mov ax, 2097d
+	; Push 1
+	mov ax, 1d
 	push ax
 
-	; Assign to b2bb3
+	; Assign to b5
+	pop ax
+	mov word [rbp - 8], ax
+
+	; Reading variable: d5cb34567
+	lea rsi, [rbp - 10]
+	mov rdi, int_in
+	xor rax, rax
+	call scanf
+
+	; Push 0
+	mov ax, 0d
+	push ax
+
+	; Assign to d4.maths
 	pop ax
 	mov word [rbp - 6], ax
 
-	; Push 66987
-	mov ax, 6387d
+	; Push 0
+	mov ax, 0d
 	push ax
 
-	; Assign to d6
+	; Assign to d4.physics
 	pop ax
-	mov word [d6 - 0], ax
+	mov word [rbp - 4], ax
 
-	; Push b3c45
-	mov ax, word [rbp - 2]
+	; Push 0
+	mov ax, 0d
 	push ax
 
-	; Push b2d6
-	mov ax, word [rbp - 4]
+	; Assign to d4.chemistry
+	pop ax
+	mov word [rbp - 2], ax
+.label24:
+
+	; Push b5
+	mov ax, word [rbp - 8]
 	push ax
 
-	; if <=, JMP Label#17
+	; Push d5cb34567
+	mov ax, word [rbp - 10]
+	push ax
+
+	; if <=, JMP Label#25
 	pop bx
 	pop ax
 	cmp ax, bx
-	jle .label17
-	jmp .label16
-.label17:
+	jle .label25
+	jmp .label23
+.label25:
 
-	; Push b2d6
-	mov ax, word [rbp - 4]
+	; Reading variable: b3c2.maths
+	lea rsi, [rbp - 16]
+	mov rdi, int_in
+	xor rax, rax
+	call scanf
+
+	; Reading variable: b3c2.physics
+	lea rsi, [rbp - 14]
+	mov rdi, int_in
+	xor rax, rax
+	call scanf
+
+	; Reading variable: b3c2.chemistry
+	lea rsi, [rbp - 12]
+	mov rdi, int_in
+	xor rax, rax
+	call scanf
+
+	; Push b3c2.maths
+	mov ax, word [rbp - 16]
 	push ax
 
-	; Push b2bb3
-	mov ax, word [rbp - 6]
-	push ax
-
-	; if <=, JMP Label#15
-	pop bx
-	pop ax
-	cmp ax, bx
-	jle .label15
-	jmp .label16
-.label15:
-
-	; Push d6
-	mov ax, word [d6 - 0]
-	push ax
-
-	; Push 89
-	mov ax, 89d
-	push ax
-
-	; sub
-	pop bx
-	pop ax
-	sub ax, bx
-	push ax
-
-	; Push b2bb3
+	; Push d4.maths
 	mov ax, word [rbp - 6]
 	push ax
 
@@ -95,43 +98,82 @@ main:
 	add ax, bx
 	push ax
 
-	; Assign to d6
+	; Assign to d4.maths
 	pop ax
-	mov word [d6 - 0], ax
-	jmp .label14
-.label16:
+	mov word [rbp - 6], ax
 
-	; Push d6
-	mov ax, word [d6 - 0]
+	; Push b3c2.physics
+	mov ax, word [rbp - 14]
 	push ax
 
-	; Push b2bb3
+	; Push d4.physics
+	mov ax, word [rbp - 4]
+	push ax
+
+	; add
+	pop bx
+	pop ax
+	add ax, bx
+	push ax
+
+	; Assign to d4.physics
+	pop ax
+	mov word [rbp - 4], ax
+
+	; Push b3c2.chemistry
+	mov ax, word [rbp - 12]
+	push ax
+
+	; Push d4.chemistry
+	mov ax, word [rbp - 2]
+	push ax
+
+	; add
+	pop bx
+	pop ax
+	add ax, bx
+	push ax
+
+	; Assign to d4.chemistry
+	pop ax
+	mov word [rbp - 2], ax
+
+	; Push b5
+	mov ax, word [rbp - 8]
+	push ax
+
+	; Push 1
+	mov ax, 1d
+	push ax
+
+	; add
+	pop bx
+	pop ax
+	add ax, bx
+	push ax
+
+	; Assign to b5
+	pop ax
+	mov word [rbp - 8], ax
+	jmp .label24
+.label23:
+
+	; Writing variable: d4.maths
 	mov ax, word [rbp - 6]
-	push ax
+	movsx rsi, ax
+	mov rdi, int_out
+	xor rax, rax
+	call printf
 
-	; Push 3
-	mov ax, 3d
-	push ax
+	; Writing variable: d4.physics
+	mov ax, word [rbp - 4]
+	movsx rsi, ax
+	mov rdi, int_out
+	xor rax, rax
+	call printf
 
-	; multiply
-	pop bx
-	pop ax
-	mul bx
-	push ax
-
-	; sub
-	pop bx
-	pop ax
-	sub ax, bx
-	push ax
-
-	; Assign to d6
-	pop ax
-	mov word [d6 - 0], ax
-.label14:
-
-	; Writing variable: d6
-	mov ax, word [d6 - 0]
+	; Writing variable: d4.chemistry
+	mov ax, word [rbp - 2]
 	movsx rsi, ax
 	mov rdi, int_out
 	xor rax, rax
@@ -149,4 +191,3 @@ section .data
 	real_out:  db  "%f", 10, 0
 	real_in:  db  "%f", 0
 	real_val:  db  0,0,0,0
-d6:	db	2	dup(0)

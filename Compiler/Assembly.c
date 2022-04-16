@@ -10,36 +10,83 @@ FILE* fp_output;
 
 char* prefix = "section .text\n\tdefault rel\n\textern printf\n\textern scanf\n\tglobal main\n\n";
 
-VariableEntry* getVarEntry(char* name)
+char** splitVariable(char* name)
 {
-	TypeLog* entry = trie_getRef(localSymbolTable, name)->entry.ptr;
+	int argc = 1;
+	char** argv = NULL;
+	for (char* c = name; *c; ++c)
+		argc += (*c == '.');
 
-	if (entry == NULL)
-		entry = trie_getRef(globalSymbolTable, name)->entry.ptr;
+	argv = calloc(argc + 1, sizeof(char*));
+	argc = 0;
+	argv[argc++] = name;
 
-	return entry->structure;
+	for (char* c = name; *c; ++c)
+	{
+		if (*c != '.')
+			continue;
+
+		argv[argc++] = c + 1;
+		*c = '\0';
+	}
+
+	return argv;
+}
+
+TypeLog* getVarType(char* name)
+{
+	char** argv = splitVariable(name);
+
+	TypeLog* entry = trie_getRef(localSymbolTable, argv[0])->entry.ptr;
+	VariableEntry* varEntry;
+
+	if (entry != NULL)
+		varEntry = entry->structure;
+	else
+	{
+		entry = trie_getRef(globalSymbolTable, argv[0])->entry.ptr;
+		varEntry = entry->structure;
+	}
+	
+	TypeLog* derType = varEntry->type;
+
+	for (char** ptr = argv + 1; *ptr; ++ptr)
+	{
+		int found = 0;
+		DerivedEntry* derEntry = derType->structure;
+
+		// here, we need to search *ptr in derEntry
+		for (TypeInfoListNode* node = derEntry->list->head; node; node = node->next)
+		{
+			if (strcmp(node->name, *ptr))
+				continue;
+
+			found = 1;
+			derType = node->type;
+		}
+
+		assert(found);
+	}
+
+	for (char** ptr = argv + 1; *ptr; ++ptr)
+		*(*ptr - 1) = '.';
+
+	free(argv);
+	return derType;
 }
 
 int calcWidth(char* name)
 {
-	return getVarEntry(name)->type->width;
-}
-
-int getOffset(char* name)
-{
-	TypeLog* entry = trie_getRef(localSymbolTable, name)->entry.ptr;
-
-	if (entry)
-	{
-		VariableEntry* var = entry->structure;
-		return var->offset + var->type->width;
-	}
-
-	return 0;
+	return getVarType(name)->width;
 }
 
 char* getBase(char* name)
 {
+	char* dot = NULL;
+	char old = '\0';
+	for (dot = name; old = *dot, (*dot != '\0' && *dot != '.'); dot++);
+	*dot = '\0';
+
 	TypeLog* entry = trie_getRef(localSymbolTable, name)->entry.ptr;
 	char buff[50];
 
@@ -50,14 +97,69 @@ char* getBase(char* name)
 
 	char* ret = calloc(strlen(buff) + 1, sizeof(char));
 	strcpy(ret, buff);
+	*dot = old;
 	return ret;
+}
+
+int getOffset(char* name)
+{
+	char** argv = splitVariable(name);
+
+	int baseOffset = 0;
+	TypeLog* entry = trie_getRef(localSymbolTable, argv[0])->entry.ptr;
+	VariableEntry* varEntry;
+
+	if (entry != NULL)
+	{
+		varEntry = entry->structure;
+		baseOffset -= varEntry->offset + varEntry->type->width;
+	}
+	else
+	{
+		entry = trie_getRef(globalSymbolTable, argv[0])->entry.ptr;
+		varEntry = entry->structure;
+		baseOffset = 0;
+	}
+	
+	DerivedEntry* derEntry = varEntry->type->structure;
+
+	for (char** ptr = argv + 1; *ptr; ++ptr)
+	{
+		int found = 0;
+		int local_offset = 0;
+
+		// here, we need to search *ptr in derEntry
+		for (TypeInfoListNode* node = derEntry->list->head; node; node = node->next)
+		{
+			if (strcmp(node->name, *ptr))
+			{
+				local_offset += node->type->width;
+				continue;
+			}
+
+			found = 1;
+			baseOffset += local_offset;
+			derEntry = node->type->structure;
+		}
+
+		assert(found);
+	}
+
+	for (char** ptr = argv + 1; *ptr; ++ptr)
+		*(*ptr - 1) = '.';
+
+	free(argv);
+	return baseOffset;
 }
 
 char* getReferenceName(char* name)
 {
 	char* base = getBase(name);
+	int offset = getOffset(name);
 	char* ret = calloc(50, sizeof(char));
-	sprintf(ret, "[%s - %d]", base, getOffset(name));
+
+	sprintf(ret, "[%s %c", base, offset > 0 ? '+' : '-');
+	sprintf(ret + strlen(ret), " %d]", offset > 0 ? offset : -offset);
 	free(base);
 	return ret;
 }
@@ -79,7 +181,7 @@ void readVariable(char* name)
 	fprintf(fp_output, "\n\t; Reading variable: %s\n", name);
 
 	char* loc = getReferenceName(name);
-	if (getVarEntry(name)->type->entryType == INT)
+	if (getVarType(name)->entryType == INT)
 	{
 		fprintf(fp_output, "\tlea rsi, %s\n", loc);
 		fprintf(fp_output, "\tmov rdi, int_in\n");
@@ -101,7 +203,7 @@ void writeVariable(char* name)
 	fprintf(fp_output, "\n\t; Writing variable: %s\n", name);
 
 	char* loc = getReferenceName(name);
-	if (getVarEntry(name)->type->entryType == INT)
+	if (getVarType(name)->entryType == INT)
 	{
 		fprintf(fp_output, "\tmov ax, word %s\n", loc);
 		fprintf(fp_output, "\tmovsx rsi, ax\n");
@@ -143,7 +245,7 @@ void handleFunction(IRInsNode* funcCode)
 
 			char* loc = getReferenceName(instr->src1.name);
 
-			if (getVarEntry(instr->src1.name)->type->entryType == INT)
+			if (getVarType(instr->src1.name)->entryType == INT)
 			{
 				fprintf(fp_output, "\tpop ax\n");
 				fprintf(fp_output, "\tmov word %s, ax\n", loc);
@@ -167,13 +269,13 @@ void handleFunction(IRInsNode* funcCode)
 				(out) ? (out = out->sibling) : (in = in->sibling))
 			{
 				char* lexeme = out ? out->token->lexeme : in->token->lexeme;
-				VariableEntry* varEntry = getVarEntry(lexeme);
+				TypeLog* varType = getVarType(lexeme);
 
 				fprintf(fp_output, "\tmov rsi, %s\n", getBase(lexeme));
-				fprintf(fp_output, "\tsub rsi, %d\n", getOffset(lexeme));
+				fprintf(fp_output, "\tadd rsi, %d\n", getOffset(lexeme));
 				fprintf(fp_output, "\tmov rdi, rsp\n");
-				fprintf(fp_output, "\tsub rdi, %d\n", (offset += varEntry->type->width) + 16);
-				fprintf(fp_output, "\tmov rcx, %d\n", varEntry->type->width);
+				fprintf(fp_output, "\tsub rdi, %d\n", (offset += varType->width) + 16);
+				fprintf(fp_output, "\tmov rcx, %d\n", varType->width);
 				fprintf(fp_output, "\trepnz movsb\n\n");
 			}
 
@@ -187,13 +289,13 @@ void handleFunction(IRInsNode* funcCode)
 				(out) ? (out = out->sibling) : (in = in->sibling))
 			{
 				char* lexeme = out ? out->token->lexeme : in->token->lexeme;
-				VariableEntry* varEntry = getVarEntry(lexeme);
+				TypeLog* varType = getVarType(lexeme);
 
 				fprintf(fp_output, "\tmov rdi, %s\n", getBase(lexeme));
-				fprintf(fp_output, "\tsub rdi, %d\n", getOffset(lexeme));
+				fprintf(fp_output, "\tadd rdi, %d\n", getOffset(lexeme));
 				fprintf(fp_output, "\tmov rsi, rsp\n");
-				fprintf(fp_output, "\tsub rsi, %d\n", (offset += varEntry->type->width) + 16);
-				fprintf(fp_output, "\tmov rcx, %d\n", varEntry->type->width);
+				fprintf(fp_output, "\tsub rsi, %d\n", (offset += varType->width) + 16);
+				fprintf(fp_output, "\tmov rcx, %d\n", varType->width);
 				fprintf(fp_output, "\trepnz movsb\n\n");
 			}
 		}
@@ -406,7 +508,7 @@ void handleFunction(IRInsNode* funcCode)
 			fprintf(fp_output, "\n\t; Push %s\n", instr->src1.name);
 
 			char* loc = getReferenceName(instr->src1.name);
-			if (getVarEntry(instr->src1.name)->type->entryType == INT)
+			if (getVarType(instr->src1.name)->entryType == INT)
 			{
 				fprintf(fp_output, "\tmov ax, word %s\n", loc);
 				fprintf(fp_output, "\tpush ax\n");
