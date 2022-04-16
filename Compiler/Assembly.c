@@ -306,6 +306,53 @@ void writeVariable(char* name)
 }
 
 // Arith
+void atomicArithmetic(IROPType op, char* leftLoc, char* rightLoc, int isLeftInt, int isRightInt)
+{
+	if (op == OP_ADD || op == OP_SUB)
+	{
+		char* ins = op == OP_ADD ? "add" : "sub";
+		fprintf(fp_output, "\n\t; %s\n", ins);
+
+		if (isLeftInt)
+		{
+			fprintf(fp_output, "\tmov ax, %s\n", leftLoc);
+			fprintf(fp_output, "\tmov bx, %s\n", rightLoc);
+			fprintf(fp_output, "\t%s ax, bx\n", ins);
+			fprintf(fp_output, "\tmov %s, ax\n", leftLoc);
+		}
+		else
+		{
+			fprintf(fp_output, "\tfld dword %s\n", leftLoc);
+			fprintf(fp_output, "\tfld dword %s\n", rightLoc);
+			fprintf(fp_output, "\tf%s\n", ins);
+			fprintf(fp_output, "\tfstp dword %s\n", leftLoc);
+		}
+
+		return;
+	}
+}
+
+void getFlatTypeList(TypeTag* tag, int *index, TypeLog* log)
+{
+	if (log->entryType == INT || log->entryType == REAL)
+	{
+		tag[(*index)++] = log->entryType;
+		return;
+	}
+
+	assert(log->entryType == DERIVED);
+
+	DerivedEntry* d = log->structure;
+
+	if (d->isUnion)
+	{
+		getFlatTypeList(tag, index, d->list->head->type);
+		return;
+	}
+
+	for (TypeInfoListNode* node = d->list->head; node; node = node->next)
+		getFlatTypeList(tag, index, node->type);
+}
 
 void handleFunction(IRInsNode* funcCode)
 {
@@ -397,19 +444,36 @@ void handleFunction(IRInsNode* funcCode)
 			char* ins = instr->op == OP_ADD ? "add" : "sub";
 			fprintf(fp_output, "\n\t; %s\n", ins);
 
-			int width1 = instr->src1.type->width;
-			int width2 = instr->src2.type->width;
-
-			if (width1 == 2 && width2 == 2)
+			if (instr->src1.type->entryType == INT && instr->src2.type->entryType == INT)
 			{
 				fprintf(fp_output, "\tpop bx\n");
 				fprintf(fp_output, "\tpop ax\n");
 				fprintf(fp_output, "\t%s ax, bx\n", ins);
 				fprintf(fp_output, "\tpush ax\n");
 			}
-			else
+			else if (instr->src1.type->entryType == REAL && instr->src2.type->entryType == REAL)
 			{
 				fprintf(fp_output, "\tf%s\n", ins);
+			}
+			else
+			{
+				TypeTag* tags = calloc(50, sizeof(TypeTag));
+				int i = 0;
+				getFlatTypeList(tags, &i, instr->src1.type);
+
+				int offset = 0;
+				for (int j = 0; j < i; ++j)
+				{
+					char* add1 = calloc(50, sizeof(char));
+					sprintf(add1, "[rsp + %dd]", offset + instr->src1.type->width);
+					char* add2 = calloc(50, sizeof(char));
+					sprintf(add2, "[rsp + %dd]", offset);
+					offset += tags[j] == REAL ? 4 : 2;
+
+					atomicArithmetic(instr->op, add1, add2, tags[j] == INT, tags[j] == INT);
+				}
+
+				fprintf(fp_output, "\tadd rsp, %dd\n", offset);
 			}
 		}
 		else if (instr->op == OP_MUL)
