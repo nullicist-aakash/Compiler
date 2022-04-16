@@ -82,6 +82,7 @@ void loadTransitions(FILE *fp)
 		lexerData->productions[48][i] = 48;
 
 	lexerData->productions[48]['\n'] = -1;
+	lexerData->productions[48][0] = -1;
 
 	// White spaces
 	lexerData->productions[0][' '] =

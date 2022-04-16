@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-int wantToLog = 0;
+int wantToLog = 1;
 
 void logIt(char *format, ...)
 {

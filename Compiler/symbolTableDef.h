@@ -67,7 +67,6 @@ typedef struct AliasListNode
 
 typedef struct
 {
-    // TODO: : Check if necessary before code generation
     int isUnion;
     char *name; // Name of record/union
     TypeInfoList *list;

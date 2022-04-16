@@ -54,7 +54,7 @@ void initTables()
     TypeLog *boolInfo = calloc(1, sizeof(TypeLog *));
     boolInfo->refCount = 1;
     boolInfo->entryType = BOOL;
-    boolInfo->width = 8;
+    boolInfo->width = 0;
     boolInfo->index = dataTypeCount++;
     boolInfo->structure = calloc(1, sizeof(DerivedEntry *));
     ((DerivedEntry *)boolInfo->structure)->name = "bool";
@@ -63,7 +63,7 @@ void initTables()
     TypeLog *voidInfo = calloc(1, sizeof(TypeLog *));
     voidInfo->refCount = 1;
     voidInfo->entryType = VOID;
-    voidInfo->width = 8;
+    voidInfo->width = 0;
     voidInfo->index = dataTypeCount++;
 
     trie_getRef(globalSymbolTable, "##void")->entry.ptr = voidInfo;
@@ -511,28 +511,13 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             infoNode->type->refCount++;
             infoNode->name = field->token->lexeme;
 
-            if(entry->isUnion)
+            if (entry->isUnion)
                 adj[infoNode->type->index][mediator->index] = 1;
             else
                 adj[infoNode->type->index][mediator->index]++;
+
             field = field->sibling;
         }
-        // if (unionExist)
-        // {
-        //     if (!tagvalueExist)
-        //     {
-        //         // TODO: Somehow remove this struct
-        //         printf("ERROR : Line number %d : Record definition has union but no tag value\n", node->token->line_number);
-        //         secondPass(node->sibling, adj, symTable);
-        //         return;
-        //     }
-        //     else if (tagvalueType != INT)
-        //     {
-        //         printf("ERROR : Line number %d : tagvalue is not integer for this record containing union\n", field->token->line_number);
-        //         secondPass(node->sibling, adj, symTable);
-        //         return;
-        //     }
-        // }
     }
     //else if ((node->sym_index == 63 || node->sym_index == 77))
     else if (node->sym_index == 77)
@@ -758,8 +743,6 @@ void populateWidth(int **adj, int size)
     for (int i = 0; i < dataTypeCount; i++)
         free(adj[i]);
 
-    /*for (int i = 0; i < dataTypeCount; i++)
-        free(structList[i]);*/
     free(structList);
     free(adj);
 }
