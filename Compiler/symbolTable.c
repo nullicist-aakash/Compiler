@@ -309,7 +309,7 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             else if (trie_exists(globalSymbolTable, arg->token->lexeme))
             {
                 symbolTableErr = 1;
-                printf("ERROR : Line number %d : Variable %s redefined\n", node->children[0]->token->line_number, arg->token->lexeme);
+                printf("ERROR : Line number %d : global variable %s cannot be used as a formal parameter\n", node->children[0]->token->line_number, arg->token->lexeme);
                 arg->sym_index = -1;
                 arg = arg->sibling;
                 continue;
@@ -638,11 +638,19 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             return;
         }
         TypeLog *mediator = getMediator(globalSymbolTable, node->token->lexeme);
-        if (mediator->index >= ((TypeLog *)(trie_getVal(globalSymbolTable, local_func->name)).ptr)->index)
+        if (mediator->index > ((TypeLog *)(trie_getVal(globalSymbolTable, local_func->name)).ptr)->index)
         {
             symbolTableErr = 1;
             node->sym_index = -1;
             printf("ERROR : Line number %d : Function %s must be defined before use\n", node->token->line_number, node->token->lexeme);
+            secondPass(node->sibling, adj, symTable);
+            return;
+        }
+        else if (mediator->index == ((TypeLog*)(trie_getVal(globalSymbolTable, local_func->name)).ptr)->index)
+        {
+            symbolTableErr = 1;
+            node->sym_index = -1;
+            printf("ERROR : Line number %d : Function recursion is not valid\n", node->token->line_number);
             secondPass(node->sibling, adj, symTable);
             return;
         }

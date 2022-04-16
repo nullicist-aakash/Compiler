@@ -297,7 +297,7 @@ void assignTypes(ASTNode* node)
     {
         // function/main-function
         localSymbolTable = ((FuncEntry*)((TypeLog*)trie_getRef(globalSymbolTable, node->token->lexeme)->entry.ptr)->structure)->symbolTable;
-        printf("%s\n",node->token->lexeme);
+        
         //iterateTrie(localSymbolTable, printLocalTable);
 
         localWhileCount = 0;
