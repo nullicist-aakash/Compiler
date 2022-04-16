@@ -108,7 +108,11 @@ TypeLog *finalType(ASTNode *leftNode, ASTNode *rightNode, Token *opToken)
         if (left == right && (left == real || left == integer) && left != boolean && left != void_empty)
             return left;
 
-        // TODO:
+        if (left->entryType == DERIVED && right == integer)
+            return left;
+
+        if (left == integer && right->entryType == DERIVED)
+            return right;
 
         return NULL;
     }

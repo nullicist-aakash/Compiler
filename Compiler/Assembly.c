@@ -330,6 +330,38 @@ void atomicArithmetic(IROPType op, char* leftLoc, char* rightLoc, int isLeftInt,
 
 		return;
 	}
+	else if (op == OP_MUL)
+	{
+		fprintf(fp_output, "\n\t; multiply\n");
+
+		if (isLeftInt && isRightInt)
+		{
+			fprintf(fp_output, "\tmov ax, %s\n", leftLoc);
+			fprintf(fp_output, "\tmov bx, %s\n", rightLoc);
+			fprintf(fp_output, "\tmul bx\n");
+			fprintf(fp_output, "\tmov %s, ax\n", leftLoc);
+		}
+		else if (!isLeftInt && !isRightInt)
+		{
+			fprintf(fp_output, "\tfld dword %s\n", leftLoc);
+			fprintf(fp_output, "\tfld dword %s\n", rightLoc);
+			fprintf(fp_output, "\tfmul\n");
+			fprintf(fp_output, "\tfstp dword %s\n", leftLoc);
+		}
+		else if (isLeftInt && !isRightInt)
+		{
+			printf("Operation with integer on left and record on right for multiplication is not currently supported.\n");
+			printf("Change the order of operands.\n");
+		}
+		else
+		{
+			// left is float and right is int
+			fprintf(fp_output, "\tfld dword %s\n", leftLoc);
+			fprintf(fp_output, "\tfild word %s\n", rightLoc);
+			fprintf(fp_output, "\tfmul\n");
+			fprintf(fp_output, "\tfstp dword %s\n", leftLoc);
+		}
+	}
 }
 
 void getFlatTypeList(TypeTag* tag, int *index, TypeLog* log)
@@ -480,19 +512,42 @@ void handleFunction(IRInsNode* funcCode)
 		{
 			fprintf(fp_output, "\n\t; multiply\n");
 
-			int width1 = instr->src1.type->width;
-			int width2 = instr->src2.type->width;
 
-			if (width1 == 2 && width2 == 2)
+			if (instr->src1.type->entryType == INT && instr->src2.type->entryType == INT)
 			{
 				fprintf(fp_output, "\tpop bx\n");
 				fprintf(fp_output, "\tpop ax\n");
 				fprintf(fp_output, "\tmul bx\n");
 				fprintf(fp_output, "\tpush ax\n");
 			}
-			else
+			else if (instr->src1.type->entryType == REAL && instr->src2.type->entryType == REAL)
 			{
 				fprintf(fp_output, "\tfmul\n");
+			}
+			else if (instr->src1.type->entryType == INT && instr->src2.type->entryType == DERIVED)
+			{
+				printf("Operation with integer on left and record on right for multiplication is not currently supported.\n");
+				printf("Change the order of operands.\n");
+			}
+			else
+			{
+				TypeTag* tags = calloc(50, sizeof(TypeTag));
+				int i = 0;
+				getFlatTypeList(tags, &i, instr->src1.type);
+
+				int offset = 0;
+				for (int j = 0; j < i; ++j)
+				{
+					char* add1 = calloc(50, sizeof(char));
+					sprintf(add1, "[rsp + %dd]", offset + 2);
+					char* add2 = calloc(50, sizeof(char));
+					sprintf(add2, "[rsp]");
+					offset += tags[j] == REAL ? 4 : 2;
+
+					atomicArithmetic(instr->op, add1, add2, 1, tags[j] == INT);
+				}
+
+				fprintf(fp_output, "\tadd rsp, 2\n");
 			}
 		}
 		else if (instr->op == OP_DIV)
