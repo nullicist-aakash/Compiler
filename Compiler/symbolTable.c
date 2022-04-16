@@ -452,8 +452,6 @@ void populateWidth(int **adj, int size)
     for (int i = 0; i < dataTypeCount; i++)
         free(adj[i]);
 
-    for (int i = 0; i < dataTypeCount; i++)
-        free(structList[i]);
     free(structList);
     free(adj);
 }
@@ -475,7 +473,7 @@ void loadSymbolTable(ASTNode *root)
 
     secondPass(root, adj, globalSymbolTable);
     populateWidth(adj, dataTypeCount);
-    // iterateTrie(globalSymbolTable, iterationFunction);
+    iterateTrie(globalSymbolTable, iterationFunction);
     dataTypeCount = 0;
 }
 

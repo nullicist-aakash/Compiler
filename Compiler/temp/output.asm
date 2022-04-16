@@ -48,7 +48,7 @@ main:
 	; Assign to d4.chemistry
 	pop ax
 	mov word [rbp - 2], ax
-.label24:
+.label20:
 
 	; Push b5
 	mov ax, word [rbp - 8]
@@ -58,27 +58,23 @@ main:
 	mov ax, word [rbp - 10]
 	push ax
 
-	; if <=, JMP Label#25
+	; if <=, JMP Label#21
 	pop bx
 	pop ax
 	cmp ax, bx
-	jle .label25
-	jmp .label23
-.label25:
+	jle .label21
+	jmp .label19
+.label21:
 
-	; Reading variable: b3c2.maths
+	; Reading variable: b3c2
 	lea rsi, [rbp - 16]
 	mov rdi, int_in
 	xor rax, rax
 	call scanf
-
-	; Reading variable: b3c2.physics
 	lea rsi, [rbp - 14]
 	mov rdi, int_in
 	xor rax, rax
 	call scanf
-
-	; Reading variable: b3c2.chemistry
 	lea rsi, [rbp - 12]
 	mov rdi, int_in
 	xor rax, rax
@@ -155,24 +151,20 @@ main:
 	; Assign to b5
 	pop ax
 	mov word [rbp - 8], ax
-	jmp .label24
-.label23:
+	jmp .label20
+.label19:
 
-	; Writing variable: d4.maths
+	; Writing variable: d4
 	mov ax, word [rbp - 6]
 	movsx rsi, ax
 	mov rdi, int_out
 	xor rax, rax
 	call printf
-
-	; Writing variable: d4.physics
 	mov ax, word [rbp - 4]
 	movsx rsi, ax
 	mov rdi, int_out
 	xor rax, rax
 	call printf
-
-	; Writing variable: d4.chemistry
 	mov ax, word [rbp - 2]
 	movsx rsi, ax
 	mov rdi, int_out

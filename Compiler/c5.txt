@@ -17,17 +17,13 @@ _main
 	d4.physics <--- 0;
 	d4.chemistry <---0;
 	while(b5<=d5cb34567)
-		read(b3c2.maths);
-		read(b3c2.physics);
-		read(b3c2.chemistry);
+		read(b3c2);
 		d4.maths <--- b3c2.maths + d4.maths;
 		d4.physics <--- b3c2.physics + d4.physics;
 		d4.chemistry <--- b3c2.chemistry + d4.chemistry;
 		b5 <--- b5 +1;
 	endwhile
-	write(d4.maths);
-	write(d4.physics);
-	write(d4.chemistry);
+	write(d4);
 	return;
 end
 

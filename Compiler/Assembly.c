@@ -133,7 +133,7 @@ int getOffset(char* name)
 		{
 			if (strcmp(node->name, *ptr))
 			{
-				local_offset += node->type->width;
+				local_offset += derEntry ? (derEntry->isUnion ? 0 : node->type->width) : node->type->width;
 				continue;
 			}
 
@@ -164,61 +164,166 @@ char* getReferenceName(char* name)
 	return ret;
 }
 
+char* fillFormatString(char* out, TypeLog* log)
+{
+	if (log->entryType == INT)
+	{
+		strcpy(out + strlen(out), "%hd ");
+		return out;
+	}
+
+	if (log->entryType == REAL)
+	{
+		strcpy(out + strlen(out), "%f ");
+		return out;
+	}
+
+	assert(log->entryType == DERIVED);
+
+	DerivedEntry* d = log->structure;
+
+	if (d->isUnion)
+		return fillFormatString(out, d->list->head->type);
+
+	for (TypeInfoListNode* node = d->list->head; node; node = node->next)
+		fillFormatString(out, node->type);
+
+	return out;
+}
+
 void fillDataSegment(char* key, TrieEntry* entry)
 {
 	TypeLog* typelog = entry->ptr;
 
 	if (typelog->entryType != VARIABLE)
 		return;
-
+	
 	VariableEntry* var = typelog->structure;
-
 	fprintf(fp_output, "\t%s:\tdb\t%d\tdup(0)\n", var->name, var->type->width);
+	return;
+}
+
+void readVariableRecursive(char* prefix, TypeLog* log)
+{
+	if (log->entryType == INT)
+	{
+		char* loc = getReferenceName(prefix);
+		fprintf(fp_output, "\tlea rsi, %s\n", loc);
+		fprintf(fp_output, "\tmov rdi, int_in\n");
+		fprintf(fp_output, "\txor rax, rax\n");
+		fprintf(fp_output, "\tcall scanf\n");
+		free(loc);
+
+		return;
+	}
+
+	if (log->entryType == REAL)
+	{
+		char* loc = getReferenceName(prefix);
+		fprintf(fp_output, "\tlea rsi, %s\n", loc);
+		fprintf(fp_output, "\tmov rdi, real_in\n");
+		fprintf(fp_output, "\txor rax, rax\n");
+		fprintf(fp_output, "\tcall scanf\n");
+		free(loc);
+
+		return;
+	}
+
+	assert(log->entryType == DERIVED);
+
+	DerivedEntry* d = log->structure;
+
+	if (d->isUnion)
+	{
+		char* end = prefix + strlen(prefix);
+		strcpy(end, d->list->head->name);
+		readVariableRecursive(prefix, d->list->head->type);
+		*end = '\0';
+		
+		return;
+	}
+
+	for (TypeInfoListNode* node = d->list->head; node; node = node->next)
+	{
+		char* end = prefix + strlen(prefix);
+		strcpy(end, ".");
+		strcpy(end + 1, node->name);
+		readVariableRecursive(prefix, node->type);
+
+		*end = '\0';
+	}
 }
 
 void readVariable(char* name)
 {
 	fprintf(fp_output, "\n\t; Reading variable: %s\n", name);
 
-	char* loc = getReferenceName(name);
-	if (getVarType(name)->entryType == INT)
-	{
-		fprintf(fp_output, "\tlea rsi, %s\n", loc);
-		fprintf(fp_output, "\tmov rdi, int_in\n");
-		fprintf(fp_output, "\txor rax, rax\n");
-		fprintf(fp_output, "\tcall scanf\n");
-	}
-	else
-	{
-		fprintf(fp_output, "\tlea rsi, %s\n", loc);
-		fprintf(fp_output, "\tmov rdi, real_in\n");
-		fprintf(fp_output, "\txor rax, rax\n");
-		fprintf(fp_output, "\tcall scanf\n");
-	}
-	free(loc);
+	char* prefix = calloc(50, sizeof(char));
+	strcpy(prefix, name);
+	readVariableRecursive(prefix, getVarType(name));
+	free(name);
 }
- 
-void writeVariable(char* name)
-{
-	fprintf(fp_output, "\n\t; Writing variable: %s\n", name);
 
-	char* loc = getReferenceName(name);
-	if (getVarType(name)->entryType == INT)
+void writeVariableRecursive(char* prefix, TypeLog* log)
+{
+	if (log->entryType == INT)
 	{
+		char* loc = getReferenceName(prefix);
 		fprintf(fp_output, "\tmov ax, word %s\n", loc);
 		fprintf(fp_output, "\tmovsx rsi, ax\n");
 		fprintf(fp_output, "\tmov rdi, int_out\n");
 		fprintf(fp_output, "\txor rax, rax\n");
 		fprintf(fp_output, "\tcall printf\n");
+		free(loc);
+
+		return;
 	}
-	else
+
+	if (log->entryType == REAL)
 	{
+		char* loc = getReferenceName(prefix);
 		fprintf(fp_output, "\tcvtss2sd xmm0, %s\n", loc);
 		fprintf(fp_output, "\tmov rdi, real_out\n");
 		fprintf(fp_output, "\tmov rax, 1\n");
 		fprintf(fp_output, "\tcall printf\n");
+		free(loc);
+
+		return;
 	}
-	free(loc);
+
+	assert(log->entryType == DERIVED);
+
+	DerivedEntry* d = log->structure;
+
+	if (d->isUnion)
+	{
+		char* end = prefix + strlen(prefix);
+		strcpy(end, d->list->head->name);
+		writeVariableRecursive(prefix, d->list->head->type);
+		*end = '\0';
+
+		return;
+	}
+
+	for (TypeInfoListNode* node = d->list->head; node; node = node->next)
+	{
+		char* end = prefix + strlen(prefix);
+		strcpy(end, ".");
+		strcpy(end + 1, node->name);
+		writeVariableRecursive(prefix, node->type);
+
+		*end = '\0';
+	}
+}
+
+void writeVariable(char* name)
+{
+	fprintf(fp_output, "\n\t; Writing variable: %s\n", name);
+
+	char* prefix = calloc(50, sizeof(char));
+	strcpy(prefix, name);
+	writeVariableRecursive(prefix, getVarType(name));
+	free(name);
 }
 
 void handleFunction(IRInsNode* funcCode)
