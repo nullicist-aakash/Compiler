@@ -91,6 +91,7 @@ typedef union
 	int int_val;
 	float real_val;
 	TypeLog* type;
+	ASTNode* astnode;			// Required for function call
 } Operand;
 
 typedef struct

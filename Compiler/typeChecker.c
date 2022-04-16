@@ -38,8 +38,8 @@ void generateFuncOffsets(ASTNode *funcNode)
     localOffset = 0;
 
     // Iterate over statements
-    fillOffsets(funcNode->children[0]);
     fillOffsets(funcNode->children[1]);
+    fillOffsets(funcNode->children[0]);
     fillOffsets(funcNode->children[2]->children[1]);
 
     funcEntry->activationRecordSize = localOffset;

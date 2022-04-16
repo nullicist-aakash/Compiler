@@ -38,10 +38,9 @@ int getOffset(char* name)
 	return 0;
 }
 
-char* getReferenceName(char* name)
+char* getBase(char* name)
 {
 	TypeLog* entry = trie_getRef(localSymbolTable, name)->entry.ptr;
-
 	char buff[50];
 
 	if (entry != NULL)
@@ -49,14 +48,20 @@ char* getReferenceName(char* name)
 	else
 		strcpy(buff, name);
 
-	entry = trie_getRef(globalSymbolTable, name)->entry.ptr;
-
-	char* ret = calloc(50, sizeof(char));
-	sprintf(ret, "[%s - %d]", buff, getOffset(name));
+	char* ret = calloc(strlen(buff) + 1, sizeof(char));
+	strcpy(ret, buff);
 	return ret;
 }
 
-// Write globals
+char* getReferenceName(char* name)
+{
+	char* base = getBase(name);
+	char* ret = calloc(50, sizeof(char));
+	sprintf(ret, "[%s - %d]", base, getOffset(name));
+	free(base);
+	return ret;
+}
+
 void fillDataSegment(char* key, TrieEntry* entry)
 {
 	TypeLog* typelog = entry->ptr;
@@ -66,7 +71,7 @@ void fillDataSegment(char* key, TrieEntry* entry)
 
 	VariableEntry* var = typelog->structure;
 
-	fprintf(fp_output, "%s:\tdb\t%d\tdup(0)\n", var->name, var->type->width);
+	fprintf(fp_output, "\t%s:\tdb\t%d\tdup(0)\n", var->name, var->type->width);
 }
 
 void readVariable(char* name)
@@ -90,7 +95,7 @@ void readVariable(char* name)
 	}
 	free(loc);
 }
-
+ 
 void writeVariable(char* name)
 {
 	fprintf(fp_output, "\n\t; Writing variable: %s\n", name);
@@ -149,7 +154,49 @@ void handleFunction(IRInsNode* funcCode)
 			free(loc);
 		}
 		else if (instr->op == OP_CALL)
-			fprintf(fp_output, "\tjmp .exit\n");
+		{
+			ASTNode* ast = instr->src1.astnode;
+
+			fprintf(fp_output, "\n\t; Function call to %s\n", ast->token->lexeme);
+
+			int offset = 0;
+
+			for (
+				ASTNode* out = ast->children[0], *in = ast->children[1];
+				out || in;
+				(out) ? (out = out->sibling) : (in = in->sibling))
+			{
+				char* lexeme = out ? out->token->lexeme : in->token->lexeme;
+				VariableEntry* varEntry = getVarEntry(lexeme);
+
+				fprintf(fp_output, "\tmov rsi, %s\n", getBase(lexeme));
+				fprintf(fp_output, "\tsub rsi, %d\n", getOffset(lexeme));
+				fprintf(fp_output, "\tmov rdi, rsp\n");
+				fprintf(fp_output, "\tsub rdi, %d\n", (offset += varEntry->type->width) + 16);
+				fprintf(fp_output, "\tmov rcx, %d\n", varEntry->type->width);
+				fprintf(fp_output, "\trepnz movsb\n\n");
+			}
+
+			fprintf(fp_output, "\n\tcall %s\n", ast->token->lexeme);
+
+			// get the result back
+			offset = 0;
+			for (
+				ASTNode* out = ast->children[0], *in = ast->children[1];
+				out || in;
+				(out) ? (out = out->sibling) : (in = in->sibling))
+			{
+				char* lexeme = out ? out->token->lexeme : in->token->lexeme;
+				VariableEntry* varEntry = getVarEntry(lexeme);
+
+				fprintf(fp_output, "\tmov rdi, %s\n", getBase(lexeme));
+				fprintf(fp_output, "\tsub rdi, %d\n", getOffset(lexeme));
+				fprintf(fp_output, "\tmov rsi, rsp\n");
+				fprintf(fp_output, "\tsub rsi, %d\n", (offset += varEntry->type->width) + 16);
+				fprintf(fp_output, "\tmov rcx, %d\n", varEntry->type->width);
+				fprintf(fp_output, "\trepnz movsb\n\n");
+			}
+		}
 		else if (instr->op == OP_ADD || instr->op == OP_SUB)
 		{
 			char* ins = instr->op == OP_ADD ? "add" : "sub";
@@ -423,7 +470,7 @@ void generateAssembly(FILE* fp, ASTNode* rt, IRInsNode** functions)
 	while (func)
 	{
 		TypeLog* mediator = trie_getRef(globalSymbolTable, func->token->lexeme)->entry.ptr;
-		FuncEntry* entry = mediator->structure;
+		entry = mediator->structure;
 		localSymbolTable = entry->symbolTable;
 
 		fprintf(fp, "%s:\n", func->token->lexeme);

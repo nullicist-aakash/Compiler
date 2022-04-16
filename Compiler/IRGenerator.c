@@ -101,64 +101,10 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 	else if (stmt->sym_index == 86) // funcCall
 	{
 		payload->payload._stmt.code = calloc(1, sizeof(IRInsList));
-
-		for (
-			ASTNode* out = stmt->children[0], *in = stmt->children[1]; 
-			out || in; 
-			(out) ? (out = out->sibling) : (in = in->sibling))
-		{
-			Payload p;
-			memset(&p, 0, sizeof(Payload));
-
-			p.payload_type = PAYLOAD_ARITH;
-			recurseiveGenFuncCode(out ? out : in, &p);
-
-			IRInstr* instr = calloc(1, sizeof(IRInstr));
-			instr->op = OP_PUSH;
-			instr->src1.name = p.payload._arith.name;
-
-			insert(payload->payload._stmt.code, instr);
-
-			free(p.payload._arith.code);
-		}
-
 		IRInstr* call_stmt = calloc(1, sizeof(IRInstr));
 		call_stmt->op = OP_CALL;
-		call_stmt->src1.name = stmt->token->lexeme;
+		call_stmt->src1.astnode = stmt;
 		insert(payload->payload._stmt.code, call_stmt);
-
-		// unwind the stack
-		// remove input args
-		for (ASTNode* in = stmt->children[1]; in; in = in->sibling)
-		{
-			IRInstr* pop_stmt = calloc(1, sizeof(IRInstr));
-			pop_stmt->op = OP_POP;
-			pop_stmt->src1.type = in->derived_type;
-			insert(payload->payload._stmt.code, pop_stmt);
-		}
-
-		// store outputs to appropriate places and pop
-		for (ASTNode* out = stmt->children[0]; out; out = out->sibling)
-		{
-			Payload p;
-			memset(&p, 0, sizeof(Payload));
-
-			p.payload_type = PAYLOAD_ARITH;
-			recurseiveGenFuncCode(out, &p);
-
-			IRInstr* store_stmt = calloc(1, sizeof(IRInstr));
-			store_stmt->op = OP_ASSIGN;
-			store_stmt->src1.name = p.payload._arith.name;
-
-			insert(payload->payload._stmt.code, store_stmt);
-			free(p.payload._arith.code);
-
-
-			IRInstr* pop_stmt = calloc(1, sizeof(IRInstr));
-			pop_stmt->op = OP_POP;
-			pop_stmt->src1.type = out->derived_type;
-			insert(payload->payload._stmt.code, pop_stmt);
-		}
 	}
 	else if (stmt->sym_index == 89) // while -> B S
 	{
