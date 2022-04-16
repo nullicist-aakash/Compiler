@@ -65,6 +65,15 @@ void recurseiveGenFuncCode(ASTNode* stmt, Payload* payload)
 		exp.payload_type = PAYLOAD_ARITH;
 		recurseiveGenFuncCode(stmt->children[1], &exp);
 
+		// direct assignment
+		if (exp.payload._arith.code->head == NULL)
+		{
+			IRInstr* ins = calloc(1, sizeof(IRInstr));
+			ins->op = OP_PUSH;
+			ins->src1.name = exp.payload._arith.name;
+			insert(exp.payload._arith.code, ins);
+		}
+
 		IRInstr* ins = calloc(1, sizeof(IRInstr));
 		ins->op = OP_ASSIGN;
 		ins->src1.name = to.payload._arith.name;

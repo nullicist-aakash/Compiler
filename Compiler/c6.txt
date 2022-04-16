@@ -41,12 +41,12 @@ _main
 			b3c34.tagvalue <--- 1;
 			b3c34.maximummarks.maths <--- b3c34.marks.maths;
 		endif
- 		if ((b3c34.marks.maths <= b3c34.marks.physics) &&& (b3c34.marks.chemistry <= b3c34.marks.maths))
+ 		if ((b3c34.marks.maths <= b3c34.marks.physics) &&& (b3c34.marks.chemistry <= b3c34.marks.physics))
 		then 
 			b3c34.tagvalue <--- 2;
 			b3c34.maximummarks.physics <--- b3c34.marks.physics;
 		endif
-		if ((b3c34.marks.maths >= b3c34.marks.physics) &&& (b3c34.marks.chemistry >= b3c34.marks.maths))
+		if ((b3c34.marks.chemistry >= b3c34.marks.physics) &&& (b3c34.marks.chemistry >= b3c34.marks.maths))
 		then 
 			b3c34.tagvalue <--- 3;
 			b3c34.maximummarks.chemistry <--- b3c34.marks.chemistry;

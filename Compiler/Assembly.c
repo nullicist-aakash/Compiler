@@ -10,6 +10,7 @@ FILE* fp_output;
 
 char* prefix = "section .text\n\tdefault rel\n\textern printf\n\textern scanf\n\tglobal main\n\n";
 
+// Get  info
 char** splitVariable(char* name)
 {
 	int argc = 1;
@@ -75,11 +76,7 @@ TypeLog* getVarType(char* name)
 	return derType;
 }
 
-int calcWidth(char* name)
-{
-	return getVarType(name)->width;
-}
-
+// ASM Name
 char* getBase(char* name)
 {
 	char* dot = NULL;
@@ -164,33 +161,7 @@ char* getReferenceName(char* name)
 	return ret;
 }
 
-char* fillFormatString(char* out, TypeLog* log)
-{
-	if (log->entryType == INT)
-	{
-		strcpy(out + strlen(out), "%hd ");
-		return out;
-	}
-
-	if (log->entryType == REAL)
-	{
-		strcpy(out + strlen(out), "%f ");
-		return out;
-	}
-
-	assert(log->entryType == DERIVED);
-
-	DerivedEntry* d = log->structure;
-
-	if (d->isUnion)
-		return fillFormatString(out, d->list->head->type);
-
-	for (TypeInfoListNode* node = d->list->head; node; node = node->next)
-		fillFormatString(out, node->type);
-
-	return out;
-}
-
+// Suffix
 void fillDataSegment(char* key, TrieEntry* entry)
 {
 	TypeLog* typelog = entry->ptr;
@@ -203,6 +174,7 @@ void fillDataSegment(char* key, TrieEntry* entry)
 	return;
 }
 
+// read
 void readVariableRecursive(char* prefix, TypeLog* log)
 {
 	if (log->entryType == INT)
@@ -264,6 +236,7 @@ void readVariable(char* name)
 	free(name);
 }
 
+// write
 void writeVariableRecursive(char* prefix, TypeLog* log)
 {
 	if (log->entryType == INT)
@@ -298,7 +271,8 @@ void writeVariableRecursive(char* prefix, TypeLog* log)
 	if (d->isUnion)
 	{
 		char* end = prefix + strlen(prefix);
-		strcpy(end, d->list->head->name);
+		strcpy(end, ".");
+		strcpy(end + 1, d->list->head->name);
 		writeVariableRecursive(prefix, d->list->head->type);
 		*end = '\0';
 
@@ -326,6 +300,8 @@ void writeVariable(char* name)
 	free(name);
 }
 
+// Arith
+
 void handleFunction(IRInsNode* funcCode)
 {
 	// assuming this is main for now
@@ -350,13 +326,20 @@ void handleFunction(IRInsNode* funcCode)
 
 			char* loc = getReferenceName(instr->src1.name);
 
-			if (getVarType(instr->src1.name)->entryType == INT)
-			{
-				fprintf(fp_output, "\tpop ax\n");
-				fprintf(fp_output, "\tmov word %s, ax\n", loc);
-			}
-			else
+			if (getVarType(instr->src1.name)->entryType == REAL)
 				fprintf(fp_output, "\tfstp dword %s\n", loc);
+			else
+			{
+				char* lexeme = instr->src1.name;
+				TypeLog* varType = getVarType(lexeme);
+
+				fprintf(fp_output, "\tmov rdi, %s\n", getBase(lexeme));
+				fprintf(fp_output, "\tadd rdi, %d\n", getOffset(lexeme));
+				fprintf(fp_output, "\tmov rsi, rsp\n");
+				fprintf(fp_output, "\tmov rcx, %d\n", varType->width);
+				fprintf(fp_output, "\trepnz movsb\n\n");
+				fprintf(fp_output, "\tadd rsp, %d\n", varType->width);
+			}
 
 			free(loc);
 		}
@@ -613,14 +596,20 @@ void handleFunction(IRInsNode* funcCode)
 			fprintf(fp_output, "\n\t; Push %s\n", instr->src1.name);
 
 			char* loc = getReferenceName(instr->src1.name);
-			if (getVarType(instr->src1.name)->entryType == INT)
-			{
-				fprintf(fp_output, "\tmov ax, word %s\n", loc);
-				fprintf(fp_output, "\tpush ax\n");
-			}
-			else
+			if (getVarType(instr->src1.name)->entryType == REAL)
 			{
 				fprintf(fp_output, "\tfld dword %s\n", loc);
+			}
+			else 
+			{
+				char* lexeme = instr->src1.name;
+				TypeLog* varType = getVarType(lexeme);
+				fprintf(fp_output, "\tmov rsi, %s\n", getBase(lexeme));
+				fprintf(fp_output, "\tadd rsi, %d\n", getOffset(lexeme));
+				fprintf(fp_output, "\tsub rsp, %d\n", varType->width);
+				fprintf(fp_output, "\tmov rdi, rsp\n");
+				fprintf(fp_output, "\tmov rcx, %d\n", varType->width);
+				fprintf(fp_output, "\trepnz movsb\n\n");
 			}
 			free(loc);
 		}
@@ -636,25 +625,6 @@ void handleFunction(IRInsNode* funcCode)
 			fprintf(fp_output, "\tmov eax, __?float32?__(%f)\n", instr->src1.real_val);
 			fprintf(fp_output, "\tmov dword [real_val], eax\n");
 			fprintf(fp_output, "\tfld dword [real_val]\n");
-		}
-		else if (instr->op == OP_POP)
-		{
-			fprintf(fp_output, "\n\t; Pop\n");
-			int width = instr->src1.type->width;
-
-			if (instr->src1.type->entryType == REAL)
-			{
-				fprintf(fp_output, "\n\t; popping from floating point stack\n");
-				fprintf(fp_output, "\tfldz\n");
-				fprintf(fp_output, "\tfcompp\n");
-			}
-			else
-			{
-				fprintf(fp_output, "\n\t; popping from stack\n");
-				width /= 2;
-				while (width--)
-					fprintf(fp_output, "\tpop ax\n");
-			}
 		}
 	}
 

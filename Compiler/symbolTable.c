@@ -396,7 +396,11 @@ void secondPass(ASTNode *node, int **adj, Trie *symTable)
             infoNode->type->refCount++;
             infoNode->name = field->token->lexeme;
 
-            adj[infoNode->type->index][mediator->index]++;
+            if (entry->isUnion)
+                adj[infoNode->type->index][mediator->index] = 1;
+            else
+                adj[infoNode->type->index][mediator->index]++;
+
             field = field->sibling;
         }
     }
